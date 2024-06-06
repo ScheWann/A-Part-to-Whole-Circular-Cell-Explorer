@@ -18,32 +18,15 @@ export const PieChart = () => {
 
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
-        svgElement.selectAll("*").remove();
-
         const svg = svgElement
             .attr("width", 600)
-            .attr("height", 600);
+            .attr("height", 600)
+            .call(d3.zoom().scaleExtent([0.5, 10]).on("zoom", (event) => {
+                svg.selectAll("g.content, g.background").attr("transform", event.transform);
+            }));
 
-        // Define the zoom behavior
-        const zoom = d3.zoom()
-            .scaleExtent([0.5, 10])
-            .on("zoom", (event) => {
-                contentGroup.attr("transform", event.transform);
-            });
-
-        svg.call(zoom);
-
-        const contentGroup = svg.append("g");
-
-        if (showBackgroundImage) {
-            contentGroup.append("image")
-                .attr("href", lowresTissuePic)
-                .attr("width", 600)
-                .attr("height", 600);
-        }
-
-        const arc = d3.arc().innerRadius(0).outerRadius(radius);
-        const pie = d3.pie().value(d => parseFloat(d[1]));
+        const backgroundGroup = svg.append("g").attr("class", "background");
+        const contentGroup = svg.append("g").attr("class", "content");
 
         d3.csv(data, d => ({
             barcode: d.barcode,
@@ -63,7 +46,7 @@ export const PieChart = () => {
         })).then(data => {
             data.forEach((d) => {
                 const ratios = Object.entries(d.ratios);
-                const arcs = pie(ratios);
+                const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
                 const color = d3.scaleOrdinal(officialColors);
 
                 const group = contentGroup.append("g")
@@ -73,10 +56,27 @@ export const PieChart = () => {
                     .data(arcs)
                     .enter()
                     .append('path')
-                    .attr('d', arc)
-                    .attr('fill', (d, index) => color(index))
+                    .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
+                    .attr('fill', (d, index) => color(index));
             });
-        })
+        });
+
+        return () => svgElement.selectAll("*").remove();
+    }, []);
+
+    useEffect(() => {
+        const svgElement = d3.select(svgRef.current);
+        const backgroundGroup = svgElement.select(".background");
+
+        if (showBackgroundImage) {
+            backgroundGroup.append("image")
+                .attr("href", lowresTissuePic)
+                .attr("width", 600)
+                .attr("height", 600)
+                .attr("class", "background-image");
+        } else {
+            backgroundGroup.select(".background-image").remove();
+        }
     }, [showBackgroundImage]);
 
     return (
