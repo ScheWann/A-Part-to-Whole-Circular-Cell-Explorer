@@ -9,7 +9,7 @@ const officialColors = ["#EF3819", "#F39A2E", "#A4F93F", "#41F63D", "#4BF7A7", "
 export const PieChart = () => {
     const svgRef = useRef(null);
     const [showBackgroundImage, setShowBackgroundImage] = useState(true);
-    const [showPieCharts, setShowPieCharts] = useState(true);
+    const [showPieCharts, setShowPieCharts] = useState(false);
     const [brushEnabled, setBrushEnabled] = useState(false);
     const [selectedItems, setSelectedItems] = useState([]);
 
@@ -25,7 +25,7 @@ export const PieChart = () => {
             .call(d3.zoom().scaleExtent([0.5, 10]).on("zoom", (event) => {
                 if (brushEnabled) {
                     selectedItems.forEach(item => {
-                        item.attr("transform", event.transform);
+                        svg.select(`g[data-barcode="${item}"]`).attr("transform", event.transform);
                     });
                 } else {
                     svg.selectAll("g.content, g.background").attr("transform", event.transform);
@@ -49,15 +49,14 @@ export const PieChart = () => {
             if (!event.sourceEvent || !selection) return;
             const [[x0, y0], [x1, y1]] = selection;
 
-            const selected = svg.selectAll("g.content g")
+            const selected = svg.selectAll("g.pie-chart")
                 .filter(function () {
-                    const transform = d3.select(this).attr("transform");
-                    const translate = transform.substring(10, transform.length - 1).split(",");
-                    const cx = parseFloat(translate[0]);
-                    const cy = parseFloat(translate[1]);
+                    const cx = +d3.select(this).attr("data-x");
+                    const cy = +d3.select(this).attr("data-y");
                     return x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1;
                 });
-            setSelectedItems(selected.nodes().map(d3.select));
+
+            setSelectedItems(selected.nodes().map(node => d3.select(node).attr("data-barcode")));
         }
 
         return () => {
@@ -110,6 +109,9 @@ export const PieChart = () => {
 
                     const group = contentGroup.append("g")
                         .attr("transform", `translate(${d.x}, ${d.y})`)
+                        .attr("data-barcode", d.barcode)
+                        .attr("data-x", d.x)
+                        .attr("data-y", d.y)
                         .classed("pie-chart", true);
 
                     group.selectAll('path')
@@ -121,20 +123,43 @@ export const PieChart = () => {
                 });
             } else {
                 data.forEach((d) => {
-                    const group = contentGroup.append("g")
-                        .attr("transform", `translate(${d.x}, ${d.y})`)
-                        .classed("pie-chart", true);
+                    const isItemSelected = selectedItems.includes(d.barcode);
+                    if (isItemSelected) {
+                        const ratios = Object.entries(d.ratios);
+                        const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
+                        const color = d3.scaleOrdinal(officialColors);
 
-                    group.append("circle")
-                        .attr("r", radius)
-                        .attr("fill", "none")
-                        .attr("stroke", "black")
-                        .attr("stroke-width", 0.1);
-                })
+                        const group = contentGroup.append("g")
+                            .attr("transform", `translate(${d.x}, ${d.y})`)
+                            .attr("data-barcode", d.barcode)
+                            .attr("data-x", d.x)
+                            .attr("data-y", d.y)
+                            .classed("pie-chart", true);
+
+                        group.selectAll('path')
+                            .data(arcs)
+                            .enter()
+                            .append('path')
+                            .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
+                            .attr('fill', (d, index) => color(index));
+                    } else {
+                        const group = contentGroup.append("g")
+                            .attr("transform", `translate(${d.x}, ${d.y})`)
+                            .attr("data-barcode", d.barcode)
+                            .attr("data-x", d.x)
+                            .attr("data-y", d.y)
+                            .classed("pie-chart", true);
+
+                        group.append("circle")
+                            .attr("r", radius)
+                            .attr("fill", "none")
+                            .attr("stroke", "black")
+                            .attr("stroke-width", 0.1);
+                    }
+                });
             }
         });
-
-    }, [showPieCharts]);
+    }, [showPieCharts, selectedItems]);
 
     return (
         <>
