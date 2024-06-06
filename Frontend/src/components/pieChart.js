@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import data from "../data/piechart.csv";
 import scaleJson from "../data/scalefactors_json.json";
@@ -9,17 +9,13 @@ const officialColors = ["#EF3819", "#F39A2E", "#A4F93F", "#41F63D", "#4BF7A7", "
 
 export const PieChart = () => {
     const svgRef = useRef(null);
+    const [showBackgroundImage, setShowBackgroundImage] = useState(true);
 
     // lowres scale factor
     const scalef = scaleJson["tissue_lowres_scalef"];
     const spotDiameter = scaleJson["spot_diameter_fullres"];
     const radius = (spotDiameter * scalef / 2);
 
-    // hires scale factor
-    // const scalef = scaleJson["tissue_hires_scalef"] - 0.07;
-    // const spotDiameter = scaleJson["spot_diameter_fullres"];
-    // const radius = (spotDiameter * scalef / 2);
-    
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
         svgElement.selectAll("*").remove();
@@ -27,9 +23,24 @@ export const PieChart = () => {
         const svg = svgElement
             .attr("width", 600)
             .attr("height", 600);
-        
-        svg.append("image")
-            .attr("href", lowresTissuePic)
+
+        // Define the zoom behavior
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 10])
+            .on("zoom", (event) => {
+                contentGroup.attr("transform", event.transform);
+            });
+
+        svg.call(zoom);
+
+        const contentGroup = svg.append("g");
+
+        if (showBackgroundImage) {
+            contentGroup.append("image")
+                .attr("href", lowresTissuePic)
+                .attr("width", 600)
+                .attr("height", 600);
+        }
 
         const arc = d3.arc().innerRadius(0).outerRadius(radius);
         const pie = d3.pie().value(d => parseFloat(d[1]));
@@ -55,7 +66,7 @@ export const PieChart = () => {
                 const arcs = pie(ratios);
                 const color = d3.scaleOrdinal(officialColors);
 
-                const group = svg.append("g")
+                const group = contentGroup.append("g")
                     .attr("transform", `translate(${d.x}, ${d.y})`);
 
                 group.selectAll('path')
@@ -66,7 +77,14 @@ export const PieChart = () => {
                     .attr('fill', (d, index) => color(index))
             });
         })
-    }, []);
+    }, [showBackgroundImage]);
 
-    return <svg ref={svgRef}></svg>;
+    return (
+        <>
+            <svg ref={svgRef}></svg>
+            <button onClick={() => setShowBackgroundImage(!showBackgroundImage)}>
+                {showBackgroundImage ? "Hide Background Image" : "Show Background Image"}
+            </button>
+        </>
+    );
 };
