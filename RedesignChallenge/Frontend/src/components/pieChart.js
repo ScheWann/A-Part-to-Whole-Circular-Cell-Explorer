@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import data from "../data/piechart.csv";
 import scaleJson from "../data/scalefactors_json.json";
-import hiresTissuePic from '../data/tissue_hires_image.png';
 import lowresTissuePic from '../data/tissue_lowres_image.png';
 
 const officialColors = ["#EF3819", "#F39A2E", "#A4F93F", "#41F63D", "#4BF7A7", "#459CF9", "#3821F6", "#A031F7", "#F23C9D"];
@@ -11,10 +10,60 @@ export const PieChart = () => {
     const svgRef = useRef(null);
     const [showBackgroundImage, setShowBackgroundImage] = useState(true);
     const [showPieCharts, setShowPieCharts] = useState(true);
+    const [brushEnabled, setBrushEnabled] = useState(false);
+    const [selectedItems, setSelectedItems] = useState([]);
 
     const scalef = scaleJson["tissue_lowres_scalef"];
     const spotDiameter = scaleJson["spot_diameter_fullres"];
     const radius = (spotDiameter * scalef / 2);
+
+    useEffect(() => {
+        const svgElement = d3.select(svgRef.current);
+        const svg = svgElement
+            .attr("width", 600)
+            .attr("height", 600)
+            .call(d3.zoom().scaleExtent([0.5, 10]).on("zoom", (event) => {
+                if (brushEnabled) {
+                    selectedItems.forEach(item => {
+                        item.attr("transform", event.transform);
+                    });
+                } else {
+                    svg.selectAll("g.content, g.background").attr("transform", event.transform);
+                }
+            }));
+
+        if (brushEnabled) {
+            const brush = d3.brush()
+                .extent([[0, 0], [600, 600]])
+                .on("end", brushEnded);
+
+            svg.append("g")
+                .attr("class", "brush")
+                .call(brush);
+        } else {
+            svg.select(".brush").remove();
+        }
+
+        function brushEnded(event) {
+            const selection = event.selection;
+            if (!event.sourceEvent || !selection) return;
+            const [[x0, y0], [x1, y1]] = selection;
+
+            const selected = svg.selectAll("g.content g")
+                .filter(function () {
+                    const transform = d3.select(this).attr("transform");
+                    const translate = transform.substring(10, transform.length - 1).split(",");
+                    const cx = parseFloat(translate[0]);
+                    const cy = parseFloat(translate[1]);
+                    return x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1;
+                });
+            setSelectedItems(selected.nodes().map(d3.select));
+        }
+
+        return () => {
+            if (!brushEnabled) svg.select(".brush").remove();
+        };
+    }, [brushEnabled]);
 
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
@@ -34,14 +83,7 @@ export const PieChart = () => {
 
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
-        const svg = svgElement
-            .attr("width", 600)
-            .attr("height", 600)
-            .call(d3.zoom().scaleExtent([0.5, 10]).on("zoom", (event) => {
-                svg.selectAll("g.content, g.background").attr("transform", event.transform);
-            }));
-
-        const contentGroup = svg.select(".content").empty() ? svg.append("g").attr("class", "content") : svg.select(".content");
+        const contentGroup = svgElement.select(".content").empty() ? svgElement.append("g").attr("class", "content") : svgElement.select(".content");
 
         d3.csv(data, d => ({
             barcode: d.barcode,
@@ -67,7 +109,8 @@ export const PieChart = () => {
                     const color = d3.scaleOrdinal(officialColors);
 
                     const group = contentGroup.append("g")
-                        .attr("transform", `translate(${d.x}, ${d.y})`);
+                        .attr("transform", `translate(${d.x}, ${d.y})`)
+                        .classed("pie-chart", true);
 
                     group.selectAll('path')
                         .data(arcs)
@@ -79,14 +122,15 @@ export const PieChart = () => {
             } else {
                 data.forEach((d) => {
                     const group = contentGroup.append("g")
-                        .attr("transform", `translate(${d.x}, ${d.y})`);
+                        .attr("transform", `translate(${d.x}, ${d.y})`)
+                        .classed("pie-chart", true);
 
                     group.append("circle")
                         .attr("r", radius)
                         .attr("fill", "none")
                         .attr("stroke", "black")
                         .attr("stroke-width", 0.1);
-                });
+                })
             }
         });
 
@@ -100,6 +144,9 @@ export const PieChart = () => {
             </button>
             <button onClick={() => setShowPieCharts(!showPieCharts)}>
                 {showPieCharts ? "Hide Pie Charts" : "Show Pie Charts"}
+            </button>
+            <button onClick={() => setBrushEnabled(!brushEnabled)}>
+                {brushEnabled ? "Disable Brush" : "Enable Brush"}
             </button>
         </>
     );
