@@ -12,17 +12,20 @@ export const PieChart = () => {
     const [showPieCharts, setShowPieCharts] = useState(false);
     const [brushEnabled, setBrushEnabled] = useState(false);
     const [selectedItems, setSelectedItems] = useState([]);
+    const [zoomTransform, setZoomTransform] = useState(d3.zoomIdentity);
 
     const scalef = scaleJson["tissue_lowres_scalef"];
     const spotDiameter = scaleJson["spot_diameter_fullres"];
     const radius = (spotDiameter * scalef / 2);
 
+    // zoom and brush
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
         const svg = svgElement
             .attr("width", 600)
             .attr("height", 600)
             .call(d3.zoom().scaleExtent([0.5, 10]).on("zoom", (event) => {
+                setZoomTransform(event.transform);
                 if (brushEnabled) {
                     selectedItems.forEach(item => {
                         svg.select(`g[data-barcode="${item}"]`).attr("transform", event.transform);
@@ -30,11 +33,13 @@ export const PieChart = () => {
                 } else {
                     svg.selectAll("g.content, g.background").attr("transform", event.transform);
                 }
-            }));
+            }))
 
         if (brushEnabled) {
             const brush = d3.brush()
-                .extent([[0, 0], [600, 600]])
+                .extent([
+                    [0, 0], [600, 600]
+                ])
                 .on("end", brushEnded);
 
             svg.append("g")
@@ -47,12 +52,14 @@ export const PieChart = () => {
         function brushEnded(event) {
             const selection = event.selection;
             if (!event.sourceEvent || !selection) return;
-            const [[x0, y0], [x1, y1]] = selection;
+            const [[x0, y0], [x1, y1]] = selection.map(d => zoomTransform.invert(d));
 
             const selected = svg.selectAll("g.pie-chart")
                 .filter(function () {
-                    const cx = +d3.select(this).attr("data-x");
-                    const cy = +d3.select(this).attr("data-y");
+                    const transform = d3.select(this).attr("transform");
+                    const translate = transform.substring(transform.indexOf("(") + 1, transform.indexOf(")")).split(",");
+                    const cx = +translate[0];
+                    const cy = +translate[1];
                     return x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1;
                 });
 
@@ -62,8 +69,9 @@ export const PieChart = () => {
         return () => {
             if (!brushEnabled) svg.select(".brush").remove();
         };
-    }, [brushEnabled]);
+    }, [brushEnabled, zoomTransform]);
 
+    // background image
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
         const backgroundGroup = svgElement.select(".background").empty() ? svgElement.append("g").attr("class", "background") : svgElement.select(".background");
@@ -101,18 +109,19 @@ export const PieChart = () => {
             }
         })).then(data => {
             contentGroup.selectAll("g").remove();
-            if (showPieCharts) {
-                data.forEach((d) => {
+            data.forEach((d) => {
+                const isItemSelected = selectedItems.includes(d.barcode);
+                const group = contentGroup.append("g")
+                    .attr("transform", `translate(${d.x}, ${d.y})`)
+                    .attr("data-barcode", d.barcode)
+                    .attr("data-x", d.x)
+                    .attr("data-y", d.y)
+                    .classed("pie-chart", true);
+
+                if (showPieCharts || (brushEnabled && isItemSelected)) {
                     const ratios = Object.entries(d.ratios);
                     const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
                     const color = d3.scaleOrdinal(officialColors);
-
-                    const group = contentGroup.append("g")
-                        .attr("transform", `translate(${d.x}, ${d.y})`)
-                        .attr("data-barcode", d.barcode)
-                        .attr("data-x", d.x)
-                        .attr("data-y", d.y)
-                        .classed("pie-chart", true);
 
                     group.selectAll('path')
                         .data(arcs)
@@ -120,46 +129,16 @@ export const PieChart = () => {
                         .append('path')
                         .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
                         .attr('fill', (d, index) => color(index));
-                });
-            } else {
-                data.forEach((d) => {
-                    const isItemSelected = selectedItems.includes(d.barcode);
-                    if (isItemSelected) {
-                        const ratios = Object.entries(d.ratios);
-                        const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
-                        const color = d3.scaleOrdinal(officialColors);
-
-                        const group = contentGroup.append("g")
-                            .attr("transform", `translate(${d.x}, ${d.y})`)
-                            .attr("data-barcode", d.barcode)
-                            .attr("data-x", d.x)
-                            .attr("data-y", d.y)
-                            .classed("pie-chart", true);
-
-                        group.selectAll('path')
-                            .data(arcs)
-                            .enter()
-                            .append('path')
-                            .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
-                            .attr('fill', (d, index) => color(index));
-                    } else {
-                        const group = contentGroup.append("g")
-                            .attr("transform", `translate(${d.x}, ${d.y})`)
-                            .attr("data-barcode", d.barcode)
-                            .attr("data-x", d.x)
-                            .attr("data-y", d.y)
-                            .classed("pie-chart", true);
-
-                        group.append("circle")
-                            .attr("r", radius)
-                            .attr("fill", "none")
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 0.1);
-                    }
-                });
-            }
+                } else {
+                    group.append("circle")
+                        .attr("r", radius)
+                        .attr("fill", "none")
+                        .attr("stroke", "black")
+                        .attr("stroke-width", 0.1);
+                }
+            });
         });
-    }, [showPieCharts, selectedItems]);
+    }, [showPieCharts, selectedItems, brushEnabled]);
 
     return (
         <>
