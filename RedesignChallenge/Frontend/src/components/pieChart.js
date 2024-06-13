@@ -23,7 +23,7 @@ export const PieChart = () => {
         const svgElement = d3.select(svgRef.current);
         const svg = svgElement
             .attr("width", 600)
-            .attr("height", 600)
+            .attr("height", 600);
 
         if (brushEnabled) {
             const brush = d3.brush()
@@ -37,6 +37,7 @@ export const PieChart = () => {
                 .call(brush);
         } else {
             svg.select(".brush").remove();
+            setBrushedCoords(null); // Clear brushed coordinates when brush is disabled
         }
 
         function brushEnded(event) {
@@ -135,15 +136,24 @@ export const PieChart = () => {
 
     // render mirrored pie charts
     useEffect(() => {
+        let svgElement = d3.select(svgRef.current);
+        let mirrorGroup = svgElement.select(".mirrored");
+
+        if (!brushEnabled) {
+            mirrorGroup.remove();
+            return;
+        }
+
         if (!brushedCoords) return;
-    
-        const svgElement = d3.select(svgRef.current);
-        const mirrorGroup = svgElement.select(".mirrored").empty() ? svgElement.append("g").attr("class", "mirrored") : svgElement.select(".mirrored");
+
+        if (mirrorGroup.empty()) {
+            mirrorGroup = svgElement.append("g").attr("class", "mirrored");
+        }
         const offsetX = brushedCoords.x1;
         const offsetY = brushedCoords.y0;
-    
+
         mirrorGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
-    
+
         svgElement.select("#clip-path-mirrored").remove();
         const clipPath = svgElement.append("clipPath")
             .attr("id", "clip-path-mirrored")
@@ -164,17 +174,17 @@ export const PieChart = () => {
         const filteredData = pieData.filter(d => {
             return brushedCoords.x0 <= d.x && d.x <= brushedCoords.x1 && brushedCoords.y0 <= d.y && d.y <= brushedCoords.y1;
         });
-    
+
         mirrorGroup.selectAll("g.pie-chart").remove();
         filteredData.forEach(d => {
             const group = mirrorGroup.append("g")
                 .attr("transform", `translate(${d.x - brushedCoords.x0}, ${d.y - brushedCoords.y0})`)
                 .classed("pie-chart", true);
-            
+
             const ratios = Object.entries(d.ratios);
             const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
             const color = d3.scaleOrdinal(officialColors);
-    
+
             group.selectAll('path')
                 .data(arcs)
                 .enter()
@@ -182,8 +192,8 @@ export const PieChart = () => {
                 .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
                 .attr('fill', (d, index) => color(index));
         });
-    }, [brushedCoords, pieData]);    
-    
+    }, [brushEnabled, brushedCoords, pieData]);
+
     return (
         <>
             <svg ref={svgRef}></svg>
