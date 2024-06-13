@@ -11,8 +11,10 @@ export const PieChart = () => {
     const [showBackgroundImage, setShowBackgroundImage] = useState(true);
     const [showPieCharts, setShowPieCharts] = useState(false);
     const [brushEnabled, setBrushEnabled] = useState(false);
+    const [pieData, setPieData] = useState([]);
+    const [brushedCoords, setBrushedCoords] = useState(null);
+    const [showMirroredView, setShowMirroredView] = useState(false);
     const [selectedItems, setSelectedItems] = useState([]);
-    const [zoomTransform, setZoomTransform] = useState(d3.zoomIdentity);
 
     const scalef = scaleJson["tissue_lowres_scalef"];
     const spotDiameter = scaleJson["spot_diameter_fullres"];
@@ -24,16 +26,6 @@ export const PieChart = () => {
         const svg = svgElement
             .attr("width", 600)
             .attr("height", 600)
-            .call(d3.zoom().scaleExtent([0.5, 10]).on("zoom", (event) => {
-                setZoomTransform(event.transform);
-                if (brushEnabled) {
-                    selectedItems.forEach(item => {
-                        svg.select(`g[data-barcode="${item}"]`).attr("transform", event.transform);
-                    });
-                } else {
-                    svg.selectAll("g.content, g.background").attr("transform", event.transform);
-                }
-            }))
 
         if (brushEnabled) {
             const brush = d3.brush()
@@ -52,7 +44,8 @@ export const PieChart = () => {
         function brushEnded(event) {
             const selection = event.selection;
             if (!event.sourceEvent || !selection) return;
-            const [[x0, y0], [x1, y1]] = selection.map(d => zoomTransform.invert(d));
+            const [[x0, y0], [x1, y1]] = selection;
+            setBrushedCoords({ x0, y0, x1, y1 });
 
             const selected = svg.selectAll("g.pie-chart")
                 .filter(function () {
@@ -62,14 +55,33 @@ export const PieChart = () => {
                     const cy = +translate[1];
                     return x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1;
                 });
-
-            setSelectedItems(selected.nodes().map(node => d3.select(node).attr("data-barcode")));
         }
 
         return () => {
             if (!brushEnabled) svg.select(".brush").remove();
         };
-    }, [brushEnabled, zoomTransform]);
+    }, [brushEnabled]);
+
+    useEffect(() => {
+        d3.csv(data, d => ({
+            barcode: d.barcode,
+            x: +d.x * scalef,
+            y: +d.y * scalef,
+            ratios: {
+                X1: +d.X1,
+                X2: +d.X2,
+                X3: +d.X3,
+                X4: +d.X4,
+                X5: +d.X5,
+                X6: +d.X6,
+                X7: +d.X7,
+                X8: +d.X8,
+                X9: +d.X9
+            }
+        })).then(data => {
+            setPieData(data);
+        });
+    }, []);
 
     // background image
     useEffect(() => {
@@ -92,54 +104,91 @@ export const PieChart = () => {
         const svgElement = d3.select(svgRef.current);
         const contentGroup = svgElement.select(".content").empty() ? svgElement.append("g").attr("class", "content") : svgElement.select(".content");
 
-        d3.csv(data, d => ({
-            barcode: d.barcode,
-            x: +d.x * scalef,
-            y: +d.y * scalef,
-            ratios: {
-                X1: +d.X1,
-                X2: +d.X2,
-                X3: +d.X3,
-                X4: +d.X4,
-                X5: +d.X5,
-                X6: +d.X6,
-                X7: +d.X7,
-                X8: +d.X8,
-                X9: +d.X9
+        contentGroup.selectAll("g").remove();
+        pieData.forEach((d) => {
+            const group = contentGroup.append("g")
+                .attr("transform", `translate(${d.x}, ${d.y})`)
+                .attr("data-barcode", d.barcode)
+                .attr("data-x", d.x)
+                .attr("data-y", d.y)
+                .classed("pie-chart", true);
+            if (showPieCharts) {
+                const ratios = Object.entries(d.ratios);
+                const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
+                const color = d3.scaleOrdinal(officialColors);
+
+                group.selectAll('path')
+                    .data(arcs)
+                    .enter()
+                    .append('path')
+                    .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
+                    .attr('fill', (d, index) => color(index));
+            } else {
+                group.append("circle")
+                    .attr("r", radius)
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 0.1);
             }
-        })).then(data => {
-            contentGroup.selectAll("g").remove();
-            data.forEach((d) => {
-                const isItemSelected = selectedItems.includes(d.barcode);
-                const group = contentGroup.append("g")
-                    .attr("transform", `translate(${d.x}, ${d.y})`)
-                    .attr("data-barcode", d.barcode)
-                    .attr("data-x", d.x)
-                    .attr("data-y", d.y)
-                    .classed("pie-chart", true);
-
-                if (showPieCharts || (brushEnabled && isItemSelected)) {
-                    const ratios = Object.entries(d.ratios);
-                    const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
-                    const color = d3.scaleOrdinal(officialColors);
-
-                    group.selectAll('path')
-                        .data(arcs)
-                        .enter()
-                        .append('path')
-                        .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
-                        .attr('fill', (d, index) => color(index));
-                } else {
-                    group.append("circle")
-                        .attr("r", radius)
-                        .attr("fill", "none")
-                        .attr("stroke", "black")
-                        .attr("stroke-width", 0.1);
-                }
-            });
         });
-    }, [showPieCharts, selectedItems, brushEnabled]);
+    }, [showPieCharts, pieData]);
 
+    useEffect(() => {
+        const showMirroredView = brushedCoords !== null;
+    
+        if (!brushedCoords) return;
+    
+        const svgElement = d3.select(svgRef.current);
+        const mirrorGroup = svgElement.select(".mirrored").empty() ? svgElement.append("g").attr("class", "mirrored") : svgElement.select(".mirrored");
+        
+        
+        const offsetX = brushedCoords.x1;
+        const offsetY = brushedCoords.y0; 
+
+        mirrorGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
+
+        mirrorGroup.selectAll("image").remove();
+        mirrorGroup.append("image")
+            .attr("href", lowresTissuePic)
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", brushedCoords.x1 - brushedCoords.x0)
+            .attr("height", brushedCoords.y1 - brushedCoords.y0)
+            .attr("clip-path", "url(#clip-path-mirrored)");
+
+        svgElement.append("clipPath")
+            .attr("id", "clip-path-mirrored")
+            .append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", brushedCoords.x1 - brushedCoords.x0)
+            .attr("height", brushedCoords.y1 - brushedCoords.y0);
+    
+        const filteredData = pieData.filter(d => {
+            return brushedCoords.x0 <= d.x && d.x <= brushedCoords.x1 && brushedCoords.y0 <= d.y && d.y <= brushedCoords.y1;
+        });
+    
+        mirrorGroup.selectAll("g.pie-chart").remove();
+        filteredData.forEach(d => {
+            const group = mirrorGroup.append("g")
+                .attr("transform", `translate(${d.x - brushedCoords.x0}, ${d.y - brushedCoords.y0})`)
+                .classed("pie-chart", true);
+            
+            const ratios = Object.entries(d.ratios);
+            const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
+            const color = d3.scaleOrdinal(officialColors);
+    
+            group.selectAll('path')
+                .data(arcs)
+                .enter()
+                .append('path')
+                .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
+                .attr('fill', (d, index) => color(index));
+        });
+    
+    }, [brushedCoords, pieData]);
+    
+    
     return (
         <>
             <svg ref={svgRef}></svg>
