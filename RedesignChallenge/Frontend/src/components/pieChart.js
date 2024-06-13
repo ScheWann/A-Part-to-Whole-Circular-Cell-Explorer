@@ -30,7 +30,7 @@ export const PieChart = () => {
                 .extent([
                     [0, 0], [600, 600]
                 ])
-                .on("end", brushEnded);
+                .on("brush", brushEnded);
 
             svg.append("g")
                 .attr("class", "brush")
@@ -187,15 +187,17 @@ export const PieChart = () => {
     return (
         <>
             <svg ref={svgRef}></svg>
-            <button onClick={() => setShowBackgroundImage(!showBackgroundImage)}>
-                {showBackgroundImage ? "Hide Background Image" : "Show Background Image"}
-            </button>
-            <button onClick={() => setShowPieCharts(!showPieCharts)}>
-                {showPieCharts ? "Hide Pie Charts" : "Show Pie Charts"}
-            </button>
-            <button onClick={() => setBrushEnabled(!brushEnabled)}>
-                {brushEnabled ? "Disable Brush" : "Enable Brush"}
-            </button>
+            <div>
+                <button onClick={() => setShowBackgroundImage(!showBackgroundImage)}>
+                    {showBackgroundImage ? "Hide Background Image" : "Show Background Image"}
+                </button>
+                <button onClick={() => setShowPieCharts(!showPieCharts)}>
+                    {showPieCharts ? "Hide Pie Charts" : "Show Pie Charts"}
+                </button>
+                <button onClick={() => setBrushEnabled(!brushEnabled)}>
+                    {brushEnabled ? "Disable Brush" : "Enable Brush"}
+                </button>
+            </div>
         </>
     );
 };
