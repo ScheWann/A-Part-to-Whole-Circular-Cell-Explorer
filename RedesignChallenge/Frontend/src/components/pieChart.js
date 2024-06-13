@@ -11,6 +11,7 @@ export const PieChart = () => {
     const [showBackgroundImage, setShowBackgroundImage] = useState(true);
     const [showPieCharts, setShowPieCharts] = useState(false);
     const [brushEnabled, setBrushEnabled] = useState(false);
+    const [zoomEnabled, setZoomEnabled] = useState(false);
     const [pieData, setPieData] = useState([]);
     const [brushedCoords, setBrushedCoords] = useState(null);
 
@@ -30,17 +31,17 @@ export const PieChart = () => {
                 .extent([
                     [0, 0], [600, 600]
                 ])
-                .on("brush", brushEnded);
+                .on("brush", brushMoved);
 
             svg.append("g")
                 .attr("class", "brush")
                 .call(brush);
         } else {
             svg.select(".brush").remove();
-            setBrushedCoords(null); // Clear brushed coordinates when brush is disabled
+            setBrushedCoords(null);
         }
 
-        function brushEnded(event) {
+        function brushMoved(event) {
             const selection = event.selection;
             if (!event.sourceEvent || !selection) return;
             const [[x0, y0], [x1, y1]] = selection;
@@ -194,6 +195,32 @@ export const PieChart = () => {
         });
     }, [brushEnabled, brushedCoords, pieData]);
 
+    // zoom behavior for mirrored group
+    useEffect(() => {
+        if (!brushedCoords) return;
+
+        const svgElement = d3.select(svgRef.current);
+        const mirrorGroup = svgElement.select(".mirrored");
+
+        const zoomed = (event) => {
+            const transform = event.transform;
+            const limitedX = Math.min(Math.max(transform.x, -brushedCoords.x0), 600 - brushedCoords.x1);
+            const limitedY = Math.min(Math.max(transform.y, -brushedCoords.y0), 800 - brushedCoords.y1);
+            mirrorGroup.attr("transform", `translate(${limitedX + brushedCoords.x1},${limitedY + brushedCoords.y0}) scale(${transform.k})`);
+        };
+
+        const zoom = d3.zoom()
+            .extent([[0, 0], [600, 600]])
+            .scaleExtent([1, 2])
+            .on("zoom", zoomed);
+
+        if (zoomEnabled) {
+            svgElement.call(zoom);
+        } else {
+            svgElement.on(".zoom", null);
+        }
+    }, [zoomEnabled]);
+
     return (
         <>
             <svg ref={svgRef}></svg>
@@ -206,6 +233,9 @@ export const PieChart = () => {
                 </button>
                 <button onClick={() => setBrushEnabled(!brushEnabled)}>
                     {brushEnabled ? "Disable Brush" : "Enable Brush"}
+                </button>
+                <button onClick={() => setZoomEnabled(!zoomEnabled)}>
+                    {zoomEnabled ? "Disable Zoom" : "Enable Zoom"}
                 </button>
             </div>
         </>
