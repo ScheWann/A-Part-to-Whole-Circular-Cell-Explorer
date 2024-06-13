@@ -205,7 +205,7 @@ export const PieChart = () => {
         const zoomed = (event) => {
             const transform = event.transform;
             const limitedX = Math.min(Math.max(transform.x, -brushedCoords.x0), 600 - brushedCoords.x1);
-            const limitedY = Math.min(Math.max(transform.y, -brushedCoords.y0), 800 - brushedCoords.y1);
+            const limitedY = Math.min(Math.max(transform.y, -brushedCoords.y0), 600 - brushedCoords.y1);
             mirrorGroup.attr("transform", `translate(${limitedX + brushedCoords.x1},${limitedY + brushedCoords.y0}) scale(${transform.k})`);
         };
 
