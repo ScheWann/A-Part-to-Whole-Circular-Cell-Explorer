@@ -13,8 +13,6 @@ export const PieChart = () => {
     const [brushEnabled, setBrushEnabled] = useState(false);
     const [pieData, setPieData] = useState([]);
     const [brushedCoords, setBrushedCoords] = useState(null);
-    const [showMirroredView, setShowMirroredView] = useState(false);
-    const [selectedItems, setSelectedItems] = useState([]);
 
     const scalef = scaleJson["tissue_lowres_scalef"];
     const spotDiameter = scaleJson["spot_diameter_fullres"];
@@ -62,6 +60,7 @@ export const PieChart = () => {
         };
     }, [brushEnabled]);
 
+    // load data
     useEffect(() => {
         d3.csv(data, d => ({
             barcode: d.barcode,
@@ -100,6 +99,7 @@ export const PieChart = () => {
         }
     }, [showBackgroundImage]);
 
+    // render pie charts and circles
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
         const contentGroup = svgElement.select(".content").empty() ? svgElement.append("g").attr("class", "content") : svgElement.select(".content");
@@ -133,37 +133,34 @@ export const PieChart = () => {
         });
     }, [showPieCharts, pieData]);
 
+    // render mirrored pie charts
     useEffect(() => {
-        const showMirroredView = brushedCoords !== null;
-    
         if (!brushedCoords) return;
     
         const svgElement = d3.select(svgRef.current);
         const mirrorGroup = svgElement.select(".mirrored").empty() ? svgElement.append("g").attr("class", "mirrored") : svgElement.select(".mirrored");
-        
-        
         const offsetX = brushedCoords.x1;
-        const offsetY = brushedCoords.y0; 
-
+        const offsetY = brushedCoords.y0;
+    
         mirrorGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
-
-        mirrorGroup.selectAll("image").remove();
-        mirrorGroup.append("image")
-            .attr("href", lowresTissuePic)
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", brushedCoords.x1 - brushedCoords.x0)
-            .attr("height", brushedCoords.y1 - brushedCoords.y0)
-            .attr("clip-path", "url(#clip-path-mirrored)");
-
-        svgElement.append("clipPath")
+    
+        svgElement.select("#clip-path-mirrored").remove();
+        const clipPath = svgElement.append("clipPath")
             .attr("id", "clip-path-mirrored")
             .append("rect")
             .attr("x", 0)
             .attr("y", 0)
             .attr("width", brushedCoords.x1 - brushedCoords.x0)
             .attr("height", brushedCoords.y1 - brushedCoords.y0);
-    
+
+        mirrorGroup.selectAll("image").remove();
+        mirrorGroup.append("image")
+            .attr("href", lowresTissuePic)
+            .attr("x", -brushedCoords.x0)
+            .attr("y", -brushedCoords.y0)
+            .attr("width", 600)
+            .attr("height", 600)
+            .attr("clip-path", "url(#clip-path-mirrored)");
         const filteredData = pieData.filter(d => {
             return brushedCoords.x0 <= d.x && d.x <= brushedCoords.x1 && brushedCoords.y0 <= d.y && d.y <= brushedCoords.y1;
         });
@@ -185,9 +182,7 @@ export const PieChart = () => {
                 .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
                 .attr('fill', (d, index) => color(index));
         });
-    
-    }, [brushedCoords, pieData]);
-    
+    }, [brushedCoords, pieData]);    
     
     return (
         <>
