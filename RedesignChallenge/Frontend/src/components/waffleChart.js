@@ -22,8 +22,8 @@ export const WaffleChart = () => {
         .scaleExtent([1, 10])
         .on("zoom", (event) => {
             const { transform } = event;
-            const svgContent = d3.select(svgRef.current).select('.content');
-            svgContent.attr("transform", transform);
+            const svgZoomable = d3.select(svgRef.current).select('.zoomable');
+            svgZoomable.attr("transform", transform);
         });
 
     // Apply the zoom behavior to the SVG
@@ -31,8 +31,11 @@ export const WaffleChart = () => {
         const svgElement = d3.select(svgRef.current);
         const svg = svgElement
             .attr("width", 600)
-            .attr("height", 600);
-        svgElement.call(zoom);
+            .attr("height", 600)
+            .append("g") // Add a group to apply the zoom
+            .classed("zoomable", true);
+
+        svg.call(zoom);
     }, []);
 
     // Load data and scale positions
@@ -49,8 +52,8 @@ export const WaffleChart = () => {
 
     // Background image control
     useEffect(() => {
-        const svgElement = d3.select(svgRef.current);
-        const backgroundGroup = svgElement.select(".background").empty() ? svgElement.append("g").attr("class", "background") : svgElement.select(".background");
+        const zoomableGroup = d3.select(svgRef.current).select(".zoomable");
+        const backgroundGroup = zoomableGroup.select(".background").empty() ? zoomableGroup.append("g").attr("class", "background") : zoomableGroup.select(".background");
 
         if (showBackgroundImage) {
             backgroundGroup.selectAll("image").remove();
@@ -66,8 +69,8 @@ export const WaffleChart = () => {
 
     // Render waffle charts
     useEffect(() => {
-        const svgElement = d3.select(svgRef.current);
-        const contentGroup = svgElement.select(".content").empty() ? svgElement.append("g").attr("class", "content") : svgElement.select(".content");
+        const zoomableGroup = d3.select(svgRef.current).select(".zoomable");
+        const contentGroup = zoomableGroup.select(".content").empty() ? zoomableGroup.append("g").attr("class", "content") : zoomableGroup.select(".content");
 
         contentGroup.selectAll("g").remove();
         waffleData.forEach((d) => {
@@ -94,7 +97,7 @@ export const WaffleChart = () => {
                             .attr("y", row * cellSize)
                             .attr("width", cellSize)
                             .attr("height", cellSize)
-                            .attr("fill", officialColors[i])
+                            .attr("fill", officialColors[i]);
 
                         filledCells++;
                     }
