@@ -18,7 +18,7 @@ export const PieChart = () => {
     const scalef = scaleJson["tissue_lowres_scalef"];
     const spotDiameter = scaleJson["spot_diameter_fullres"];
     const gridSize = spotDiameter * scalef;
-    const cellSize = gridSize / 10;
+    const cellSize = gridSize / 5;
 
     useEffect(() => {
         d3.csv(data, d => ({
@@ -105,15 +105,15 @@ export const PieChart = () => {
                 .classed("waffle-chart", true);
 
             if (showWaffleCharts) {
-                let totalCells = 100;
+                let totalCells = 25;
                 let filledCells = 0;
 
                 for (let i = 0; i < d.ratios.length; i++) {
                     let cells = Math.round(d.ratios[i] * totalCells);
                     for (let j = 0; j < cells; j++) {
                         if (filledCells >= totalCells) break;
-                        const row = Math.floor(filledCells / 10);
-                        const col = filledCells % 10;
+                        const row = Math.floor(filledCells / 5);
+                        const col = filledCells % 5;
 
                         group.append("rect")
                             .attr("x", col * cellSize)
@@ -183,14 +183,14 @@ export const PieChart = () => {
                 .attr("transform", `translate(${d.x - brushedCoords.x0}, ${d.y - brushedCoords.y0})`)
                 .classed("waffle-chart", true);
 
-            let totalCells = 100;
+            let totalCells = 25;
             let filledCells = 0;
             d.ratios.forEach((ratio, index) => {
                 let cells = Math.round(ratio * totalCells);
                 for (let j = 0; j < cells; j++) {
                     if (filledCells >= totalCells) break;
-                    const row = Math.floor(filledCells / 10);
-                    const col = filledCells % 10;
+                    const row = Math.floor(filledCells / 5);
+                    const col = filledCells % 5;
 
                     group.append("rect")
                         .attr("x", col * cellSize)
