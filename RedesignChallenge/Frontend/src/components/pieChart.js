@@ -20,6 +20,66 @@ export const PieChart = () => {
     const gridSize = spotDiameter * scalef;
     const cellSize = gridSize / 5;
 
+    function showTooltip(data, position) {
+        d3.select(".tooltip").remove();  // Clear existing tooltips
+    
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("position", "absolute")
+            .style("left", `${position.x}px`)
+            .style("top", `${position.y}px`)
+            .style("background", "white")
+            .style("border", "1px solid black")
+            .style("padding", "10px")
+            .style("pointer-events", "none");
+    
+        const margin = { top: 10, right: 5, bottom: 20, left: 35 },
+              width = 200 - margin.left - margin.right,
+              height = 100 - margin.top - margin.bottom;
+    
+        const svg = tooltip.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+    
+        const yScale = d3.scaleLinear()
+            .domain([0, 1])
+            .range([height, 0]);
+    
+        const xScale = d3.scaleBand()
+            .domain(data.ratios.map((_, i) => `X${i + 1}`))
+            .range([0, width])
+            .padding(0.1);
+    
+        const xAxis = d3.axisBottom(xScale);
+        const yAxis = d3.axisLeft(yScale).ticks(5, "%");
+    
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(xAxis)
+            .selectAll("text")
+            .style("text-anchor", "middle");
+    
+        svg.append("g")
+            .call(yAxis);
+    
+        svg.selectAll(".bar")
+            .data(data.ratios)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", (d, i) => xScale(`X${i + 1}`))
+            .attr("y", d => yScale(d))
+            .attr("width", xScale.bandwidth())
+            .attr("height", d => height - yScale(d) - 0.5)
+            .attr("fill", (d, i) => officialColors[i]);
+    }
+    
+
+    function hideTooltip() {
+        d3.select(".tooltip").remove();
+    }
+
     useEffect(() => {
         d3.csv(data, d => ({
             barcode: d.barcode,
@@ -153,7 +213,7 @@ export const PieChart = () => {
         }
         const offsetX = brushedCoords.x1;
         const offsetY = brushedCoords.y0;
-        console.log(offsetX, offsetY);
+        // console.log(offsetX, offsetY);
         mirrorGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
 
         svgElement.select("#clip-path-mirrored").remove();
@@ -181,7 +241,12 @@ export const PieChart = () => {
         filteredData.forEach(d => {
             const group = mirrorGroup.append("g")
                 .attr("transform", `translate(${d.x - brushedCoords.x0}, ${d.y - brushedCoords.y0})`)
-                .classed("waffle-chart", true);
+                .classed("waffle-chart", true)
+                .on("mouseover", (event) => {
+                    const position = { x: event.pageX, y: event.pageY };
+                    showTooltip({ ratios: d.ratios }, position);
+                })
+                .on("mouseout", hideTooltip);
 
             let totalCells = 25;
             let filledCells = 0;
@@ -215,7 +280,7 @@ export const PieChart = () => {
 
         const zoomed = (event) => {
             const transform = event.transform;
-            if(transform.k === 1) {
+            if (transform.k === 1) {
                 console.log(brushedCoords.x1, brushedCoords.y0, '?????????')
                 mirrorGroup.attr("transform", `translate(${brushedCoords.x1},${brushedCoords.y0})`);
             } else {
