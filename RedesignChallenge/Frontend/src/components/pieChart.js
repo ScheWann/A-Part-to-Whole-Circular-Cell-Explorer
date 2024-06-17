@@ -153,7 +153,7 @@ export const PieChart = () => {
         }
         const offsetX = brushedCoords.x1;
         const offsetY = brushedCoords.y0;
-
+        console.log(offsetX, offsetY);
         mirrorGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
 
         svgElement.select("#clip-path-mirrored").remove();
@@ -215,14 +215,19 @@ export const PieChart = () => {
 
         const zoomed = (event) => {
             const transform = event.transform;
-            const limitedX = Math.min(Math.max(transform.x, -brushedCoords.x0), 600 - brushedCoords.x1);
-            const limitedY = Math.min(Math.max(transform.y, -brushedCoords.y0), 600 - brushedCoords.y1);
-            mirrorGroup.attr("transform", `translate(${limitedX + brushedCoords.x1},${limitedY + brushedCoords.y0}) scale(${transform.k})`);
+            if(transform.k === 1) {
+                console.log(brushedCoords.x1, brushedCoords.y0, '?????????')
+                mirrorGroup.attr("transform", `translate(${brushedCoords.x1},${brushedCoords.y0})`);
+            } else {
+                const limitedX = Math.min(Math.max(transform.x, -brushedCoords.x0), 600 - brushedCoords.x1);
+                const limitedY = Math.min(Math.max(transform.y, -brushedCoords.y0), 600 - brushedCoords.y1);
+                mirrorGroup.attr("transform", `translate(${limitedX + brushedCoords.x1},${limitedY + brushedCoords.y0}) scale(${transform.k})`);
+            }
         };
 
         const zoom = d3.zoom()
             .extent([[0, 0], [600, 600]])
-            .scaleExtent([1, 2])
+            .scaleExtent([1, 2.5])
             .on("zoom", zoomed);
 
         if (zoomEnabled) {
@@ -230,7 +235,7 @@ export const PieChart = () => {
         } else {
             svgElement.on(".zoom", null);
         }
-    }, [zoomEnabled]);
+    }, [zoomEnabled, brushedCoords, brushEnabled]);
 
     return (
         <>
@@ -245,9 +250,9 @@ export const PieChart = () => {
                 <button onClick={() => setBrushEnabled(!brushEnabled)}>
                     {brushEnabled ? "Disable Brush" : "Enable Brush"}
                 </button>
-                {/* <button onClick={() => setZoomEnabled(!zoomEnabled)}>
+                <button onClick={() => setZoomEnabled(!zoomEnabled)}>
                     {zoomEnabled ? "Disable Zoom" : "Enable Zoom"}
-                </button> */}
+                </button>
             </div>
         </>
     );
