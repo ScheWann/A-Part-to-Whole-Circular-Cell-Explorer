@@ -6,8 +6,8 @@ import { WaffleChart } from './components/waffleChart';
 function App() {
   return (
     <div className="App">
-      {/* <PieChart /> */}
-      <WaffleChart />
+      <PieChart />
+      {/* <WaffleChart /> */}
     </div>
   );
 }

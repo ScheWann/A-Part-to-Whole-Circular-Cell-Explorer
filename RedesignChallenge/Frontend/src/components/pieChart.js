@@ -9,28 +9,40 @@ const officialColors = ["#EF3819", "#F39A2E", "#A4F93F", "#41F63D", "#4BF7A7", "
 export const PieChart = () => {
     const svgRef = useRef(null);
     const [showBackgroundImage, setShowBackgroundImage] = useState(true);
-    const [showPieCharts, setShowPieCharts] = useState(false);
+    const [showWaffleCharts, setShowWaffleCharts] = useState(false);
     const [brushEnabled, setBrushEnabled] = useState(false);
     const [zoomEnabled, setZoomEnabled] = useState(false);
-    const [pieData, setPieData] = useState([]);
+    const [waffleData, setWaffleData] = useState([]);
     const [brushedCoords, setBrushedCoords] = useState(null);
 
     const scalef = scaleJson["tissue_lowres_scalef"];
     const spotDiameter = scaleJson["spot_diameter_fullres"];
-    const radius = (spotDiameter * scalef / 2);
+    const gridSize = spotDiameter * scalef;
+    const cellSize = gridSize / 10;
+
+    useEffect(() => {
+        d3.csv(data, d => ({
+            barcode: d.barcode,
+            x: +d.x * scalef,
+            y: +d.y * scalef,
+            ratios: [+d.X1, +d.X2, +d.X3, +d.X4, +d.X5, +d.X6, +d.X7, +d.X8, +d.X9]
+        })).then(data => setWaffleData(data));
+
+        const svgElement = d3.select(svgRef.current);
+        svgElement.attr("width", 600)
+            .attr("height", 600)
+            .append("g")
+            .classed("tissue", true);
+    }, []);
 
     // zoom and brush
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
-        const svg = svgElement
-            .attr("width", 600)
-            .attr("height", 600);
+        const svg = svgElement.select(".tissue");
 
         if (brushEnabled) {
             const brush = d3.brush()
-                .extent([
-                    [0, 0], [600, 600]
-                ])
+                .extent([[0, 0], [600, 600]])
                 .on("brush", brushMoved);
 
             svg.append("g")
@@ -47,7 +59,7 @@ export const PieChart = () => {
             const [[x0, y0], [x1, y1]] = selection;
             setBrushedCoords({ x0, y0, x1, y1 });
 
-            const selected = svg.selectAll("g.pie-chart")
+            const selected = svg.selectAll("g.waffle-chart")
                 .filter(function () {
                     const transform = d3.select(this).attr("transform");
                     const translate = transform.substring(transform.indexOf("(") + 1, transform.indexOf(")")).split(",");
@@ -62,32 +74,10 @@ export const PieChart = () => {
         };
     }, [brushEnabled]);
 
-    // load data
-    useEffect(() => {
-        d3.csv(data, d => ({
-            barcode: d.barcode,
-            x: +d.x * scalef,
-            y: +d.y * scalef,
-            ratios: {
-                X1: +d.X1,
-                X2: +d.X2,
-                X3: +d.X3,
-                X4: +d.X4,
-                X5: +d.X5,
-                X6: +d.X6,
-                X7: +d.X7,
-                X8: +d.X8,
-                X9: +d.X9
-            }
-        })).then(data => {
-            setPieData(data);
-        });
-    }, []);
-
     // background image
     useEffect(() => {
-        const svgElement = d3.select(svgRef.current);
-        const backgroundGroup = svgElement.select(".background").empty() ? svgElement.append("g").attr("class", "background") : svgElement.select(".background");
+        const tissueGroup = d3.select(svgRef.current).select(".tissue");
+        const backgroundGroup = tissueGroup.select(".background").empty() ? tissueGroup.append("g").attr("class", "background") : tissueGroup.select(".background");
 
         if (showBackgroundImage) {
             backgroundGroup.selectAll("image").remove();
@@ -101,41 +91,52 @@ export const PieChart = () => {
         }
     }, [showBackgroundImage]);
 
-    // render pie charts and circles
     useEffect(() => {
-        const svgElement = d3.select(svgRef.current);
-        const contentGroup = svgElement.select(".content").empty() ? svgElement.append("g").attr("class", "content") : svgElement.select(".content");
+        const tissueGroup = d3.select(svgRef.current).select(".tissue");
+        const contentGroup = tissueGroup.select(".content").empty() ? tissueGroup.append("g").attr("class", "content") : tissueGroup.select(".content");
 
         contentGroup.selectAll("g").remove();
-        pieData.forEach((d) => {
+        waffleData.forEach((d) => {
             const group = contentGroup.append("g")
                 .attr("transform", `translate(${d.x}, ${d.y})`)
                 .attr("data-barcode", d.barcode)
                 .attr("data-x", d.x)
                 .attr("data-y", d.y)
-                .classed("pie-chart", true);
-            if (showPieCharts) {
-                const ratios = Object.entries(d.ratios);
-                const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
-                const color = d3.scaleOrdinal(officialColors);
+                .classed("waffle-chart", true);
 
-                group.selectAll('path')
-                    .data(arcs)
-                    .enter()
-                    .append('path')
-                    .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
-                    .attr('fill', (d, index) => color(index));
+            if (showWaffleCharts) {
+                let totalCells = 100;
+                let filledCells = 0;
+
+                for (let i = 0; i < d.ratios.length; i++) {
+                    let cells = Math.round(d.ratios[i] * totalCells);
+                    for (let j = 0; j < cells; j++) {
+                        if (filledCells >= totalCells) break;
+                        const row = Math.floor(filledCells / 10);
+                        const col = filledCells % 10;
+
+                        group.append("rect")
+                            .attr("x", col * cellSize)
+                            .attr("y", row * cellSize)
+                            .attr("width", cellSize)
+                            .attr("height", cellSize)
+                            .attr("fill", officialColors[i]);
+
+                        filledCells++;
+                    }
+                }
             } else {
-                group.append("circle")
-                    .attr("r", radius)
+                group.append("rect")
+                    .attr("width", gridSize)
+                    .attr("height", gridSize)
                     .attr("fill", "none")
                     .attr("stroke", "black")
                     .attr("stroke-width", 0.1);
             }
         });
-    }, [showPieCharts, pieData]);
+    }, [showWaffleCharts, waffleData]);
 
-    // render mirrored pie charts
+    // render mirrored waffle charts
     useEffect(() => {
         let svgElement = d3.select(svgRef.current);
         let mirrorGroup = svgElement.select(".mirrored");
@@ -172,28 +173,38 @@ export const PieChart = () => {
             .attr("width", 600)
             .attr("height", 600)
             .attr("clip-path", "url(#clip-path-mirrored)");
-        const filteredData = pieData.filter(d => {
+        const filteredData = waffleData.filter(d => {
             return brushedCoords.x0 <= d.x && d.x <= brushedCoords.x1 && brushedCoords.y0 <= d.y && d.y <= brushedCoords.y1;
         });
 
-        mirrorGroup.selectAll("g.pie-chart").remove();
+        mirrorGroup.selectAll("g.waffle-chart").remove();
         filteredData.forEach(d => {
             const group = mirrorGroup.append("g")
                 .attr("transform", `translate(${d.x - brushedCoords.x0}, ${d.y - brushedCoords.y0})`)
-                .classed("pie-chart", true);
+                .classed("waffle-chart", true);
 
-            const ratios = Object.entries(d.ratios);
-            const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
-            const color = d3.scaleOrdinal(officialColors);
+            let totalCells = 100;
+            let filledCells = 0;
+            d.ratios.forEach((ratio, index) => {
+                let cells = Math.round(ratio * totalCells);
+                for (let j = 0; j < cells; j++) {
+                    if (filledCells >= totalCells) break;
+                    const row = Math.floor(filledCells / 10);
+                    const col = filledCells % 10;
 
-            group.selectAll('path')
-                .data(arcs)
-                .enter()
-                .append('path')
-                .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
-                .attr('fill', (d, index) => color(index));
+                    group.append("rect")
+                        .attr("x", col * cellSize)
+                        .attr("y", row * cellSize)
+                        .attr("width", cellSize)
+                        .attr("height", cellSize)
+                        .attr("fill", officialColors[index]);
+
+                    filledCells++;
+                }
+            });
         });
-    }, [brushEnabled, brushedCoords, pieData]);
+    }, [brushEnabled, brushedCoords, waffleData]);
+
 
     // zoom behavior for mirrored group
     useEffect(() => {
@@ -228,15 +239,15 @@ export const PieChart = () => {
                 <button onClick={() => setShowBackgroundImage(!showBackgroundImage)}>
                     {showBackgroundImage ? "Hide Background Image" : "Show Background Image"}
                 </button>
-                <button onClick={() => setShowPieCharts(!showPieCharts)}>
-                    {showPieCharts ? "Hide Pie Charts" : "Show Pie Charts"}
+                <button onClick={() => setShowWaffleCharts(!showWaffleCharts)}>
+                    {showWaffleCharts ? "Hide Waffle Charts" : "Show Waffle Charts"}
                 </button>
                 <button onClick={() => setBrushEnabled(!brushEnabled)}>
                     {brushEnabled ? "Disable Brush" : "Enable Brush"}
                 </button>
-                <button onClick={() => setZoomEnabled(!zoomEnabled)}>
+                {/* <button onClick={() => setZoomEnabled(!zoomEnabled)}>
                     {zoomEnabled ? "Disable Zoom" : "Enable Zoom"}
-                </button>
+                </button> */}
             </div>
         </>
     );
