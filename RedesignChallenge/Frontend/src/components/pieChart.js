@@ -21,7 +21,7 @@ export const PieChart = () => {
     const cellSize = gridSize / 5;
 
     function showTooltip(data, position) {
-        d3.select(".tooltip").remove();  // Clear existing tooltips
+        d3.select(".tooltip").remove();
     
         const tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
@@ -243,10 +243,25 @@ export const PieChart = () => {
                 .attr("transform", `translate(${d.x - brushedCoords.x0}, ${d.y - brushedCoords.y0})`)
                 .classed("waffle-chart", true)
                 .on("mouseover", (event) => {
+                    svgElement.selectAll(`g[data-barcode='${d.barcode}']`)
+                    .each(function() {
+                        const firstChild = d3.select(this).select(':first-child');
+                        const originalColor = firstChild.style("fill");
+                        firstChild
+                            .attr("data-original-color", originalColor)
+                            .style("fill", "black");
+                    });
                     const position = { x: event.pageX, y: event.pageY };
                     showTooltip({ ratios: d.ratios }, position);
                 })
-                .on("mouseout", hideTooltip);
+                .on("mouseout", () => {
+                    svgElement.selectAll(`g[data-barcode='${d.barcode}']`)
+                    .select(':first-child')
+                    .style("fill", function() { 
+                        return d3.select(this).attr("data-original-color");
+                    });
+                    hideTooltip();
+                });
 
             let totalCells = 25;
             let filledCells = 0;
