@@ -75,7 +75,6 @@ export const PieChart = () => {
             .attr("fill", (d, i) => officialColors[i]);
     }
 
-
     function hideTooltip() {
         d3.select(".tooltip").remove();
     }
@@ -103,7 +102,7 @@ export const PieChart = () => {
         if (brushEnabled) {
             const brush = d3.brush()
                 .extent([[0, 0], [600, 600]])
-                .on("brush", brushMoved);
+                .on("brush", brushMove);
 
             svg.append("g")
                 .attr("class", "brush")
@@ -113,7 +112,7 @@ export const PieChart = () => {
             setBrushedCoords(null);
         }
 
-        function brushMoved(event) {
+        function brushMove(event) {
             const selection = event.selection;
             if (!event.sourceEvent || !selection) return;
             const [[x0, y0], [x1, y1]] = selection;
@@ -315,7 +314,7 @@ export const PieChart = () => {
         } else {
             svgElement.on(".zoom", null);
         }
-    }, [zoomEnabled, brushedCoords, brushEnabled]);
+    }, [zoomEnabled, brushedCoords]);
 
     return (
         <>
