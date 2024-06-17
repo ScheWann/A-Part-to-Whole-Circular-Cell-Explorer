@@ -22,7 +22,7 @@ export const PieChart = () => {
 
     function showTooltip(data, position) {
         d3.select(".tooltip").remove();
-    
+
         const tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("position", "absolute")
@@ -32,38 +32,38 @@ export const PieChart = () => {
             .style("border", "1px solid black")
             .style("padding", "10px")
             .style("pointer-events", "none");
-    
+
         const margin = { top: 10, right: 5, bottom: 20, left: 35 },
-              width = 200 - margin.left - margin.right,
-              height = 100 - margin.top - margin.bottom;
-    
+            width = 200 - margin.left - margin.right,
+            height = 100 - margin.top - margin.bottom;
+
         const svg = tooltip.append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
-    
+
         const yScale = d3.scaleLinear()
             .domain([0, 1])
             .range([height, 0]);
-    
+
         const xScale = d3.scaleBand()
             .domain(data.ratios.map((_, i) => `X${i + 1}`))
             .range([0, width])
             .padding(0.1);
-    
+
         const xAxis = d3.axisBottom(xScale);
         const yAxis = d3.axisLeft(yScale).ticks(5, "%");
-    
+
         svg.append("g")
             .attr("transform", `translate(0,${height})`)
             .call(xAxis)
             .selectAll("text")
             .style("text-anchor", "middle");
-    
+
         svg.append("g")
             .call(yAxis);
-    
+
         svg.selectAll(".bar")
             .data(data.ratios)
             .enter().append("rect")
@@ -74,7 +74,7 @@ export const PieChart = () => {
             .attr("height", d => height - yScale(d) - 0.5)
             .attr("fill", (d, i) => officialColors[i]);
     }
-    
+
 
     function hideTooltip() {
         d3.select(".tooltip").remove();
@@ -119,7 +119,7 @@ export const PieChart = () => {
             const [[x0, y0], [x1, y1]] = selection;
             setBrushedCoords({ x0, y0, x1, y1 });
 
-            const selected = svg.selectAll("g.waffle-chart")
+            svg.selectAll("g.waffle-chart")
                 .filter(function () {
                     const transform = d3.select(this).attr("transform");
                     const translate = transform.substring(transform.indexOf("(") + 1, transform.indexOf(")")).split(",");
@@ -217,7 +217,7 @@ export const PieChart = () => {
         mirrorGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
 
         svgElement.select("#clip-path-mirrored").remove();
-        const clipPath = svgElement.append("clipPath")
+        svgElement.append("clipPath")
             .attr("id", "clip-path-mirrored")
             .append("rect")
             .attr("x", 0)
@@ -244,22 +244,22 @@ export const PieChart = () => {
                 .classed("waffle-chart", true)
                 .on("mouseover", (event) => {
                     svgElement.selectAll(`g[data-barcode='${d.barcode}']`)
-                    .each(function() {
-                        const firstChild = d3.select(this).select(':first-child');
-                        const originalColor = firstChild.style("fill");
-                        firstChild
-                            .attr("data-original-color", originalColor)
-                            .style("fill", "black");
-                    });
+                        .each(function () {
+                            const firstChild = d3.select(this).select(':first-child');
+                            const originalColor = firstChild.style("fill");
+                            firstChild
+                                .attr("data-original-color", originalColor)
+                                .style("fill", "black");
+                        });
                     const position = { x: event.pageX, y: event.pageY };
                     showTooltip({ ratios: d.ratios }, position);
                 })
                 .on("mouseout", () => {
                     svgElement.selectAll(`g[data-barcode='${d.barcode}']`)
-                    .select(':first-child')
-                    .style("fill", function() { 
-                        return d3.select(this).attr("data-original-color");
-                    });
+                        .select(':first-child')
+                        .style("fill", function () {
+                            return d3.select(this).attr("data-original-color");
+                        });
                     hideTooltip();
                 });
 
