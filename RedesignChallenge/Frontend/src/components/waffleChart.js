@@ -8,6 +8,7 @@ const officialColors = ["#EF3819", "#F39A2E", "#A4F93F", "#41F63D", "#4BF7A7", "
 
 export const WaffleChart = () => {
     const svgRef = useRef(null);
+    const thumbnailRef = useRef(null);
     const [showBackgroundImage, setShowBackgroundImage] = useState(true);
     const [showWaffleCharts, setShowWaffleCharts] = useState(false);
     const [brushEnabled, setBrushEnabled] = useState(false);
@@ -108,11 +109,32 @@ export const WaffleChart = () => {
             .attr("height", 600)
             .append("g")
             .classed("tissue", true);
+
+        const thumbnailSvg = d3.select(thumbnailRef.current)
+            .attr("width", 120)
+            .attr("height", 120);
+
+        if (thumbnailSvg.selectAll("image").empty()) {
+            thumbnailSvg.append("image")
+                .attr("href", lowresTissuePic)
+                .attr("width", 120)
+                .attr("height", 120);
+        }
+
+        if (thumbnailSvg.selectAll("rect.brush-view").empty()) {
+            thumbnailSvg.append("rect")
+                .attr("class", "brush-view")
+                .attr("fill", "none")
+                .attr("stroke", "red")
+                .attr("stroke-width", 1)
+                .style("display", "none");
+        }
     }, []);
 
     // brush function
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
+        const thumbnailSvg = d3.select(thumbnailRef.current);
         const svg = svgElement.select(".tissue");
 
         if (brushEnabled) {
@@ -125,6 +147,7 @@ export const WaffleChart = () => {
                 .call(brush);
         } else {
             svg.select(".brush").remove();
+            thumbnailSvg.select(".brush-view").style("display", "none");
             setBrushedCoords(null);
         }
 
@@ -132,20 +155,22 @@ export const WaffleChart = () => {
             const selection = event.selection;
             if (!event.sourceEvent || !selection) return;
             const [[x0, y0], [x1, y1]] = selection;
+
             setBrushedCoords({ x0, y0, x1, y1 });
 
-            svg.selectAll("g.waffle-chart")
-                .filter(function () {
-                    const transform = d3.select(this).attr("transform");
-                    const translate = transform.substring(transform.indexOf("(") + 1, transform.indexOf(")")).split(",");
-                    const cx = +translate[0];
-                    const cy = +translate[1];
-                    return x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1;
-                });
+            thumbnailSvg.select(".brush-view")
+                .style("display", "block")
+                .attr("x", (x0 / 600) * 120)
+                .attr("y", (y0 / 600) * 120)
+                .attr("width", ((x1 - x0) / 600) * 120)
+                .attr("height", ((y1 - y0) / 600) * 120);
         }
 
         return () => {
-            if (!brushEnabled) svg.select(".brush").remove();
+            if (!brushEnabled) { 
+                svg.select(".brush").remove(); 
+                thumbnailSvg.select(".brush-view").style("display", "none");
+            }
         };
     }, [brushEnabled]);
 
@@ -315,7 +340,12 @@ export const WaffleChart = () => {
 
     return (
         <>
-            <svg ref={svgRef}></svg>
+            <div style={{ position: "relative", width: "600px", height: "600px" }}>
+                <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+                <div style={{ position: "absolute", bottom: "5px", left: "600px", border: "1px solid black", overflow: "hidden", width: "120px", height: "120px" }}>
+                    <svg ref={thumbnailRef}></svg>
+                </div>
+            </div>
             <div>
                 <button onClick={() => setShowBackgroundImage(!showBackgroundImage)}>
                     {showBackgroundImage ? "Hide Background Image" : "Show Background Image"}
