@@ -330,12 +330,14 @@ export const WaffleChart = () => {
                 .on("mouseover", (event) => {
                     svgElement
                         .selectAll(`g[data-barcode='${d.barcode}']`)
+                        .selectAll("rect")
                         .each(function () {
-                            const firstChild = d3.select(this).select(":first-child");
-                            const originalColor = firstChild.style("fill");
-                            firstChild
-                                .attr("data-original-color", originalColor)
-                                .style("fill", "black");
+                            const element = d3.select(this);
+                            const originalStroke = element.style("stroke");
+                            element
+                                .attr("data-original-stroke", originalStroke)
+                                .style("stroke", "red")
+                                .style("stroke-width", 0.3);
                         });
                     const position = { x: event.pageX, y: event.pageY };
                     showTooltip({ ratios: d.ratios }, position);
@@ -343,10 +345,9 @@ export const WaffleChart = () => {
                 .on("mouseout", () => {
                     svgElement
                         .selectAll(`g[data-barcode='${d.barcode}']`)
-                        .select(":first-child")
-                        .style("fill", function () {
-                            return d3.select(this).attr("data-original-color");
-                        });
+                        .selectAll("rect")
+                        .style("stroke", "black")
+                        .style("stroke-width", 0.1);
                     hideTooltip();
                 });
 
@@ -371,6 +372,7 @@ export const WaffleChart = () => {
                 }
             });
         });
+        
     }, [brushEnabled, brushedCoords, waffleData, zoomTransform]);
 
     // zoom effect
