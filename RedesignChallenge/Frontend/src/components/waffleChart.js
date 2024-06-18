@@ -394,15 +394,16 @@ export const WaffleChart = () => {
             {/* Button groups */}
             <Card
                 size="small"
-                title="Small size card"
+                title="Tools"
                 style={{
                     width: 300,
                 }}
             >
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                    <Switch onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Show Background Image" unCheckedChildren="Hide Background Image" />
-                    <Switch onChange={() => setShowWaffleCharts(!showWaffleCharts)} checkedChildren="Show Waffle Charts" unCheckedChildren="Hide Waffle Charts" />
+                    <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Show Background Image" unCheckedChildren="Hide Background Image" />
+                    <Switch style={{ margin: 2 }} onChange={() => setShowWaffleCharts(!showWaffleCharts)} checkedChildren="Show Waffle Charts" unCheckedChildren="Hide Waffle Charts" />
                     <Switch
+                        style={{ margin: 2 }}
                         onChange={() => {
                             if (!brushEnabled) {
                                 setBrushEnabled(true);
@@ -417,6 +418,7 @@ export const WaffleChart = () => {
                     />
 
                     <Switch
+                        style={{ margin: 2 }}
                         onChange={() => {
                             if (!zoomEnabled) {
                                 setZoomEnabled(true);
@@ -429,7 +431,7 @@ export const WaffleChart = () => {
                         checkedChildren="Enable Zoom"
                         unCheckedChildren="Disable Zoom"
                     />
-                    <Button style={{ marginTop: 10 }} type="default" onClick={() => setResetZoom(true)}>Reset Zoom</Button>
+                    <Button style={{ marginTop: 10 }} type="primary" onClick={() => setResetZoom(true)}>Reset Zoom</Button>
                 </div>
             </Card>
             {/* SVG */}
