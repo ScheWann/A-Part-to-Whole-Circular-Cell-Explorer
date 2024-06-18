@@ -227,6 +227,20 @@ export const WaffleChart = () => {
             mirrorGroup = svgElement.append("g").attr("class", "mirrored");
         }
 
+        const width = brushedCoords.x1 - brushedCoords.x0 + 5;
+        const height = brushedCoords.y1 - brushedCoords.y0 + 5;
+
+        mirrorGroup.selectAll("rect.background").remove();
+        mirrorGroup.append("rect")
+            .attr("class", "background")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("opacity", 0.8)
+            .attr("stroke", "#333")
+            .attr("fill", "#f0f0f0")
+            .attr("x", 1)
+            .attr("y", -2);
+
         mirrorGroup.attr("transform", `translate(${brushedCoords.x1 * zoomTransform.k + zoomTransform.x}, 
             ${brushedCoords.y0 * zoomTransform.k + zoomTransform.y}) 
             scale(${zoomTransform.k})`);
