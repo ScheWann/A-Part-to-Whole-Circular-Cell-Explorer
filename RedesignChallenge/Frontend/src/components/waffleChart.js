@@ -15,6 +15,7 @@ export const WaffleChart = () => {
     const [waffleData, setWaffleData] = useState([]);
     const [brushedCoords, setBrushedCoords] = useState(null);
     const [resetZoom, setResetZoom] = useState(false);
+    const [zoomTransform, setZoomTransform] = useState(d3.zoomIdentity);
 
     const scalef = scaleJson["tissue_lowres_scalef"];
     const spotDiameter = scaleJson["spot_diameter_fullres"];
@@ -85,6 +86,7 @@ export const WaffleChart = () => {
         .scaleExtent([1, 5])
         .on("zoom", (event) => {
             d3.select(svgRef.current).select('.tissue').attr('transform', event.transform);
+            setZoomTransform(event.transform);
         });
 
     // Function to reset zoom
@@ -224,28 +226,11 @@ export const WaffleChart = () => {
         if (mirrorGroup.empty()) {
             mirrorGroup = svgElement.append("g").attr("class", "mirrored");
         }
-        const offsetX = brushedCoords.x1;
-        const offsetY = brushedCoords.y0;
 
-        mirrorGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
+        mirrorGroup.attr("transform", `translate(${brushedCoords.x1 * zoomTransform.k + zoomTransform.x}, 
+            ${brushedCoords.y0 * zoomTransform.k + zoomTransform.y}) 
+            scale(${zoomTransform.k})`);
 
-        svgElement.select("#clip-path-mirrored").remove();
-        svgElement.append("clipPath")
-            .attr("id", "clip-path-mirrored")
-            .append("rect")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", brushedCoords.x1 - brushedCoords.x0)
-            .attr("height", brushedCoords.y1 - brushedCoords.y0);
-
-        mirrorGroup.selectAll("image").remove();
-        mirrorGroup.append("image")
-            .attr("href", lowresTissuePic)
-            .attr("x", -brushedCoords.x0)
-            .attr("y", -brushedCoords.y0)
-            .attr("width", 600)
-            .attr("height", 600)
-            .attr("clip-path", "url(#clip-path-mirrored)");
         const filteredData = waffleData.filter(d => {
             return brushedCoords.x0 <= d.x && d.x <= brushedCoords.x1 && brushedCoords.y0 <= d.y && d.y <= brushedCoords.y1;
         });
@@ -296,7 +281,7 @@ export const WaffleChart = () => {
                 }
             });
         });
-    }, [brushEnabled, brushedCoords, waffleData]);
+    }, [brushEnabled, brushedCoords, waffleData, zoomTransform]);
 
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
