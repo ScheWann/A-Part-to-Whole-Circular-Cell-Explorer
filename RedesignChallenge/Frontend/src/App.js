@@ -1,11 +1,14 @@
 import './App.css';
 import { WaffleChart } from './components/waffleChart';
-
+import { PieChart } from './components/pieChart';
+import { KosaraChart } from './components/kosaraChart';
 
 function App() {
   return (
     <div className="App">
-      <WaffleChart />
+      {/* <PieChart /> */}
+      <KosaraChart />
+      {/* <WaffleChart /> */}
     </div>
   );
 }
