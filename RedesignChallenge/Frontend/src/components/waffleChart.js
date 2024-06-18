@@ -14,6 +14,7 @@ export const WaffleChart = () => {
     const [zoomEnabled, setZoomEnabled] = useState(false);
     const [waffleData, setWaffleData] = useState([]);
     const [brushedCoords, setBrushedCoords] = useState(null);
+    const [resetZoom, setResetZoom] = useState(false);
 
     const scalef = scaleJson["tissue_lowres_scalef"];
     const spotDiameter = scaleJson["spot_diameter_fullres"];
@@ -79,6 +80,19 @@ export const WaffleChart = () => {
         d3.select(".tooltip").remove();
     }
 
+    // zoom function
+    const zoom = d3.zoom()
+        .scaleExtent([1, 5])
+        .on("zoom", (event) => {
+            d3.select(svgRef.current).select('.tissue').attr('transform', event.transform);
+        });
+
+    // Function to reset zoom
+    const resetZoomFunction = () => {
+        const svgElement = d3.select(svgRef.current);
+        svgElement.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+    };
+
     useEffect(() => {
         d3.csv(data, d => ({
             barcode: d.barcode,
@@ -94,7 +108,7 @@ export const WaffleChart = () => {
             .classed("tissue", true);
     }, []);
 
-    // zoom and brush
+    // brush function
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
         const svg = svgElement.select(".tissue");
@@ -212,7 +226,7 @@ export const WaffleChart = () => {
         }
         const offsetX = brushedCoords.x1;
         const offsetY = brushedCoords.y0;
-        // console.log(offsetX, offsetY);
+
         mirrorGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
 
         svgElement.select("#clip-path-mirrored").remove();
@@ -284,25 +298,21 @@ export const WaffleChart = () => {
         });
     }, [brushEnabled, brushedCoords, waffleData]);
 
-
-    // zoom behavior for mirrored group
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
-
-        const zoomed = (event) => {
-            svgElement.attr('transform', event.transform);
-        };
-
-        const zoom = d3.zoom()
-            .scaleExtent([1, 2])
-            .on("zoom", zoomed);
 
         if (zoomEnabled) {
             svgElement.call(zoom);
         } else {
             svgElement.on(".zoom", null);
         }
-    }, [zoomEnabled]);
+
+        if (resetZoom) {
+            resetZoomFunction();
+            setResetZoom(false);
+        }
+    }, [zoomEnabled, resetZoom]);
+
 
     return (
         <>
@@ -320,6 +330,7 @@ export const WaffleChart = () => {
                 <button onClick={() => setZoomEnabled(!zoomEnabled)}>
                     {zoomEnabled ? "Disable Zoom" : "Enable Zoom"}
                 </button>
+                <button onClick={() => setResetZoom(true)}>Reset Zoom</button>
             </div>
         </>
     );
