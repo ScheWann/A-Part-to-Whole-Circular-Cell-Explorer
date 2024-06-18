@@ -1,10 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Card, Button, Switch } from "antd";
 import * as d3 from "d3";
 import data from "../data/piechart.csv";
 import scaleJson from "../data/scalefactors_json.json";
-import lowresTissuePic from '../data/tissue_lowres_image.png';
+import lowresTissuePic from "../data/tissue_lowres_image.png";
 
-const officialColors = ["#EF3819", "#F39A2E", "#A4F93F", "#41F63D", "#4BF7A7", "#459CF9", "#3821F6", "#A031F7", "#F23C9D"];
+const officialColors = [
+    "#EF3819",
+    "#F39A2E",
+    "#A4F93F",
+    "#41F63D",
+    "#4BF7A7",
+    "#459CF9",
+    "#3821F6",
+    "#A031F7",
+    "#F23C9D",
+];
 
 export const WaffleChart = () => {
     const svgRef = useRef(null);
@@ -26,7 +37,9 @@ export const WaffleChart = () => {
     function showTooltip(data, position) {
         d3.select(".tooltip").remove();
 
-        const tooltip = d3.select("body").append("div")
+        const tooltip = d3
+            .select("body")
+            .append("div")
             .attr("class", "tooltip")
             .style("position", "absolute")
             .style("left", `${position.x}px`)
@@ -40,17 +53,17 @@ export const WaffleChart = () => {
             width = 200 - margin.left - margin.right,
             height = 100 - margin.top - margin.bottom;
 
-        const svg = tooltip.append("svg")
+        const svg = tooltip
+            .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        const yScale = d3.scaleLinear()
-            .domain([0, 1])
-            .range([height, 0]);
+        const yScale = d3.scaleLinear().domain([0, 1]).range([height, 0]);
 
-        const xScale = d3.scaleBand()
+        const xScale = d3
+            .scaleBand()
             .domain(data.ratios.map((_, i) => `X${i + 1}`))
             .range([0, width])
             .padding(0.1);
@@ -58,23 +71,25 @@ export const WaffleChart = () => {
         const xAxis = d3.axisBottom(xScale);
         const yAxis = d3.axisLeft(yScale).ticks(5, "%");
 
-        svg.append("g")
+        svg
+            .append("g")
             .attr("transform", `translate(0,${height})`)
             .call(xAxis)
             .selectAll("text")
             .style("text-anchor", "middle");
 
-        svg.append("g")
-            .call(yAxis);
+        svg.append("g").call(yAxis);
 
-        svg.selectAll(".bar")
+        svg
+            .selectAll(".bar")
             .data(data.ratios)
-            .enter().append("rect")
+            .enter()
+            .append("rect")
             .attr("class", "bar")
             .attr("x", (d, i) => xScale(`X${i + 1}`))
-            .attr("y", d => yScale(d))
+            .attr("y", (d) => yScale(d))
             .attr("width", xScale.bandwidth())
-            .attr("height", d => height - yScale(d) - 0.5)
+            .attr("height", (d) => height - yScale(d) - 0.5)
             .attr("fill", (d, i) => officialColors[i]);
     }
 
@@ -83,10 +98,13 @@ export const WaffleChart = () => {
     }
 
     // zoom function
-    const zoom = d3.zoom()
+    const zoom = d3
+        .zoom()
         .scaleExtent([1, 5])
         .on("zoom", (event) => {
-            d3.select(svgRef.current).select('.tissue').attr('transform', event.transform);
+            d3.select(svgRef.current)
+                .select(".tissue")
+                .attr("transform", event.transform);
             setZoomTransform(event.transform);
         });
 
@@ -96,33 +114,38 @@ export const WaffleChart = () => {
         svgElement.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
     };
 
+    // Load data and initialize SVG
     useEffect(() => {
-        d3.csv(data, d => ({
+        d3.csv(data, (d) => ({
             barcode: d.barcode,
             x: +d.x * scalef,
             y: +d.y * scalef,
-            ratios: [+d.X1, +d.X2, +d.X3, +d.X4, +d.X5, +d.X6, +d.X7, +d.X8, +d.X9]
-        })).then(data => setWaffleData(data));
+            ratios: [+d.X1, +d.X2, +d.X3, +d.X4, +d.X5, +d.X6, +d.X7, +d.X8, +d.X9],
+        })).then((data) => setWaffleData(data));
 
         const svgElement = d3.select(svgRef.current);
-        svgElement.attr("width", 600)
+        svgElement
+            .attr("width", 600)
             .attr("height", 600)
             .append("g")
             .classed("tissue", true);
 
-        const thumbnailSvg = d3.select(thumbnailRef.current)
+        const thumbnailSvg = d3
+            .select(thumbnailRef.current)
             .attr("width", 120)
             .attr("height", 120);
 
         if (thumbnailSvg.selectAll("image").empty()) {
-            thumbnailSvg.append("image")
+            thumbnailSvg
+                .append("image")
                 .attr("href", lowresTissuePic)
                 .attr("width", 120)
                 .attr("height", 120);
         }
 
         if (thumbnailSvg.selectAll("rect.brush-view").empty()) {
-            thumbnailSvg.append("rect")
+            thumbnailSvg
+                .append("rect")
                 .attr("class", "brush-view")
                 .attr("fill", "none")
                 .attr("stroke", "red")
@@ -138,13 +161,15 @@ export const WaffleChart = () => {
         const svg = svgElement.select(".tissue");
 
         if (brushEnabled) {
-            const brush = d3.brush()
-                .extent([[0, 0], [600, 600]])
+            const brush = d3
+                .brush()
+                .extent([
+                    [0, 0],
+                    [600, 600],
+                ])
                 .on("brush", brushMove);
 
-            svg.append("g")
-                .attr("class", "brush")
-                .call(brush);
+            svg.append("g").attr("class", "brush").call(brush);
         } else {
             svg.select(".brush").remove();
             thumbnailSvg.select(".brush-view").style("display", "none");
@@ -158,7 +183,8 @@ export const WaffleChart = () => {
 
             setBrushedCoords({ x0, y0, x1, y1 });
 
-            thumbnailSvg.select(".brush-view")
+            thumbnailSvg
+                .select(".brush-view")
                 .style("display", "block")
                 .attr("x", (x0 / 600) * 120)
                 .attr("y", (y0 / 600) * 120)
@@ -167,8 +193,8 @@ export const WaffleChart = () => {
         }
 
         return () => {
-            if (!brushEnabled) { 
-                svg.select(".brush").remove(); 
+            if (!brushEnabled) {
+                svg.select(".brush").remove();
                 thumbnailSvg.select(".brush-view").style("display", "none");
             }
         };
@@ -177,11 +203,14 @@ export const WaffleChart = () => {
     // background image
     useEffect(() => {
         const tissueGroup = d3.select(svgRef.current).select(".tissue");
-        const backgroundGroup = tissueGroup.select(".background").empty() ? tissueGroup.append("g").attr("class", "background") : tissueGroup.select(".background");
+        const backgroundGroup = tissueGroup.select(".background").empty()
+            ? tissueGroup.append("g").attr("class", "background")
+            : tissueGroup.select(".background");
 
         if (showBackgroundImage) {
             backgroundGroup.selectAll("image").remove();
-            backgroundGroup.append("image")
+            backgroundGroup
+                .append("image")
                 .attr("href", lowresTissuePic)
                 .attr("width", 600)
                 .attr("height", 600)
@@ -191,13 +220,17 @@ export const WaffleChart = () => {
         }
     }, [showBackgroundImage]);
 
+    // render waffle charts
     useEffect(() => {
         const tissueGroup = d3.select(svgRef.current).select(".tissue");
-        const contentGroup = tissueGroup.select(".content").empty() ? tissueGroup.append("g").attr("class", "content") : tissueGroup.select(".content");
+        const contentGroup = tissueGroup.select(".content").empty()
+            ? tissueGroup.append("g").attr("class", "content")
+            : tissueGroup.select(".content");
 
         contentGroup.selectAll("g").remove();
         waffleData.forEach((d) => {
-            const group = contentGroup.append("g")
+            const group = contentGroup
+                .append("g")
                 .attr("transform", `translate(${d.x}, ${d.y})`)
                 .attr("data-barcode", d.barcode)
                 .attr("data-x", d.x)
@@ -215,7 +248,8 @@ export const WaffleChart = () => {
                         const row = Math.floor(filledCells / 5);
                         const col = filledCells % 5;
 
-                        group.append("rect")
+                        group
+                            .append("rect")
                             .attr("x", col * cellSize)
                             .attr("y", row * cellSize)
                             .attr("width", cellSize)
@@ -226,7 +260,8 @@ export const WaffleChart = () => {
                     }
                 }
             } else {
-                group.append("rect")
+                group
+                    .append("rect")
                     .attr("width", gridSize)
                     .attr("height", gridSize)
                     .attr("fill", "none")
@@ -256,7 +291,8 @@ export const WaffleChart = () => {
         const height = brushedCoords.y1 - brushedCoords.y0 + 5;
 
         mirrorGroup.selectAll("rect.background").remove();
-        mirrorGroup.append("rect")
+        mirrorGroup
+            .append("rect")
             .attr("class", "background")
             .attr("width", width)
             .attr("height", height)
@@ -266,23 +302,36 @@ export const WaffleChart = () => {
             .attr("x", 1)
             .attr("y", -2);
 
-        mirrorGroup.attr("transform", `translate(${brushedCoords.x1 * zoomTransform.k + zoomTransform.x}, 
+        mirrorGroup.attr(
+            "transform",
+            `translate(${brushedCoords.x1 * zoomTransform.k + zoomTransform.x}, 
             ${brushedCoords.y0 * zoomTransform.k + zoomTransform.y}) 
-            scale(${zoomTransform.k})`);
+            scale(${zoomTransform.k})`
+        );
 
-        const filteredData = waffleData.filter(d => {
-            return brushedCoords.x0 <= d.x && d.x <= brushedCoords.x1 && brushedCoords.y0 <= d.y && d.y <= brushedCoords.y1;
+        const filteredData = waffleData.filter((d) => {
+            return (
+                brushedCoords.x0 <= d.x &&
+                d.x <= brushedCoords.x1 &&
+                brushedCoords.y0 <= d.y &&
+                d.y <= brushedCoords.y1
+            );
         });
 
         mirrorGroup.selectAll("g.waffle-chart").remove();
-        filteredData.forEach(d => {
-            const group = mirrorGroup.append("g")
-                .attr("transform", `translate(${d.x - brushedCoords.x0}, ${d.y - brushedCoords.y0})`)
+        filteredData.forEach((d) => {
+            const group = mirrorGroup
+                .append("g")
+                .attr(
+                    "transform",
+                    `translate(${d.x - brushedCoords.x0}, ${d.y - brushedCoords.y0})`
+                )
                 .classed("waffle-chart", true)
                 .on("mouseover", (event) => {
-                    svgElement.selectAll(`g[data-barcode='${d.barcode}']`)
+                    svgElement
+                        .selectAll(`g[data-barcode='${d.barcode}']`)
                         .each(function () {
-                            const firstChild = d3.select(this).select(':first-child');
+                            const firstChild = d3.select(this).select(":first-child");
                             const originalColor = firstChild.style("fill");
                             firstChild
                                 .attr("data-original-color", originalColor)
@@ -292,8 +341,9 @@ export const WaffleChart = () => {
                     showTooltip({ ratios: d.ratios }, position);
                 })
                 .on("mouseout", () => {
-                    svgElement.selectAll(`g[data-barcode='${d.barcode}']`)
-                        .select(':first-child')
+                    svgElement
+                        .selectAll(`g[data-barcode='${d.barcode}']`)
+                        .select(":first-child")
                         .style("fill", function () {
                             return d3.select(this).attr("data-original-color");
                         });
@@ -309,7 +359,8 @@ export const WaffleChart = () => {
                     const row = Math.floor(filledCells / 5);
                     const col = filledCells % 5;
 
-                    group.append("rect")
+                    group
+                        .append("rect")
                         .attr("x", col * cellSize)
                         .attr("y", row * cellSize)
                         .attr("width", cellSize)
@@ -322,6 +373,7 @@ export const WaffleChart = () => {
         });
     }, [brushEnabled, brushedCoords, waffleData, zoomTransform]);
 
+    // zoom effect
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
 
@@ -337,30 +389,66 @@ export const WaffleChart = () => {
         }
     }, [zoomEnabled, resetZoom]);
 
-
     return (
-        <>
+        <div style={{ display: "flex", height: "100vh" }}>
+            {/* Button groups */}
+            <Card
+                size="small"
+                title="Small size card"
+                style={{
+                    width: 300,
+                }}
+            >
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                    <Switch onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Show Background Image" unCheckedChildren="Hide Background Image" />
+                    <Switch onChange={() => setShowWaffleCharts(!showWaffleCharts)} checkedChildren="Show Waffle Charts" unCheckedChildren="Hide Waffle Charts" />
+                    <Switch
+                        onChange={() => {
+                            if (!brushEnabled) {
+                                setBrushEnabled(true);
+                                setZoomEnabled(false);
+                            } else {
+                                setBrushEnabled(false);
+                            }
+                        }}
+                        checked={brushEnabled}
+                        checkedChildren="Enable Brush"
+                        unCheckedChildren="Disable Brush"
+                    />
+
+                    <Switch
+                        onChange={() => {
+                            if (!zoomEnabled) {
+                                setZoomEnabled(true);
+                                setBrushEnabled(false);
+                            } else {
+                                setZoomEnabled(false);
+                            }
+                        }}
+                        checked={zoomEnabled}
+                        checkedChildren="Enable Zoom"
+                        unCheckedChildren="Disable Zoom"
+                    />
+                    <Button style={{ marginTop: 10 }} type="default" onClick={() => setResetZoom(true)}>Reset Zoom</Button>
+                </div>
+            </Card>
+            {/* SVG */}
             <div style={{ position: "relative", width: "600px", height: "600px" }}>
                 <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
-                <div style={{ position: "absolute", bottom: "5px", left: "600px", border: "1px solid black", overflow: "hidden", width: "120px", height: "120px" }}>
+                <div
+                    style={{
+                        position: "absolute",
+                        bottom: "5px",
+                        left: "600px",
+                        border: "1px solid black",
+                        overflow: "hidden",
+                        width: "120px",
+                        height: "120px",
+                    }}
+                >
                     <svg ref={thumbnailRef}></svg>
                 </div>
             </div>
-            <div>
-                <button onClick={() => setShowBackgroundImage(!showBackgroundImage)}>
-                    {showBackgroundImage ? "Hide Background Image" : "Show Background Image"}
-                </button>
-                <button onClick={() => setShowWaffleCharts(!showWaffleCharts)}>
-                    {showWaffleCharts ? "Hide Waffle Charts" : "Show Waffle Charts"}
-                </button>
-                <button onClick={() => setBrushEnabled(!brushEnabled)}>
-                    {brushEnabled ? "Disable Brush" : "Enable Brush"}
-                </button>
-                <button onClick={() => setZoomEnabled(!zoomEnabled)}>
-                    {zoomEnabled ? "Disable Zoom" : "Enable Zoom"}
-                </button>
-                <button onClick={() => setResetZoom(true)}>Reset Zoom</button>
-            </div>
-        </>
+        </div>
     );
 };
