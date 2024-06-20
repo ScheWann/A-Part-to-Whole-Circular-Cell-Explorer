@@ -167,29 +167,6 @@ export const KosaraChart = () => {
             }
         });
 
-        // legend
-        const legendGroup = svgElement.append("g")
-            .attr("class", "legend")
-            .attr("transform", "translate(550, 20)");
-
-        const legend = legendGroup.selectAll(".legend-item")
-            .data(Object.entries(officialColors))
-            .enter()
-            .append("g")
-            .attr("class", "legend-item")
-            .attr("transform", (d, i) => `translate(0, ${i * 20})`);
-
-        legend.append("rect")
-            .attr("width", 18)
-            .attr("height", 18)
-            .attr("fill", d => d[1]);
-
-        legend.append("text")
-            .attr("x", 24)
-            .attr("y", 9)
-            .attr("dy", "0.35em")
-            .text(d => d[0]);
-
     }, [showKosaraCharts, opacity]);
 
     return (
@@ -207,9 +184,18 @@ export const KosaraChart = () => {
                     <Switch style={{ margin: 2 }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checkedChildren="Show Kosara Charts" unCheckedChildren="Hide Kosara Charts" />
                     <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
                     <Slider style={{ margin: 0 }} defaultValue={1} onChange={onChange} step={0.1} max={1} min={0}/>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
+                        {Object.entries(officialColors).map(([key, color]) => (
+                            <div key={key} style={{ display: 'flex', alignItems: 'center', marginRight: 10, marginBottom: 5 }}>
+                                <div style={{ width: 18, height: 18, backgroundColor: color, marginRight: 5 }}></div>
+                                <span>{key}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </Card>
             <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+            <div ref={tooltipRef} style={{ position: "absolute", backgroundColor: "white", border: "1px solid #ccc", padding: "10px", display: "none", pointerEvents: "none" }}></div>
         </div>
     );
 };
