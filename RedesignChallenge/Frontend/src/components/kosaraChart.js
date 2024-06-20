@@ -63,6 +63,7 @@ export const KosaraChart = () => {
             if (showPieCharts) {
                 data.forEach((d) => {
                     const ratios = Object.entries(d.ratios);
+                    console.log(d.ratios);
                     const arcs = d3.pie().value(d => parseFloat(d[1]))(ratios);
                     const color = d3.scaleOrdinal(officialColors);
 
