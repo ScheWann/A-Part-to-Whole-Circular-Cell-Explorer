@@ -18,6 +18,7 @@ const officialColors = {
 
 export const KosaraChart = () => {
     const svgRef = useRef(null);
+    const tooltipRef = useRef(null);
     const [showBackgroundImage, setShowBackgroundImage] = useState(true);
     const [showPieCharts, setShowPieCharts] = useState(true);
 
@@ -48,7 +49,7 @@ export const KosaraChart = () => {
                 path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 0 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 1 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 1 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 1 ${lastStartPointX} ${lastStartPointY} Z`;
             }
     
-            paths.push({path, color: officialColors[angle[0]]});
+            paths.push({path, color: officialColors[angle[0]], label: angle[0], percentage: angle[1]});
 
             lastStartPointX = startpointX;
             lastStartPointY = startpointY;
@@ -56,6 +57,19 @@ export const KosaraChart = () => {
             lastEndPointY = endpointY;
         })
         return paths;
+    }
+
+    function handleMouseOver(event, d) {
+        const tooltip = d3.select(tooltipRef.current);
+        tooltip
+            .style("display", "block")
+            .style("left", `${event.pageX + 10}px`)
+            .style("top", `${event.pageY + 10}px`)
+            .html(d.map(item => `${item[0]}: ${item[1] * 100}%`).join("<br>"));
+    }
+
+    function handleMouseOut() {
+        d3.select(tooltipRef.current).style("display", "none");
     }
 
     useEffect(() => {
@@ -117,6 +131,9 @@ export const KosaraChart = () => {
                 data.forEach((d) => {
                     const angles = Object.entries(d.angles);
                     const group = contentGroup.append("g")
+                        .on("mouseover", (event) => handleMouseOver(event, Object.entries(d.ratios).filter(([key, value]) => value !== 0)))
+                        .on("mouseout", handleMouseOut);
+                    
                     const paths = generateKosaraPath(d.x, d.y, angles);
 
                     paths.forEach(({ path, color }) => {
@@ -128,7 +145,9 @@ export const KosaraChart = () => {
             } else {
                 data.forEach((d) => {
                     const group = contentGroup.append("g")
-                        .attr("transform", `translate(${d.x}, ${d.y})`);
+                        .attr("transform", `translate(${d.x}, ${d.y})`)
+                        .on("mouseover", (event) => handleMouseOver(event, Object.entries(d.ratios).filter(([key, value]) => value !== 0)))
+                        .on("mouseout", handleMouseOut);
 
                     group.append("circle")
                         .attr("r", radius)
@@ -144,6 +163,7 @@ export const KosaraChart = () => {
     return (
         <>
             <svg ref={svgRef}></svg>
+            <div ref={tooltipRef} style={{ position: 'absolute', display: 'none', backgroundColor: 'white', border: '1px solid black', padding: '5px', pointerEvents: 'none' }}></div>
             <button onClick={() => setShowBackgroundImage(!showBackgroundImage)}>
                 {showBackgroundImage ? "Hide Background Image" : "Show Background Image"}
             </button>
