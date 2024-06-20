@@ -1,26 +1,28 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Card, Slider, Switch } from "antd";
 import * as d3 from "d3";
 import data from "../data/kosaraChart.csv";
 import scaleJson from "../data/scalefactors_json.json";
 import lowresTissuePic from '../data/tissue_lowres_image.png';
 
 const officialColors = {
-    X1: "#EF3819",
-    X2: "#F39A2E",
-    X3: "#A4F93F",
-    X4: "#41F63D",
-    X5: "#4BF7A7",
-    X6: "#459CF9",
-    X7: "#3821F6",
-    X8: "#A031F7",
-    X9: "#F23C9D"
+    X1: '#007ed3',
+    X2: '#FF004F',
+    X3: '#9400D3',
+    X4: '#FFC40C',
+    X5: '#59260B',
+    X6: '#40E0D0',
+    X7: '#FF4F00',
+    X8: '#C19A6B',
+    X9: '#006D6F'
 }
 
 export const KosaraChart = () => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
     const [showBackgroundImage, setShowBackgroundImage] = useState(true);
-    const [showPieCharts, setShowPieCharts] = useState(true);
+    const [showKosaraCharts, setShowKosaraCharts] = useState(true);
+    const [opacity, setOpacity] = useState(1);
 
     const scalef = scaleJson["tissue_lowres_scalef"];
     const spotDiameter = scaleJson["spot_diameter_fullres"];
@@ -36,20 +38,20 @@ export const KosaraChart = () => {
             let startpointY = pointY - radius * Math.cos((45 + angle[1]) * Math.PI / 180);
             let endpointX = pointX - radius * Math.sin((45 - angle[1]) * Math.PI / 180);
             let endpointY = pointY - radius * Math.cos((45 - angle[1]) * Math.PI / 180);
-    
+
             let path = '';
 
             if (index === 0) {
                 path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
-            } 
+            }
             else if (index === filteredAngles.length - 1) {
                 path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 0 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 1 1 ${lastStartPointX} ${lastStartPointY} Z`;
-            } 
+            }
             else {
                 path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 0 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 1 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 1 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 1 ${lastStartPointX} ${lastStartPointY} Z`;
             }
-    
-            paths.push({path, color: officialColors[angle[0]], label: angle[0], percentage: angle[1]});
+
+            paths.push({ path, color: officialColors[angle[0]], label: angle[0], percentage: angle[1] });
 
             lastStartPointX = startpointX;
             lastStartPointY = startpointY;
@@ -65,11 +67,15 @@ export const KosaraChart = () => {
             .style("display", "block")
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY + 10}px`)
-            .html(d.map(item => `${item[0]}: ${item[1] * 100}%`).join("<br>"));
+            .html(d.map(item => `${item[0]}: ${(item[1] * 100).toFixed(2)}%`).join("<br>"));
     }
 
     function handleMouseOut() {
         d3.select(tooltipRef.current).style("display", "none");
+    }
+
+    function onChange(value) {
+        setOpacity(value);
     }
 
     useEffect(() => {
@@ -93,7 +99,7 @@ export const KosaraChart = () => {
         const svg = svgElement
             .attr("width", 600)
             .attr("height", 600)
-            .call(d3.zoom().scaleExtent([0.5, 10]).on("zoom", (event) => {
+            .call(d3.zoom().scaleExtent([0.5, 15]).on("zoom", (event) => {
                 svg.selectAll("g.content, g.background").attr("transform", event.transform);
             }));
 
@@ -127,13 +133,15 @@ export const KosaraChart = () => {
             }
         })).then(data => {
             contentGroup.selectAll("g").remove();
-            if (showPieCharts) {
+            if (showKosaraCharts) {
                 data.forEach((d) => {
                     const angles = Object.entries(d.angles);
                     const group = contentGroup.append("g")
+                        .attr("class", "kosara-chart")
+                        .attr("opacity", opacity)
                         .on("mouseover", (event) => handleMouseOver(event, Object.entries(d.ratios).filter(([key, value]) => value !== 0)))
                         .on("mouseout", handleMouseOut);
-                    
+
                     const paths = generateKosaraPath(d.x, d.y, angles);
 
                     paths.forEach(({ path, color }) => {
@@ -146,6 +154,7 @@ export const KosaraChart = () => {
                 data.forEach((d) => {
                     const group = contentGroup.append("g")
                         .attr("transform", `translate(${d.x}, ${d.y})`)
+                        .attr("opacity", opacity)
                         .on("mouseover", (event) => handleMouseOver(event, Object.entries(d.ratios).filter(([key, value]) => value !== 0)))
                         .on("mouseout", handleMouseOut);
 
@@ -158,18 +167,49 @@ export const KosaraChart = () => {
             }
         });
 
-    }, [showPieCharts]);
+        // legend
+        const legendGroup = svgElement.append("g")
+            .attr("class", "legend")
+            .attr("transform", "translate(550, 20)");
+
+        const legend = legendGroup.selectAll(".legend-item")
+            .data(Object.entries(officialColors))
+            .enter()
+            .append("g")
+            .attr("class", "legend-item")
+            .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+
+        legend.append("rect")
+            .attr("width", 18)
+            .attr("height", 18)
+            .attr("fill", d => d[1]);
+
+        legend.append("text")
+            .attr("x", 24)
+            .attr("y", 9)
+            .attr("dy", "0.35em")
+            .text(d => d[0]);
+
+    }, [showKosaraCharts, opacity]);
 
     return (
-        <>
-            <svg ref={svgRef}></svg>
-            <div ref={tooltipRef} style={{ position: 'absolute', display: 'none', backgroundColor: 'white', border: '1px solid black', padding: '5px', pointerEvents: 'none' }}></div>
-            <button onClick={() => setShowBackgroundImage(!showBackgroundImage)}>
-                {showBackgroundImage ? "Hide Background Image" : "Show Background Image"}
-            </button>
-            <button onClick={() => setShowPieCharts(!showPieCharts)}>
-                {showPieCharts ? "Hide Pie Charts" : "Show Pie Charts"}
-            </button>
-        </>
+        <div style={{ display: "flex", height: "100vh" }}>
+            {/* Button groups */}
+            <Card
+                size="small"
+                title="Tools"
+                style={{
+                    width: 300,
+                }}
+            >
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                    <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Show Background Image" unCheckedChildren="Hide Background Image" />
+                    <Switch style={{ margin: 2 }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checkedChildren="Show Kosara Charts" unCheckedChildren="Hide Kosara Charts" />
+                    <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
+                    <Slider style={{ margin: 0 }} defaultValue={1} onChange={onChange} step={0.1} max={1} min={0}/>
+                </div>
+            </Card>
+            <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+        </div>
     );
 };
