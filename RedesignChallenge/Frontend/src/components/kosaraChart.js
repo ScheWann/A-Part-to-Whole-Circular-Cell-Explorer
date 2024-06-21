@@ -6,15 +6,15 @@ import scaleJson from "../data/scalefactors_json.json";
 import lowresTissuePic from '../data/tissue_lowres_image.png';
 
 const officialColors = {
-    X1: '#007ed3',
-    X2: '#FF004F',
-    X3: '#9400D3',
-    X4: '#FFC40C',
-    X5: '#59260B',
-    X6: '#40E0D0',
-    X7: '#FF4F00',
-    X8: '#C19A6B',
-    X9: '#006D6F'
+    X1: '#FFC40C',
+    X2: '#FF0800',
+    X3: '#FDEE00',
+    X4: '#007FFF',
+    X5: '#32174D',
+    X6: '#E5E4E2',
+    X7: '#ED9121',
+    X8: '#74C365',
+    X9: '#355E3B'
 }
 
 export const KosaraChart = () => {
