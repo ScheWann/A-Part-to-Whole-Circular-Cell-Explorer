@@ -28,30 +28,35 @@ export const KosaraChart = () => {
     const spotDiameter = scaleJson["spot_diameter_fullres"];
     const radius = (spotDiameter * scalef / 2);
 
-    function generateKosaraPath(pointX, pointY, angles) {
+    function generateKosaraPath(pointX, pointY, angles, ratios) {
+        const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let paths = [];
         let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY = 0;
-        let filteredAngles = angles.filter(item => item[1] !== 0);
+        let topSixIndices = ratios.filter(item => item[1] !== 0).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]);
+        let topSixAngles = topSixIndices.map(index => angles.find(item => item[0] === index));
 
-        filteredAngles.forEach((angle, index) => {
+        topSixAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
+
+        console.log(angles, topSixAngles, '////');
+        topSixAngles.forEach((angle, index) => {
             let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
-            let startpointY = pointY - radius * Math.cos((45 + angle[1]) * Math.PI / 180);
+            let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
             let endpointX = pointX - radius * Math.sin((45 - angle[1]) * Math.PI / 180);
-            let endpointY = pointY - radius * Math.cos((45 - angle[1]) * Math.PI / 180);
+            let endpointY = pointY + radius * Math.cos((45 - angle[1]) * Math.PI / 180);
 
             let path = '';
 
             if (index === 0) {
                 path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
             }
-            else if (index === filteredAngles.length - 1) {
-                path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 0 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 1 1 ${lastStartPointX} ${lastStartPointY} Z`;
+            else if (index === topSixAngles.length - 1) {
+                path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
             }
             else {
-                path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 0 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 1 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 1 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 1 ${lastStartPointX} ${lastStartPointY} Z`;
+                path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
             }
 
-            paths.push({ path, color: officialColors[angle[0]], label: angle[0], percentage: angle[1] });
+            paths.push({ path, color: officialColors[angle[0]] });
 
             lastStartPointX = startpointX;
             lastStartPointY = startpointY;
@@ -63,12 +68,22 @@ export const KosaraChart = () => {
 
     function handleMouseOver(event, d) {
         const tooltip = d3.select(tooltipRef.current);
+        const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
+
+        const topSix = d
+            .filter(item => item[1] !== 0)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 6);
+
+        topSix.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
+
         tooltip
             .style("display", "block")
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY + 10}px`)
-            .html(d.map(item => `${item[0]}: ${(item[1] * 100).toFixed(2)}%`).join("<br>"));
+            .html(topSix.map(item => `${item[0]}: ${(item[1] * 100).toFixed(2)}%`).join("<br>"));
     }
+
 
     function handleMouseOut() {
         d3.select(tooltipRef.current).style("display", "none");
@@ -136,13 +151,14 @@ export const KosaraChart = () => {
             if (showKosaraCharts) {
                 data.forEach((d) => {
                     const angles = Object.entries(d.angles);
+                    const ratios = Object.entries(d.ratios);
                     const group = contentGroup.append("g")
                         .attr("class", "kosara-chart")
                         .attr("opacity", opacity)
-                        .on("mouseover", (event) => handleMouseOver(event, Object.entries(d.ratios).filter(([key, value]) => value !== 0)))
+                        .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
                         .on("mouseout", handleMouseOut);
 
-                    const paths = generateKosaraPath(d.x, d.y, angles);
+                    const paths = generateKosaraPath(d.x, d.y, angles, ratios);
 
                     paths.forEach(({ path, color }) => {
                         group.append('path')
@@ -152,10 +168,11 @@ export const KosaraChart = () => {
                 });
             } else {
                 data.forEach((d) => {
+                    const ratios = Object.entries(d.ratios);
                     const group = contentGroup.append("g")
                         .attr("transform", `translate(${d.x}, ${d.y})`)
                         .attr("opacity", opacity)
-                        .on("mouseover", (event) => handleMouseOver(event, Object.entries(d.ratios).filter(([key, value]) => value !== 0)))
+                        .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
                         .on("mouseout", handleMouseOut);
 
                     group.append("circle")
@@ -183,7 +200,7 @@ export const KosaraChart = () => {
                     <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Show Background Image" unCheckedChildren="Hide Background Image" />
                     <Switch style={{ margin: 2 }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checkedChildren="Show Kosara Charts" unCheckedChildren="Hide Kosara Charts" />
                     <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
-                    <Slider style={{ margin: 0 }} defaultValue={1} onChange={onChange} step={0.1} max={1} min={0}/>
+                    <Slider style={{ margin: 0 }} defaultValue={1} onChange={onChange} step={0.1} max={1} min={0} />
                     <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
                         {Object.entries(officialColors).map(([key, color]) => (
                             <div key={key} style={{ display: 'flex', alignItems: 'center', marginRight: 10, marginBottom: 5 }}>
