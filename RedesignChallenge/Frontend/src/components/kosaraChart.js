@@ -35,9 +35,11 @@ export const KosaraChart = () => {
         let topSixIndices = ratios.filter(item => item[1] !== 0).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]);
         let topSixAngles = topSixIndices.map(index => angles.find(item => item[0] === index));
 
+        // TODO: angles for the first and middle spots are not very accurate, need to be fixed
+        topSixAngles = topSixAngles.map(angle => [angle[0], angle[1] + 8]);
         topSixAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
 
-        console.log(angles, topSixAngles, '////');
+        console.log(angles, topSixAngles);
         topSixAngles.forEach((angle, index) => {
             let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
             let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
