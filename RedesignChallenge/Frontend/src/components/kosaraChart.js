@@ -121,7 +121,7 @@ export const KosaraChart = () => {
         const svg = svgElement
             .attr("viewBox", "0 0 800 800")
             .attr("preserveAspectRatio", "xMidYMid meet")
-            .call(d3.zoom().scaleExtent([0.5, 15]).on("zoom", (event) => {
+            .call(d3.zoom().scaleExtent([1, 15]).on("zoom", (event) => {
                 svg.selectAll("g.content, g.background").attr("transform", event.transform);
             }));
 
