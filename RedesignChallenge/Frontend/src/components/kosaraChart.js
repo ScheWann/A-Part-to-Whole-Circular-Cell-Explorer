@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import data from "../data/kosaraChart.csv";
 import scaleJson from "../data/scalefactors_json.json";
 import lowresTissuePic from '../data/tissue_lowres_image.png';
+import hiresTissuePic from '../data/tissue_hires_image.png';
 
 const officialColors = {
     X1: '#FFC40C',
@@ -24,9 +25,12 @@ export const KosaraChart = () => {
     const [showKosaraCharts, setShowKosaraCharts] = useState(true);
     const [opacity, setOpacity] = useState(1);
 
-    const scalef = scaleJson["tissue_lowres_scalef"];
+    const lowrescalef = scaleJson["tissue_lowres_scalef"];
+    // const hirescalef = scaleJson["tissue_hires_scalef"];
+    const hirescalef = 0.046094715;
     const spotDiameter = scaleJson["spot_diameter_fullres"];
-    const radius = (spotDiameter * scalef / 2);
+    // const radius = (spotDiameter * lowrescalef / 2);
+    const radius = spotDiameter * hirescalef / 2;
 
     function generateKosaraPath(pointX, pointY, angles, ratios) {
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
@@ -102,9 +106,10 @@ export const KosaraChart = () => {
         if (showBackgroundImage) {
             backgroundGroup.selectAll("image").remove();
             backgroundGroup.append("image")
-                .attr("href", lowresTissuePic)
-                .attr("width", 600)
-                .attr("height", 600)
+                .attr("href", hiresTissuePic)
+                .attr("width", "100%")
+                .attr("height", "100%")
+                .attr("preserveAspectRatio", "xMidYMid slice")
                 .attr("class", "background-image");
         } else {
             backgroundGroup.select(".background-image").remove();
@@ -114,8 +119,8 @@ export const KosaraChart = () => {
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
         const svg = svgElement
-            .attr("width", 600)
-            .attr("height", 600)
+            .attr("viewBox", "0 0 800 800")
+            .attr("preserveAspectRatio", "xMidYMid meet")
             .call(d3.zoom().scaleExtent([0.5, 15]).on("zoom", (event) => {
                 svg.selectAll("g.content, g.background").attr("transform", event.transform);
             }));
@@ -124,8 +129,8 @@ export const KosaraChart = () => {
 
         d3.csv(data, d => ({
             barcode: d.barcode,
-            x: +d.x * scalef,
-            y: +d.y * scalef,
+            x: +d.x * hirescalef,
+            y: +d.y * hirescalef,
             ratios: {
                 X1: +d.X1,
                 X2: +d.X2,
