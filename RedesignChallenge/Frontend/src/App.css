@@ -1,11 +1,11 @@
 .App {
   text-align: center;
   height: 100vh;
+  display: flex;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.KosaraChart {
+  flex: 1;
 }
 
 @media (prefers-reduced-motion: no-preference) {

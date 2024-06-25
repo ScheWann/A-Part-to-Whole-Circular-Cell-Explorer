@@ -3,7 +3,6 @@ import { Card, Slider, Switch } from "antd";
 import * as d3 from "d3";
 import data from "../data/kosaraChart.csv";
 import scaleJson from "../data/scalefactors_json.json";
-import lowresTissuePic from '../data/tissue_lowres_image.png';
 import hiresTissuePic from '../data/tissue_hires_image.png';
 
 const officialColors = {
@@ -18,11 +17,12 @@ const officialColors = {
     X9: '#355E3B'
 }
 
-export const KosaraChart = () => {
+export const KosaraChart = ({ setSelectedData }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
     const [showBackgroundImage, setShowBackgroundImage] = useState(true);
     const [showKosaraCharts, setShowKosaraCharts] = useState(true);
+    const [kosaraData, setKosaraData] = useState([]);
     const [opacity, setOpacity] = useState(1);
 
     const lowrescalef = scaleJson["tissue_lowres_scalef"];
@@ -43,7 +43,6 @@ export const KosaraChart = () => {
         topSixAngles = topSixAngles.map(angle => [angle[0], angle[1] + 8]);
         topSixAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
 
-        console.log(angles, topSixAngles);
         topSixAngles.forEach((angle, index) => {
             let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
             let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
@@ -99,34 +98,8 @@ export const KosaraChart = () => {
         setOpacity(value);
     }
 
+    // loading data
     useEffect(() => {
-        const svgElement = d3.select(svgRef.current);
-        const backgroundGroup = svgElement.select(".background").empty() ? svgElement.append("g").attr("class", "background") : svgElement.select(".background");
-
-        if (showBackgroundImage) {
-            backgroundGroup.selectAll("image").remove();
-            backgroundGroup.append("image")
-                .attr("href", hiresTissuePic)
-                .attr("width", "100%")
-                .attr("height", "100%")
-                .attr("preserveAspectRatio", "xMidYMid slice")
-                .attr("class", "background-image");
-        } else {
-            backgroundGroup.select(".background-image").remove();
-        }
-    }, [showBackgroundImage]);
-
-    useEffect(() => {
-        const svgElement = d3.select(svgRef.current);
-        const svg = svgElement
-            .attr("viewBox", "0 0 800 800")
-            .attr("preserveAspectRatio", "xMidYMid meet")
-            .call(d3.zoom().scaleExtent([1, 15]).on("zoom", (event) => {
-                svg.selectAll("g.content, g.background").attr("transform", event.transform);
-            }));
-
-        const contentGroup = svg.select(".content").empty() ? svg.append("g").attr("class", "content") : svg.select(".content");
-
         d3.csv(data, d => ({
             barcode: d.barcode,
             x: +d.x * hirescalef,
@@ -154,44 +127,95 @@ export const KosaraChart = () => {
                 X9: +d.X9_angle
             }
         })).then(data => {
-            contentGroup.selectAll("g").remove();
-            if (showKosaraCharts) {
-                data.forEach((d) => {
-                    const angles = Object.entries(d.angles);
-                    const ratios = Object.entries(d.ratios);
-                    const group = contentGroup.append("g")
-                        .attr("class", "kosara-chart")
-                        .attr("opacity", opacity)
-                        .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
-                        .on("mouseout", handleMouseOut);
-
-                    const paths = generateKosaraPath(d.x, d.y, angles, ratios);
-
-                    paths.forEach(({ path, color }) => {
-                        group.append('path')
-                            .attr('d', path)
-                            .attr('fill', color);
-                    });
-                });
-            } else {
-                data.forEach((d) => {
-                    const ratios = Object.entries(d.ratios);
-                    const group = contentGroup.append("g")
-                        .attr("transform", `translate(${d.x}, ${d.y})`)
-                        .attr("opacity", opacity)
-                        .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
-                        .on("mouseout", handleMouseOut);
-
-                    group.append("circle")
-                        .attr("r", radius)
-                        .attr("fill", "none")
-                        .attr("stroke", "black")
-                        .attr("stroke-width", 0.1);
-                });
-            }
+            setKosaraData(data);
         });
+    }, []);
 
-    }, [showKosaraCharts, opacity]);
+    useEffect(() => {
+        const svgElement = d3.select(svgRef.current);
+        const backgroundGroup = svgElement.select(".background").empty() ? svgElement.append("g").attr("class", "background") : svgElement.select(".background");
+
+        if (showBackgroundImage) {
+            backgroundGroup.selectAll("image").remove();
+            backgroundGroup.append("image")
+                .attr("href", hiresTissuePic)
+                .attr("width", "100%")
+                .attr("height", "100%")
+                .attr("preserveAspectRatio", "xMidYMid slice")
+                .attr("class", "background-image");
+        } else {
+            backgroundGroup.select(".background-image").remove();
+        }
+    }, [showBackgroundImage]);
+
+    useEffect(() => {
+        const svgElement = d3.select(svgRef.current);
+        const brush = d3.brush()
+            .extent([[0, 0], [800, 800]])
+            .on("end", brushEnded);
+
+        const svg = svgElement
+            .attr("viewBox", "0 0 800 800")
+            .attr("preserveAspectRatio", "xMidYMid meet")
+
+        svg.append("g").attr("class", "brush").call(brush);
+        // .call(d3.zoom().scaleExtent([1, 15]).on("zoom", (event) => {
+        //     svg.selectAll("g.content, g.background").attr("transform", event.transform);
+        // }));
+
+        function brushEnded(event) {
+            console.log(event); 
+            const selection = event.selection;
+            if (!selection) return;
+
+            const [[x0, y0], [x1, y1]] = selection;
+            const brushedData = kosaraData.filter(d => {
+                if (!d) return;
+                const scaledX = d.x
+                const scaledY = d.y
+                return scaledX >= x0 && scaledX <= x1 && scaledY >= y0 && scaledY <= y1;
+            });
+            setSelectedData(brushedData);
+        }
+        const contentGroup = svg.select(".content").empty() ? svg.append("g").attr("class", "content") : svg.select(".content");
+
+        contentGroup.selectAll("g").remove();
+        if (showKosaraCharts) {
+            kosaraData.forEach((d) => {
+                const angles = Object.entries(d.angles);
+                const ratios = Object.entries(d.ratios);
+                const group = contentGroup.append("g")
+                    .attr("class", "kosara-chart")
+                    .attr("opacity", opacity)
+                    .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
+                    .on("mouseout", handleMouseOut);
+
+                const paths = generateKosaraPath(d.x, d.y, angles, ratios);
+
+                paths.forEach(({ path, color }) => {
+                    group.append('path')
+                        .attr('d', path)
+                        .attr('fill', color);
+                });
+            });
+        } else {
+            kosaraData.forEach((d) => {
+                const ratios = Object.entries(d.ratios);
+                const group = contentGroup.append("g")
+                    .attr("transform", `translate(${d.x}, ${d.y})`)
+                    .attr("opacity", opacity)
+                    .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
+                    .on("mouseout", handleMouseOut);
+
+                group.append("circle")
+                    .attr("r", radius)
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 0.1);
+            });
+        }
+
+    }, [showKosaraCharts, opacity, kosaraData]);
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>

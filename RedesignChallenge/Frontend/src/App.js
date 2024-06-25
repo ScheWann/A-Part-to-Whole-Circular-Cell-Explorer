@@ -1,14 +1,20 @@
 import './App.css';
-import { WaffleChart } from './components/waffleChart';
-import { PieChart } from './components/pieChart';
+import React, { useEffect, useRef, useState } from "react";
 import { KosaraChart } from './components/kosaraChart';
+import { CellTypeChart } from './components/cellTypeChart';
 
 function App() {
+  const [selectedData, setSelectedData] = useState([]);
+
   return (
     <div className="App">
-      {/* <PieChart /> */}
-      <KosaraChart />
-      {/* <WaffleChart /> */}
+      <KosaraChart
+        className="KosaraChart"
+        setSelectedData={setSelectedData}
+      />
+      <CellTypeChart 
+        selectedData={selectedData}
+      />
     </div>
   );
 }
