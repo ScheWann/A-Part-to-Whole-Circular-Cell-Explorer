@@ -9,10 +9,11 @@ function App() {
   return (
     <div className="App">
       <KosaraChart
-        className="KosaraChart"
+        // className="KosaraChart"
         setSelectedData={setSelectedData}
       />
-      <CellTypeChart 
+      <CellTypeChart
+        className="CellTypeChart"
         selectedData={selectedData}
       />
     </div>

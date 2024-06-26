@@ -19,19 +19,17 @@ export const CellTypeChart = ({ selectedData }) => {
 
     useEffect(() => {
         if (!selectedData || selectedData.length === 0) return;
-        const counts = labels.map(label => 
+        const counts = labels.map(label =>
             selectedData.reduce((count, item) => count + (item.ratios[label] > 0 ? 1 : 0), 0)
         );
 
         const svgElement = d3.select(svgRef.current);
-        const parentWidth = svgRef.current.parentElement.clientWidth; // Get parent div width
-        const width = parentWidth * 0.35; // Set SVG width to 50% of parent div width
-        const height = 200; // Set the height of the SVG
-        const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-        
-        svgElement.attr("width", width).attr("height", height);
-
         svgElement.selectAll("*").remove();
+        const width = svgRef.current.clientWidth;
+        const height = 200
+        const margin = { top: 20, right: 20, bottom: 35, left: 40 };
+
+        svgElement.attr("viewBox", `0 0 ${width} ${height}`);
 
         const xScale = d3.scaleBand()
             .domain(labels)
@@ -61,9 +59,35 @@ export const CellTypeChart = ({ selectedData }) => {
             .attr("transform", `translate(${margin.left}, 0)`)
             .call(d3.axisLeft(yScale));
 
+        // x-axis label
+        svgElement.append("text")
+            .attr("x", width / 2)
+            .attr("y", height - 3)
+            .attr("text-anchor", "middle")
+            .attr("font-weight", "bold")
+            .attr("font-size", "0.8em")
+            .text("Cell Types");
+
+        // y-axis label
+        svgElement.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", margin.left / 5)
+            .attr("font-weight", "bold")
+            .attr("font-size", "0.8em")
+            .attr("text-anchor", "middle")
+            .text("Counts");
+
     }, [selectedData]);
 
     return (
-        <svg ref={svgRef}></svg>
+        <Card 
+            size="small"
+            title="Analysis of Cell Types" 
+            style={{ height: "100vh", width: "41%" }}
+        >
+            <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+        </Card>
     );
+
 };

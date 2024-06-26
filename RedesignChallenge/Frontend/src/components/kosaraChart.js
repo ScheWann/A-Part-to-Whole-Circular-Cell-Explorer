@@ -6,6 +6,7 @@ import scaleJson from "../data/scalefactors_json.json";
 import hiresTissuePic from '../data/tissue_hires_image.png';
 import './kosaraChart.css';
 
+// Color palette
 const officialColors = {
     X1: '#FFC40C',
     X2: '#FF0800',
@@ -111,7 +112,7 @@ export const KosaraChart = ({ setSelectedData }) => {
         d3.select(tooltipRef.current).style("display", "none");
     }
 
-    function onChange(value) {
+    function opacityChange(value) {
         setOpacity(value);
     }
 
@@ -120,6 +121,7 @@ export const KosaraChart = ({ setSelectedData }) => {
             setCellShownStatus({ ...cellShownStatus, [cell]: event.target.checked });
         }
     }
+
     // loading data
     useEffect(() => {
         d3.csv(data, d => ({
@@ -153,6 +155,7 @@ export const KosaraChart = ({ setSelectedData }) => {
         });
     }, []);
 
+    // rendering background image
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
         const backgroundGroup = svgElement.select(".background").empty() ? svgElement.append("g").attr("class", "background") : svgElement.select(".background");
@@ -179,6 +182,9 @@ export const KosaraChart = ({ setSelectedData }) => {
         const svg = svgElement
             .attr("viewBox", "0 0 800 800")
             .attr("preserveAspectRatio", "xMidYMid meet")
+
+        // remove duplicate brush
+        svg.select(".brush").remove();
 
         svg.append("g").attr("class", "brush").call(brush);
         // .call(d3.zoom().scaleExtent([1, 15]).on("zoom", (event) => {
@@ -267,7 +273,7 @@ export const KosaraChart = ({ setSelectedData }) => {
                     <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" />
                     <Switch style={{ margin: 2 }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checkedChildren="Hide Kosara Charts" unCheckedChildren="Show Kosara Charts" />
                     <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
-                    <Slider style={{ margin: 0 }} defaultValue={1} onChange={onChange} step={0.1} max={1} min={0} />
+                    <Slider style={{ margin: 0 }} defaultValue={1} onChange={opacityChange} step={0.1} max={1} min={0} />
                     <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
                         {Object.entries(officialColors).map(([key, color]) => (
                             <div key={key} style={{ display: 'flex', alignItems: 'center', marginRight: 10, marginBottom: 5 }}>

@@ -5,7 +5,11 @@
 }
 
 .KosaraChart {
-  flex: 1;
+  flex: 0 1 auto;
+}
+
+.CellTypeChart {
+  flex: 1 1 auto;
 }
 
 @media (prefers-reduced-motion: no-preference) {
