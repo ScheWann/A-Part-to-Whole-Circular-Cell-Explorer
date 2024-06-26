@@ -177,7 +177,7 @@ export const KosaraChart = ({ setSelectedData }) => {
         const svgElement = d3.select(svgRef.current);
         const brush = d3.brush()
             .extent([[0, 0], [800, 800]])
-            .on("brush", brushEnded);
+            .on("brush end", brushEnded);
 
         const svg = svgElement
             .attr("viewBox", "0 0 800 800")
@@ -190,13 +190,20 @@ export const KosaraChart = ({ setSelectedData }) => {
         // .call(d3.zoom().scaleExtent([1, 15]).on("zoom", (event) => {
         //     svg.selectAll("g.content, g.background").attr("transform", event.transform);
         // }));
+        
+        const selectedCells = Object.keys(cellShownStatus).filter(cell => cellShownStatus[cell]);
+        setSelectedData(kosaraData.map(d => ({
+            barcode: d.barcode,
+            x: d.x,
+            y: d.y,
+            ratios: Object.fromEntries(Object.entries(d.ratios).filter(([key, value]) => selectedCells.includes(key))),
+        })));
 
         function brushEnded(event) {
             const selection = event.selection;
             if (!selection) return;
 
             const [[x0, y0], [x1, y1]] = selection;
-            const selectedCells = Object.keys(cellShownStatus).filter(cell => cellShownStatus[cell]);
             
             const brushedData = kosaraData.filter(d => {
                 if (!d) return;
