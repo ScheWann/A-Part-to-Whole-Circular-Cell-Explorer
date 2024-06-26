@@ -19,12 +19,10 @@ export const CellTypeChart = ({ selectedData }) => {
 
     useEffect(() => {
         if (!selectedData || selectedData.length === 0) return;
-
         const counts = labels.map(label => 
             selectedData.reduce((count, item) => count + (item.ratios[label] > 0 ? 1 : 0), 0)
         );
 
-        // Set dimensions for the SVG canvas
         const svgElement = d3.select(svgRef.current);
         const parentWidth = svgRef.current.parentElement.clientWidth; // Get parent div width
         const width = parentWidth * 0.35; // Set SVG width to 50% of parent div width

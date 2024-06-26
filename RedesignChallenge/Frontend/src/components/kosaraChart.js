@@ -44,45 +44,6 @@ export const KosaraChart = ({ setSelectedData }) => {
     // const radius = (spotDiameter * lowrescalef / 2);
     const radius = spotDiameter * hirescalef / 2;
 
-    // function generateKosaraPath(pointX, pointY, angles, ratios) {
-    //     const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
-    //     let paths = [];
-    //     let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY = 0;
-    //     let topSixIndices = ratios.filter(item => item[1] !== 0).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]);
-    //     let topSixAngles = topSixIndices.map(index => angles.find(item => item[0] === index));
-
-    //     // TODO: angles for the first and middle spots are not very accurate, need to be fixed
-    //     topSixAngles = topSixAngles.map(angle => [angle[0], angle[1] + 8]);
-    //     topSixAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
-
-    //     topSixAngles.forEach((angle, index) => {
-    //         let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
-    //         let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
-    //         let endpointX = pointX - radius * Math.sin((45 - angle[1]) * Math.PI / 180);
-    //         let endpointY = pointY + radius * Math.cos((45 - angle[1]) * Math.PI / 180);
-
-    //         let path = '';
-
-    //         if (index === 0) {
-    //             path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
-    //         }
-    //         else if (index === topSixAngles.length - 1) {
-    //             path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
-    //         }
-    //         else {
-    //             path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
-    //         }
-
-    //         paths.push({ path, color: officialColors[angle[0]] });
-
-    //         lastStartPointX = startpointX;
-    //         lastStartPointY = startpointY;
-    //         lastEndPointX = endpointX;
-    //         lastEndPointY = endpointY;
-    //     })
-    //     return paths;
-    // }
-
     function generateKosaraPath(pointX, pointY, angles, ratios, cellShownStatus) {
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let paths = [];
@@ -225,19 +186,27 @@ export const KosaraChart = ({ setSelectedData }) => {
         // }));
 
         function brushEnded(event) {
-            console.log(event);
             const selection = event.selection;
             if (!selection) return;
 
             const [[x0, y0], [x1, y1]] = selection;
+            const selectedCells = Object.keys(cellShownStatus).filter(cell => cellShownStatus[cell]);
+            
             const brushedData = kosaraData.filter(d => {
                 if (!d) return;
                 const scaledX = d.x
                 const scaledY = d.y
                 return scaledX >= x0 && scaledX <= x1 && scaledY >= y0 && scaledY <= y1;
             });
-            setSelectedData(brushedData);
+            const selectedData = brushedData.map(d => ({
+                barcode: d.barcode,
+                x: d.x,
+                y: d.y,
+                ratios: Object.fromEntries(Object.entries(d.ratios).filter(([key, value]) => selectedCells.includes(key))),
+            }));
+            setSelectedData(selectedData);
         }
+        
         const contentGroup = svg.select(".content").empty() ? svg.append("g").attr("class", "content") : svg.select(".content");
 
         contentGroup.selectAll("g").remove();
@@ -252,7 +221,7 @@ export const KosaraChart = ({ setSelectedData }) => {
                     .on("mouseout", handleMouseOut);
 
                 const paths = generateKosaraPath(d.x, d.y, angles, ratios, cellShownStatus);
-                console.log(paths)
+
                 group.append("circle")
                     .attr("transform", `translate(${d.x}, ${d.y})`)
                     .attr("r", radius)
@@ -295,8 +264,8 @@ export const KosaraChart = ({ setSelectedData }) => {
                 }}
             >
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                    <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Show Background Image" unCheckedChildren="Hide Background Image" />
-                    <Switch style={{ margin: 2 }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checkedChildren="Show Kosara Charts" unCheckedChildren="Hide Kosara Charts" />
+                    <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" />
+                    <Switch style={{ margin: 2 }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checkedChildren="Hide Kosara Charts" unCheckedChildren="Show Kosara Charts" />
                     <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
                     <Slider style={{ margin: 0 }} defaultValue={1} onChange={onChange} step={0.1} max={1} min={0} />
                     <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
