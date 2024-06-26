@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Card, Slider, Switch } from "antd";
+import { Card, Slider, Switch, Checkbox } from "antd";
 import * as d3 from "d3";
 import data from "../data/kosaraChart.csv";
 import scaleJson from "../data/scalefactors_json.json";
 import hiresTissuePic from '../data/tissue_hires_image.png';
+import './kosaraChart.css';
 
 const officialColors = {
     X1: '#FFC40C',
@@ -24,6 +25,17 @@ export const KosaraChart = ({ setSelectedData }) => {
     const [showKosaraCharts, setShowKosaraCharts] = useState(true);
     const [kosaraData, setKosaraData] = useState([]);
     const [opacity, setOpacity] = useState(1);
+    const [cellShownStatus, setCellShownStatus] = useState({
+        X1: true,
+        X2: false,
+        X3: false,
+        X4: false,
+        X5: false,
+        X6: false,
+        X7: false,
+        X8: false,
+        X9: false
+    });
 
     const lowrescalef = scaleJson["tissue_lowres_scalef"];
     // const hirescalef = scaleJson["tissue_hires_scalef"];
@@ -32,42 +44,86 @@ export const KosaraChart = ({ setSelectedData }) => {
     // const radius = (spotDiameter * lowrescalef / 2);
     const radius = spotDiameter * hirescalef / 2;
 
-    function generateKosaraPath(pointX, pointY, angles, ratios) {
+    // function generateKosaraPath(pointX, pointY, angles, ratios) {
+    //     const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
+    //     let paths = [];
+    //     let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY = 0;
+    //     let topSixIndices = ratios.filter(item => item[1] !== 0).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]);
+    //     let topSixAngles = topSixIndices.map(index => angles.find(item => item[0] === index));
+
+    //     // TODO: angles for the first and middle spots are not very accurate, need to be fixed
+    //     topSixAngles = topSixAngles.map(angle => [angle[0], angle[1] + 8]);
+    //     topSixAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
+
+    //     topSixAngles.forEach((angle, index) => {
+    //         let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
+    //         let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
+    //         let endpointX = pointX - radius * Math.sin((45 - angle[1]) * Math.PI / 180);
+    //         let endpointY = pointY + radius * Math.cos((45 - angle[1]) * Math.PI / 180);
+
+    //         let path = '';
+
+    //         if (index === 0) {
+    //             path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
+    //         }
+    //         else if (index === topSixAngles.length - 1) {
+    //             path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+    //         }
+    //         else {
+    //             path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+    //         }
+
+    //         paths.push({ path, color: officialColors[angle[0]] });
+
+    //         lastStartPointX = startpointX;
+    //         lastStartPointY = startpointY;
+    //         lastEndPointX = endpointX;
+    //         lastEndPointY = endpointY;
+    //     })
+    //     return paths;
+    // }
+
+    function generateKosaraPath(pointX, pointY, angles, ratios, cellShownStatus) {
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let paths = [];
         let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY = 0;
-        let topSixIndices = ratios.filter(item => item[1] !== 0).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]);
+        let topCells = Object.entries(cellShownStatus).filter(([key, value]) => value).map(([key, value]) => key);
+        let topSixIndices = ratios.filter(item => item[1] !== 0 && topCells.includes(item[0])).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]);
         let topSixAngles = topSixIndices.map(index => angles.find(item => item[0] === index));
 
-        // TODO: angles for the first and middle spots are not very accurate, need to be fixed
-        topSixAngles = topSixAngles.map(angle => [angle[0], angle[1] + 8]);
-        topSixAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
+        // If no selected cells are shown, draw an empty circle
+        if (topSixAngles.length === 0) {
+            paths.push({ path: '', color: 'transparent' });
+        } else {
+            topSixAngles = topSixAngles.map(angle => [angle[0], angle[1] + 8]);
+            topSixAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
 
-        topSixAngles.forEach((angle, index) => {
-            let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
-            let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
-            let endpointX = pointX - radius * Math.sin((45 - angle[1]) * Math.PI / 180);
-            let endpointY = pointY + radius * Math.cos((45 - angle[1]) * Math.PI / 180);
+            topSixAngles.forEach((angle, index) => {
+                let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
+                let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
+                let endpointX = pointX - radius * Math.sin((45 - angle[1]) * Math.PI / 180);
+                let endpointY = pointY + radius * Math.cos((45 - angle[1]) * Math.PI / 180);
 
-            let path = '';
+                let path = '';
 
-            if (index === 0) {
-                path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
-            }
-            else if (index === topSixAngles.length - 1) {
-                path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
-            }
-            else {
-                path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
-            }
+                if (index === 0) {
+                    path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
+                }
+                else if (index === topSixAngles.length - 1) {
+                    path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                }
+                else {
+                    path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                }
 
-            paths.push({ path, color: officialColors[angle[0]] });
+                paths.push({ path, color: officialColors[angle[0]] });
 
-            lastStartPointX = startpointX;
-            lastStartPointY = startpointY;
-            lastEndPointX = endpointX;
-            lastEndPointY = endpointY;
-        })
+                lastStartPointX = startpointX;
+                lastStartPointY = startpointY;
+                lastEndPointX = endpointX;
+                lastEndPointY = endpointY;
+            });
+        }
         return paths;
     }
 
@@ -98,6 +154,11 @@ export const KosaraChart = ({ setSelectedData }) => {
         setOpacity(value);
     }
 
+    function onChangeShowCell(cell) {
+        return (event) => {
+            setCellShownStatus({ ...cellShownStatus, [cell]: event.target.checked });
+        }
+    }
     // loading data
     useEffect(() => {
         d3.csv(data, d => ({
@@ -152,7 +213,7 @@ export const KosaraChart = ({ setSelectedData }) => {
         const svgElement = d3.select(svgRef.current);
         const brush = d3.brush()
             .extent([[0, 0], [800, 800]])
-            .on("end", brushEnded);
+            .on("brush", brushEnded);
 
         const svg = svgElement
             .attr("viewBox", "0 0 800 800")
@@ -164,7 +225,7 @@ export const KosaraChart = ({ setSelectedData }) => {
         // }));
 
         function brushEnded(event) {
-            console.log(event); 
+            console.log(event);
             const selection = event.selection;
             if (!selection) return;
 
@@ -190,8 +251,14 @@ export const KosaraChart = ({ setSelectedData }) => {
                     .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
                     .on("mouseout", handleMouseOut);
 
-                const paths = generateKosaraPath(d.x, d.y, angles, ratios);
-
+                const paths = generateKosaraPath(d.x, d.y, angles, ratios, cellShownStatus);
+                console.log(paths)
+                group.append("circle")
+                    .attr("transform", `translate(${d.x}, ${d.y})`)
+                    .attr("r", radius)
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 0.1);
                 paths.forEach(({ path, color }) => {
                     group.append('path')
                         .attr('d', path)
@@ -215,7 +282,7 @@ export const KosaraChart = ({ setSelectedData }) => {
             });
         }
 
-    }, [showKosaraCharts, opacity, kosaraData]);
+    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus]);
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>
@@ -235,8 +302,12 @@ export const KosaraChart = ({ setSelectedData }) => {
                     <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
                         {Object.entries(officialColors).map(([key, color]) => (
                             <div key={key} style={{ display: 'flex', alignItems: 'center', marginRight: 10, marginBottom: 5 }}>
-                                <div style={{ width: 18, height: 18, backgroundColor: color, marginRight: 5 }}></div>
-                                <span>{key}</span>
+                                <Checkbox checked={cellShownStatus[key]} onChange={onChangeShowCell(key)} style={{
+                                    "--background-color": color,
+                                    "--border-color": color,
+                                }} />
+                                <div style={{ width: 15, height: 15, backgroundColor: color, marginLeft: 3 }}></div>
+                                <span style={{ marginLeft: 5 }}>{key}</span>
                             </div>
                         ))}
                     </div>
