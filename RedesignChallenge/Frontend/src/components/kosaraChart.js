@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Card, Slider, Switch, Checkbox } from "antd";
+import { Card, Slider, Switch, Checkbox, ConfigProvider } from "antd";
 import * as d3 from "d3";
 import data from "../data/kosaraChart.csv";
 import scaleJson from "../data/scalefactors_json.json";
@@ -28,7 +28,7 @@ export const KosaraChart = ({ setSelectedData }) => {
     const [opacity, setOpacity] = useState(1);
     const [cellShownStatus, setCellShownStatus] = useState({
         X1: true,
-        X2: false,
+        X2: true,
         X3: false,
         X4: false,
         X5: false,
@@ -190,7 +190,7 @@ export const KosaraChart = ({ setSelectedData }) => {
         // .call(d3.zoom().scaleExtent([1, 15]).on("zoom", (event) => {
         //     svg.selectAll("g.content, g.background").attr("transform", event.transform);
         // }));
-        
+
         const selectedCells = Object.keys(cellShownStatus).filter(cell => cellShownStatus[cell]);
         setSelectedData(kosaraData.map(d => ({
             barcode: d.barcode,
@@ -204,7 +204,7 @@ export const KosaraChart = ({ setSelectedData }) => {
             if (!selection) return;
 
             const [[x0, y0], [x1, y1]] = selection;
-            
+
             const brushedData = kosaraData.filter(d => {
                 if (!d) return;
                 const scaledX = d.x
@@ -219,7 +219,7 @@ export const KosaraChart = ({ setSelectedData }) => {
             }));
             setSelectedData(selectedData);
         }
-        
+
         const contentGroup = svg.select(".content").empty() ? svg.append("g").attr("class", "content") : svg.select(".content");
 
         contentGroup.selectAll("g").remove();

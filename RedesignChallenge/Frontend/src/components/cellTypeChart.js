@@ -27,7 +27,7 @@ export const CellTypeChart = ({ selectedData }) => {
         svgElement.selectAll("*").remove();
         const width = svgRef.current.clientWidth;
         const height = 200
-        const margin = { top: 20, right: 20, bottom: 35, left: 40 };
+        const margin = { top: 20, right: 20, bottom: 35, left: 45 };
 
         svgElement.attr("viewBox", `0 0 ${width} ${height}`);
 
