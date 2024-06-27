@@ -32,9 +32,11 @@ function App() {
     X9: false
   });
   const [opacity, setOpacity] = useState(1);
+
   function opacityChange(value) {
     setOpacity(value);
   }
+
   function onChangeShowCell(cell) {
     return (event) => {
       setCellShownStatus({ ...cellShownStatus, [cell]: event.target.checked });
@@ -52,9 +54,9 @@ function App() {
       >
         <div style={{ display: "flex", flexDirection: "column" }}>
           <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" />
-          <Switch style={{ margin: 2 }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checkedChildren="Hide Kosara Charts" unCheckedChildren="Show Kosara Charts" />
+          <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
           <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
-          <Slider style={{ margin: 0 }} defaultValue={1} onChange={opacityChange} step={0.1} max={1} min={0} />
+          <Slider style={{ margin: 0 }} defaultValue={1} onChange={opacityChange} disabled={!showKosaraCharts} step={0.1} max={1} min={0} />
           <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
             {Object.entries(officialColors).map(([key, color]) => (
               <div key={key} style={{ display: 'flex', alignItems: 'center', marginRight: 10, marginBottom: 5 }}>
