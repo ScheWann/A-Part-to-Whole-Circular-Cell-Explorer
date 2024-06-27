@@ -90,7 +90,7 @@ function App() {
           <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
             {Object.entries(officialColors).map(([key, color]) => (
               <div key={key} style={{ display: 'flex', alignItems: 'center', marginRight: 10, marginBottom: 5 }}>
-                <Checkbox checked={cellShownStatus[key]} onChange={onChangeShowCell(key)} style={{
+                <Checkbox checked={cellShownStatus[key]} onChange={onChangeShowCell(key)} disabled={!showKosaraCharts} style={{
                   "--background-color": color,
                   "--border-color": color,
                 }} />
@@ -118,7 +118,7 @@ function App() {
         relatedGeneData={relatedGeneData}
         setGeneExpressionScale={setGeneExpressionScale}
       />
-      <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "100vh" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "99vh" }}>
         <CellTypeChart
           className="CellTypeChart"
           selectedData={selectedData}

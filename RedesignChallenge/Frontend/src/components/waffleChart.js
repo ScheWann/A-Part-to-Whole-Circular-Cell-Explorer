@@ -392,7 +392,7 @@ export const WaffleChart = () => {
     }, [zoomEnabled, resetZoom]);
 
     return (
-        <div style={{ display: "flex", height: "100vh" }}>
+        <div style={{ display: "flex", height: "99vh" }}>
             {/* Button groups */}
             <Card
                 size="small"

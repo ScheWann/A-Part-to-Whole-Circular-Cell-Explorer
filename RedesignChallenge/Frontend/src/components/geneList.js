@@ -36,7 +36,7 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData }) 
             size="small"
             title="Gene List"
             extra={<Input size="small" placeholder="Search Genes" onChange={e => setSearchTerm(e.target.value)} />}
-            style={{ marginTop: 15, height: "67vh", overflow: "auto" }}
+            style={{ marginTop: 15, height: "65vh", overflow: "auto" }}
         >
             <List
                 size="small"
