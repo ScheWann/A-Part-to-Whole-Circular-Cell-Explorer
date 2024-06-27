@@ -4,6 +4,7 @@ import { Card, Slider, Switch, Checkbox } from "antd";
 import { KosaraChart } from './components/kosaraChart';
 import { CellTypeChart } from './components/cellTypeChart';
 import { GeneList } from './components/geneList';
+import { GradientLegend } from './components/gradientLegend';
 
 const officialColors = {
   X1: '#FFC40C',
@@ -24,6 +25,7 @@ function App() {
   const [opacity, setOpacity] = useState(1);
   const [selectedGene, setSelectedGene] = useState(null);
   const [relatedGeneData, setRelatedGeneData] = useState();
+  const [geneExpressionScale, setGeneExpressionScale] = useState([]);
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
     X2: true,
@@ -79,6 +81,7 @@ function App() {
               </div>
             ))}
           </div>
+          <GradientLegend min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} />
         </div>
       </Card>
       <KosaraChart
@@ -89,6 +92,7 @@ function App() {
         cellShownStatus={cellShownStatus}
         opacity={opacity}
         relatedGeneData={relatedGeneData}
+        setGeneExpressionScale={setGeneExpressionScale}
       />
       <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "100vh" }}>
         <CellTypeChart

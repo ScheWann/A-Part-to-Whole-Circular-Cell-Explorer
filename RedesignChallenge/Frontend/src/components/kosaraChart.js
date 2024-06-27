@@ -19,7 +19,7 @@ const officialColors = {
     X9: '#355E3B'
 }
 
-export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData }) => {
+export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
     const [kosaraData, setKosaraData] = useState([]);
@@ -239,7 +239,9 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         if (relatedGeneData && !showKosaraCharts) {
             const maxGeneExpressionValue = Math.max(...Object.values(relatedGeneData));
             const minGeneExpressionValue = Math.min(...Object.values(relatedGeneData));
+            setGeneExpressionScale([minGeneExpressionValue, maxGeneExpressionValue])
             const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([minGeneExpressionValue, maxGeneExpressionValue]);
+            
             kosaraData.forEach((d) => {
                 const ratios = Object.entries(d.ratios);
                 const relatedGeneValue = relatedGeneData[d.barcode];

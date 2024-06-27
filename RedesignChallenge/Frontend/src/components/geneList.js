@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { List, Card } from "antd";
+import { List, Card, Input } from "antd";
 
 export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData }) => {
     const [geneListData, setGeneListData] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         fetch("/geneList")
@@ -25,18 +26,21 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData }) 
             .then(data => {
                 console.log('Related data fetched:', data);
                 setRelatedGeneData(data);
-            })
+            });
     };
+
+    const filteredData = searchTerm ? geneListData.filter(item => item.toLowerCase().includes(searchTerm.toLowerCase())) : geneListData;
 
     return (
         <Card
             size="small"
             title="Gene List"
+            extra={<Input size="small" placeholder="Search Genes" onChange={e => setSearchTerm(e.target.value)} />}
             style={{ marginTop: 15, height: "67vh", overflow: "auto" }}
         >
             <List
                 size="small"
-                dataSource={geneListData}
+                dataSource={filteredData}
                 renderItem={(item) => (
                     <List.Item
                         style={{

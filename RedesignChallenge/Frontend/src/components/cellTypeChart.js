@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Card } from "antd";
 import * as d3 from "d3";
-import { GeneList } from "./geneList";
 
 export const CellTypeChart = ({ selectedData, selectedGene, setSelectedGene }) => {
     const svgRef = useRef(null);
