@@ -1,8 +1,9 @@
 import './App.css';
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Slider, Switch, Checkbox } from "antd";
 import { KosaraChart } from './components/kosaraChart';
 import { CellTypeChart } from './components/cellTypeChart';
+import { GeneList } from './components/geneList';
 
 const officialColors = {
   X1: '#FFC40C',
@@ -38,7 +39,7 @@ function App() {
     if (selectedGene !== null) {
       setShowKosaraCharts(false);
     }
-  }, [selectedGene]); // React to changes in selectedGene
+  }, [selectedGene]);
 
   function opacityChange(value) {
     setOpacity(value);
@@ -89,12 +90,18 @@ function App() {
         opacity={opacity}
         setOpacity={setOpacity}
       />
-      <CellTypeChart
-        className="CellTypeChart"
-        selectedData={selectedData}
-        selectedGene={selectedGene}
-        setSelectedGene={setSelectedGene}
-      />
+      <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "100vh" }}>
+        <CellTypeChart
+          className="CellTypeChart"
+          selectedData={selectedData}
+          selectedGene={selectedGene}
+          setSelectedGene={setSelectedGene}
+        />
+        <GeneList
+          selectedGene={selectedGene}
+          setSelectedGene={setSelectedGene}
+        />
+      </div>
     </div>
   );
 }

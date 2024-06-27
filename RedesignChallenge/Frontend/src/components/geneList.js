@@ -3,7 +3,7 @@ import { List, Card } from "antd";
 
 export const GeneList = ({ selectedGene, setSelectedGene }) => {
     const [geneListData, setGeneListData] = useState([]);
-    const [relatedData, setRelatedData] = useState();
+    const [relatedGeneData, setRelatedGeneData] = useState();
 
     useEffect(() => {
         fetch("/geneList")
@@ -25,7 +25,7 @@ export const GeneList = ({ selectedGene, setSelectedGene }) => {
             .then(response => response.json())
             .then(data => {
                 console.log('Related data fetched:', data);
-                setRelatedData(data);
+                setRelatedGeneData(data);
             })
     };
 

@@ -82,19 +82,12 @@ export const CellTypeChart = ({ selectedData, selectedGene, setSelectedGene }) =
     }, [selectedData]);
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "100vh" }}>
-            <Card
-                size="small"
-                title="Analysis of Cell Types"
-                height="30vh"
-            >
-                <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
-            </Card>
-            <GeneList 
-                selectedGene={selectedGene} 
-                setSelectedGene={setSelectedGene}
-            />
-        </div>
+        <Card
+            size="small"
+            title="Analysis of Cell Types"
+            height="30vh"
+        >
+            <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+        </Card>
     );
-
 };
