@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Card } from "antd";
 import * as d3 from "d3";
+import { GeneList } from "./geneList";
 
 export const CellTypeChart = ({ selectedData }) => {
     const svgRef = useRef(null);
@@ -82,13 +83,15 @@ export const CellTypeChart = ({ selectedData }) => {
     }, [selectedData]);
 
     return (
-        <Card 
-            size="small"
-            title="Analysis of Cell Types" 
-            style={{ height: "100vh", width: "41%" }}
-        >
-            <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
-        </Card>
+        <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "100vh" }}>
+            <Card
+                size="small"
+                title="Analysis of Cell Types"
+            >
+                <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+            </Card>
+            <GeneList />
+        </div>
     );
 
 };

@@ -13,11 +13,10 @@ function App() {
         className="KosaraChart"
         setSelectedData={setSelectedData}
       />
-      <CellTypeChart
-        className="CellTypeChart"
-        selectedData={selectedData}
-      />
-      <GeneList />
+        <CellTypeChart
+          className="CellTypeChart"
+          selectedData={selectedData}
+        />
     </div>
   );
 }
