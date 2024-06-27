@@ -1,6 +1,7 @@
 import './App.css';
-import React, { useEffect, useState } from "react";
-import { Card, Slider, Switch, Checkbox } from "antd";
+import React, { useEffect, useState, useMemo } from "react";
+import { Card, Slider, Switch, Checkbox, Tooltip } from "antd";
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { KosaraChart } from './components/kosaraChart';
 import { CellTypeChart } from './components/cellTypeChart';
 import { GeneList } from './components/geneList';
@@ -37,6 +38,18 @@ function App() {
     X8: false,
     X9: false
   });
+  const [arrow, setArrow] = useState('Show');
+  const mergedArrow = useMemo(() => {
+    if (arrow === 'Hide') {
+      return false;
+    }
+    if (arrow === 'Show') {
+      return true;
+    }
+    return {
+      pointAtCenter: true,
+    };
+  }, [arrow]);
 
   useEffect(() => {
     if (selectedGene !== null) {
@@ -67,7 +80,12 @@ function App() {
         <div style={{ display: "flex", flexDirection: "column" }}>
           <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" checked={showBackgroundImage} />
           <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
-          <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
+            <Tooltip placement="right" title={"Slided the bar to see the relationship of the cell types and the tissue"} overlayInnerStyle={{color: '#000'}} color={"white"} arrow={mergedArrow}>
+              <QuestionCircleOutlined style={{ fontSize: 10 }} />
+            </Tooltip>
+          </div>
           <Slider style={{ margin: 0 }} defaultValue={1} onChange={opacityChange} disabled={!showKosaraCharts} step={0.1} max={1} min={0} />
           <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
             {Object.entries(officialColors).map(([key, color]) => (
@@ -81,7 +99,13 @@ function App() {
               </div>
             ))}
           </div>
-          <GradientLegend min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} />
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Gene Expression Legend</h5>
+            <Tooltip placement="right" title={"Choosing a gene from the gene list first to show the specific gene expression value scale"} overlayInnerStyle={{color: '#000'}} color={"white"} arrow={mergedArrow}>
+              <QuestionCircleOutlined style={{ fontSize: 10 }} />
+            </Tooltip>
+          </div>
+          <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} />
         </div>
       </Card>
       <KosaraChart

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-export const GradientLegend = ({ min, max }) => {
+export const GradientLegend = ({ min, max, selectedGene }) => {
     const ref = useRef();
 
     useEffect(() => {
@@ -43,13 +43,22 @@ export const GradientLegend = ({ min, max }) => {
             .attr("font-size", "12px");
 
         svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", height + 15)
+            .text(selectedGene)
+            .attr("font-size", "12px")
+            .style("text-anchor", "middle");
+
+        svg.append("text")
             .attr("x", width)
             .attr("y", height + 15)
             .text(max)
             .attr("font-size", "12px")
             .style("text-anchor", "end");
 
-    }, [min, max]);
+    }, [min, max, selectedGene]);
 
-    return <svg ref={ref} style={{ width: "100%", height: "60px", marginTop: 10 }} />;
+    return (
+        <svg ref={ref} style={{ width: "100%", height: "60px" }} />
+    )
 };
