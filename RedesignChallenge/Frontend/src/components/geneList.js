@@ -17,12 +17,12 @@ export const GeneList = () => {
             <Card
                 size="small"
                 title="Gene List"
-                style={{marginTop: 15}}
+                style={{marginTop: 15, height: "67vh", overflow: "auto"}}
             >
                 <List
                     size="small"
                     dataSource={geneListData}
-                    style={{ height: "300px", overflow: "auto" }}
+                    style={{ height: "55vh", overflow: "auto" }}
                     renderItem={(item) => (
                         <List.Item>
                             {item}

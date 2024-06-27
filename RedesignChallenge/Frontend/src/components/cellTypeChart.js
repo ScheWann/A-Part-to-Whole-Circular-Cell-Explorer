@@ -87,6 +87,7 @@ export const CellTypeChart = ({ selectedData }) => {
             <Card
                 size="small"
                 title="Analysis of Cell Types"
+                height="30vh"
             >
                 <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
             </Card>
