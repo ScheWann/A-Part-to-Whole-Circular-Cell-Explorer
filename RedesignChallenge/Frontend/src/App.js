@@ -34,6 +34,11 @@ function App() {
     X9: false
   });
 
+  useEffect(() => {
+    if (selectedGene !== null) {
+      setShowKosaraCharts(false);
+    }
+  }, [selectedGene]); // React to changes in selectedGene
 
   function opacityChange(value) {
     setOpacity(value);
@@ -44,6 +49,7 @@ function App() {
       setCellShownStatus({ ...cellShownStatus, [cell]: event.target.checked });
     }
   }
+
   return (
     <div className="App">
       {/* Button groups */}
@@ -55,7 +61,7 @@ function App() {
         }}
       >
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" />
+          <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" checked={showBackgroundImage} />
           <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
           <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
           <Slider style={{ margin: 0 }} defaultValue={1} onChange={opacityChange} disabled={!showKosaraCharts} step={0.1} max={1} min={0} />

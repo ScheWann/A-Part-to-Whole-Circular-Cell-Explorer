@@ -19,7 +19,6 @@ export const CellTypeChart = ({ selectedData, selectedGene, setSelectedGene }) =
     };
 
     useEffect(() => {
-        console.log(selectedData);
         if (!selectedData || selectedData.length === 0) return;
         const counts = labels.map(label =>
             selectedData.reduce((count, item) => count + (item.ratios[label] > 0 ? 1 : 0), 0)
