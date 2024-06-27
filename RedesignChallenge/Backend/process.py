@@ -14,3 +14,6 @@ expression_data.columns.name = None
 
 def get_gene_list():
     return list(genes['gene'])
+
+def get_gene_expression(gene):
+    return expression_data[gene]

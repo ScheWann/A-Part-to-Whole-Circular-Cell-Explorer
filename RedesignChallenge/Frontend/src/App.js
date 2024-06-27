@@ -20,6 +20,8 @@ function App() {
   const [selectedData, setSelectedData] = useState([]);
   const [showBackgroundImage, setShowBackgroundImage] = useState(true);
   const [showKosaraCharts, setShowKosaraCharts] = useState(true);
+  const [opacity, setOpacity] = useState(1);
+  const [selectedGene, setSelectedGene] = useState(null);
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
     X2: true,
@@ -31,7 +33,7 @@ function App() {
     X8: false,
     X9: false
   });
-  const [opacity, setOpacity] = useState(1);
+
 
   function opacityChange(value) {
     setOpacity(value);
@@ -84,6 +86,8 @@ function App() {
       <CellTypeChart
         className="CellTypeChart"
         selectedData={selectedData}
+        selectedGene={selectedGene}
+        setSelectedGene={setSelectedGene}
       />
     </div>
   );

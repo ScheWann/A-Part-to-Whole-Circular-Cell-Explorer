@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { List, Card } from "antd";
 
-export const GeneList = () => {
+export const GeneList = ({ selectedGene, setSelectedGene }) => {
     const [geneListData, setGeneListData] = useState();
-    const [selectedItem, setSelectedItem] = useState(null); // State to track the selected item
+    const [relatedData, setRelatedData] = useState();
 
     useEffect(() => {
         fetch("/geneList")
@@ -14,7 +14,22 @@ export const GeneList = () => {
     }, []);
 
     const handleItemClick = (item) => {
-        setSelectedItem(item); // Set the clicked item as selected
+        setSelectedGene(item);
+        fetch("/geneExpression", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gene: item })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                setRelatedData(data); // Update state with the response data
+            })
+            .catch(error => {
+                console.error('Error fetching related data:', error);
+            });
     };
 
     return (
@@ -31,8 +46,8 @@ export const GeneList = () => {
                     <List.Item
                         style={{
                             transition: "background-color 0.3s ease",
-                            backgroundColor: item === selectedItem ? '#6CB4EE' : 'transparent',
-                            color: item === selectedItem ? '#fff' : '#000',
+                            backgroundColor: item === selectedGene ? '#6CB4EE' : 'transparent',
+                            color: item === selectedGene ? '#fff' : '#000',
                             cursor: 'pointer'
                         }}
                         onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#6CB4EE", e.currentTarget.style.color = "#fff")}

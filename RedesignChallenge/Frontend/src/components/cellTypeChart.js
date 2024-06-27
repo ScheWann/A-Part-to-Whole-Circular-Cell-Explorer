@@ -3,7 +3,7 @@ import { Card } from "antd";
 import * as d3 from "d3";
 import { GeneList } from "./geneList";
 
-export const CellTypeChart = ({ selectedData }) => {
+export const CellTypeChart = ({ selectedData, selectedGene, setSelectedGene }) => {
     const svgRef = useRef(null);
     const labels = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
     const officialColors = {
@@ -91,7 +91,10 @@ export const CellTypeChart = ({ selectedData }) => {
             >
                 <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
             </Card>
-            <GeneList />
+            <GeneList 
+                selectedGene={selectedGene} 
+                setSelectedGene={setSelectedGene}
+            />
         </div>
     );
 
