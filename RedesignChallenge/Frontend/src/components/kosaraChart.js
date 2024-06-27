@@ -19,24 +19,10 @@ const officialColors = {
     X9: '#355E3B'
 }
 
-export const KosaraChart = ({ setSelectedData }) => {
+export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, setCellShownStatus, opacity, setOpacity }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
-    const [showBackgroundImage, setShowBackgroundImage] = useState(true);
-    const [showKosaraCharts, setShowKosaraCharts] = useState(true);
     const [kosaraData, setKosaraData] = useState([]);
-    const [opacity, setOpacity] = useState(1);
-    const [cellShownStatus, setCellShownStatus] = useState({
-        X1: true,
-        X2: true,
-        X3: false,
-        X4: false,
-        X5: false,
-        X6: false,
-        X7: false,
-        X8: false,
-        X9: false
-    });
 
     const lowrescalef = scaleJson["tissue_lowres_scalef"];
     // const hirescalef = scaleJson["tissue_hires_scalef"];
@@ -110,16 +96,6 @@ export const KosaraChart = ({ setSelectedData }) => {
 
     function handleMouseOut() {
         d3.select(tooltipRef.current).style("display", "none");
-    }
-
-    function opacityChange(value) {
-        setOpacity(value);
-    }
-
-    function onChangeShowCell(cell) {
-        return (event) => {
-            setCellShownStatus({ ...cellShownStatus, [cell]: event.target.checked });
-        }
     }
 
     // loading data
@@ -268,33 +244,6 @@ export const KosaraChart = ({ setSelectedData }) => {
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>
-            {/* Button groups */}
-            <Card
-                size="small"
-                title="Tools"
-                style={{
-                    width: 300,
-                }}
-            >
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                    <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" />
-                    <Switch style={{ margin: 2 }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checkedChildren="Hide Kosara Charts" unCheckedChildren="Show Kosara Charts" />
-                    <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
-                    <Slider style={{ margin: 0 }} defaultValue={1} onChange={opacityChange} step={0.1} max={1} min={0} />
-                    <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
-                        {Object.entries(officialColors).map(([key, color]) => (
-                            <div key={key} style={{ display: 'flex', alignItems: 'center', marginRight: 10, marginBottom: 5 }}>
-                                <Checkbox checked={cellShownStatus[key]} onChange={onChangeShowCell(key)} style={{
-                                    "--background-color": color,
-                                    "--border-color": color,
-                                }} />
-                                <div style={{ width: 15, height: 15, backgroundColor: color, marginLeft: 3 }}></div>
-                                <span style={{ marginLeft: 5 }}>{key}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </Card>
             <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
             <div ref={tooltipRef} style={{ position: "absolute", backgroundColor: "white", border: "1px solid #ccc", padding: "10px", display: "none", pointerEvents: "none" }}></div>
         </div>
