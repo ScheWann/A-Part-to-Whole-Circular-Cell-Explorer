@@ -19,16 +19,13 @@ const officialColors = {
     X9: '#355E3B'
 }
 
-export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, setCellShownStatus, opacity, setOpacity }) => {
+export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
     const [kosaraData, setKosaraData] = useState([]);
 
-    const lowrescalef = scaleJson["tissue_lowres_scalef"];
-    // const hirescalef = scaleJson["tissue_hires_scalef"];
     const hirescalef = 0.046094715;
     const spotDiameter = scaleJson["spot_diameter_fullres"];
-    // const radius = (spotDiameter * lowrescalef / 2);
     const radius = spotDiameter * hirescalef / 2;
 
     function generateKosaraPath(pointX, pointY, angles, ratios, cellShownStatus) {
@@ -239,8 +236,28 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                     .attr("stroke-width", 0.1);
             });
         }
+        if (relatedGeneData && !showKosaraCharts) {
+            const maxGeneExpressionValue = Math.max(...Object.values(relatedGeneData));
+            const minGeneExpressionValue = Math.min(...Object.values(relatedGeneData));
+            const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([minGeneExpressionValue, maxGeneExpressionValue]);
+            kosaraData.forEach((d) => {
+                const ratios = Object.entries(d.ratios);
+                const relatedGeneValue = relatedGeneData[d.barcode];
+                const color = relatedGeneValue ? colorScale(relatedGeneValue) : 'none';
+                const group = contentGroup.append("g")
+                    .attr("transform", `translate(${d.x}, ${d.y})`)
+                    .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
+                    .on("mouseout", handleMouseOut);
 
-    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus]);
+                group.append("circle")
+                    .attr("r", radius)
+                    .attr("fill", color)
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 0.1);
+            });
+        }
+
+    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData]);
 
     return (
         <div style={{ display: "flex", height: "100vh" }}>

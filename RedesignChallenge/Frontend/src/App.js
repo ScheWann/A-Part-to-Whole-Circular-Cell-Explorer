@@ -23,6 +23,7 @@ function App() {
   const [showKosaraCharts, setShowKosaraCharts] = useState(true);
   const [opacity, setOpacity] = useState(1);
   const [selectedGene, setSelectedGene] = useState(null);
+  const [relatedGeneData, setRelatedGeneData] = useState();
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
     X2: true,
@@ -85,10 +86,9 @@ function App() {
         setSelectedData={setSelectedData}
         showBackgroundImage={showBackgroundImage}
         showKosaraCharts={showKosaraCharts}
-        setCellShownStatus={setCellShownStatus}
         cellShownStatus={cellShownStatus}
         opacity={opacity}
-        setOpacity={setOpacity}
+        relatedGeneData={relatedGeneData}
       />
       <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "100vh" }}>
         <CellTypeChart
@@ -100,6 +100,7 @@ function App() {
         <GeneList
           selectedGene={selectedGene}
           setSelectedGene={setSelectedGene}
+          setRelatedGeneData={setRelatedGeneData}
         />
       </div>
     </div>

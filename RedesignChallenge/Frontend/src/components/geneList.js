@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { List, Card } from "antd";
 
-export const GeneList = ({ selectedGene, setSelectedGene }) => {
+export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData }) => {
     const [geneListData, setGeneListData] = useState([]);
-    const [relatedGeneData, setRelatedGeneData] = useState();
 
     useEffect(() => {
         fetch("/geneList")
