@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Card, Slider, Switch, Checkbox, ConfigProvider } from "antd";
 import * as d3 from "d3";
 import data from "../data/kosaraChart.csv";
 import scaleJson from "../data/scalefactors_json.json";
@@ -93,7 +92,6 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
     function handleGeneMouseOver(event, d) {
         const tooltip = d3.select(tooltipRef.current);
-        console.log(d);
         tooltip
             .style("display", "block")
             .style("left", `${event.pageX + 10}px`)
@@ -108,36 +106,41 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
     // loading data
     useEffect(() => {
-        d3.csv(data, d => ({
-            barcode: d.barcode,
-            x: +d.x * hirescalef,
-            y: +d.y * hirescalef,
-            ratios: {
-                X1: +d.X1,
-                X2: +d.X2,
-                X3: +d.X3,
-                X4: +d.X4,
-                X5: +d.X5,
-                X6: +d.X6,
-                X7: +d.X7,
-                X8: +d.X8,
-                X9: +d.X9
-            },
-            angles: {
-                X1: +d.X1_angle,
-                X2: +d.X2_angle,
-                X3: +d.X3_angle,
-                X4: +d.X4_angle,
-                X5: +d.X5_angle,
-                X6: +d.X6_angle,
-                X7: +d.X7_angle,
-                X8: +d.X8_angle,
-                X9: +d.X9_angle
-            }
-        })).then(data => {
-            setKosaraData(data);
-        });
+        fetch("/getKosaraData")
+            .then(res => res.json())
+            .then(data => {
+                const indices = Object.keys(data.barcode);
+                const transformedData = indices.map(index => ({
+                    barcode: data.barcode[index],
+                    x: +data.x[index] * hirescalef,
+                    y: +data.y[index] * hirescalef,
+                    ratios: {
+                        X1: +data.X1[index],
+                        X2: +data.X2[index],
+                        X3: +data.X3[index],
+                        X4: +data.X4[index],
+                        X5: +data.X5[index],
+                        X6: +data.X6[index],
+                        X7: +data.X7[index],
+                        X8: +data.X8[index],
+                        X9: +data.X9[index]
+                    },
+                    angles: {
+                        X1: +data.X1_angle[index],
+                        X2: +data.X2_angle[index],
+                        X3: +data.X3_angle[index],
+                        X4: +data.X4_angle[index],
+                        X5: +data.X5_angle[index],
+                        X6: +data.X6_angle[index],
+                        X7: +data.X7_angle[index],
+                        X8: +data.X8_angle[index],
+                        X9: +data.X9_angle[index]
+                    }
+                }));
+                setKosaraData(transformedData);
+            });
     }, []);
+    
 
     // rendering background image
     useEffect(() => {

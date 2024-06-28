@@ -24,7 +24,6 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData }) 
         })
             .then(response => response.json())
             .then(data => {
-                console.log('Related data fetched:', data);
                 setRelatedGeneData(data);
             });
     };
