@@ -116,6 +116,7 @@ function App() {
         cellShownStatus={cellShownStatus}
         opacity={opacity}
         relatedGeneData={relatedGeneData}
+        selectedGene={selectedGene}
         setGeneExpressionScale={setGeneExpressionScale}
       />
       <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "99vh" }}>

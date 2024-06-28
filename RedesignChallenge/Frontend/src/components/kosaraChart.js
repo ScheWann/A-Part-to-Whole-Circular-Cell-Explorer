@@ -19,7 +19,7 @@ const officialColors = {
     X9: '#355E3B'
 }
 
-export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale }) => {
+export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
     const [kosaraData, setKosaraData] = useState([]);
@@ -72,7 +72,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         return paths;
     }
 
-    function handleMouseOver(event, d) {
+    function handleKosaraMouseOver(event, d) {
         const tooltip = d3.select(tooltipRef.current);
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
 
@@ -87,9 +87,20 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             .style("display", "block")
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY + 10}px`)
+            .style("z-index", "1000")
             .html(topSix.map(item => `${item[0]}: ${(item[1] * 100).toFixed(2)}%`).join("<br>"));
     }
 
+    function handleGeneMouseOver(event, d) {
+        const tooltip = d3.select(tooltipRef.current);
+        console.log(d);
+        tooltip
+            .style("display", "block")
+            .style("left", `${event.pageX + 10}px`)
+            .style("top", `${event.pageY + 10}px`)
+            .style("z-index", "1000")
+            .html(`Gene: ${d.selectedGene}<br>Gene Expression: ${d.relatedGeneValue}`);
+    }
 
     function handleMouseOut() {
         d3.select(tooltipRef.current).style("display", "none");
@@ -159,7 +170,9 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         // remove duplicate brush
         svg.select(".brush").remove();
 
-        svg.append("g").attr("class", "brush").call(brush);
+        if(showKosaraCharts) {
+            svg.append("g").attr("class", "brush").call(brush);
+        }
         // .call(d3.zoom().scaleExtent([1, 15]).on("zoom", (event) => {
         //     svg.selectAll("g.content, g.background").attr("transform", event.transform);
         // }));
@@ -203,7 +216,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 const group = contentGroup.append("g")
                     .attr("class", "kosara-chart")
                     .attr("opacity", opacity)
-                    .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
+                    .on("mouseover", (event) => handleKosaraMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
                     .on("mouseout", handleMouseOut);
 
                 const paths = generateKosaraPath(d.x, d.y, angles, ratios, cellShownStatus);
@@ -226,7 +239,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 const group = contentGroup.append("g")
                     .attr("transform", `translate(${d.x}, ${d.y})`)
                     .attr("opacity", opacity)
-                    .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
+                    .on("mouseover", (event) => handleKosaraMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
                     .on("mouseout", handleMouseOut);
 
                 group.append("circle")
@@ -248,7 +261,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 const color = relatedGeneValue ? colorScale(relatedGeneValue) : 'none';
                 const group = contentGroup.append("g")
                     .attr("transform", `translate(${d.x}, ${d.y})`)
-                    .on("mouseover", (event) => handleMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
+                    .on("mouseover", (event) => handleGeneMouseOver(event, {selectedGene: selectedGene, relatedGeneValue: relatedGeneValue}))
                     .on("mouseout", handleMouseOut);
 
                 group.append("circle")
