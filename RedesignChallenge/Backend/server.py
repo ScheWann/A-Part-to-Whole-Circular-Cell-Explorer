@@ -4,12 +4,10 @@ app = Flask(__name__)
 
 
 @app.route('/geneList')
-# def get_geneList():
-#     return jsonify(get_gene_list())
 def get_geneList():
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=55, type=int)
-    gene_list = get_gene_list()  # Assuming this returns a list of all genes
+    gene_list = get_gene_list()
     start = (page - 1) * per_page
     end = start + per_page
     return jsonify(gene_list[start:end])
