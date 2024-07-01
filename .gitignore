@@ -1,6 +1,7 @@
 .DS_Store
 .node_modules
 /RedesignChallenge/data/FeatureMatrix.mtx
+/RedesignChallenge/Python/output.csv
 /RedesignChallenge/Frontend/src/data/expressionData.csv
 /RedesignChallenge/Backend/venv
 /RedesignChallenge/Backend/__pycache__
