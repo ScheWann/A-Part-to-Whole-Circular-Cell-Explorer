@@ -23,7 +23,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     const tooltipRef = useRef(null);
     const [kosaraData, setKosaraData] = useState([]);
 
-    const hirescalef = 0.046094715;
+    const hirescalef = 0.046594715;
     const spotDiameter = scaleJson["spot_diameter_fullres"];
     const radius = spotDiameter * hirescalef / 2;
 
