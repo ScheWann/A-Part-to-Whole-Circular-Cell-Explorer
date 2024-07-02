@@ -97,7 +97,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY + 10}px`)
             .style("z-index", "1000")
-            .html(`Gene: ${d.selectedGene}<br>Gene Expression: ${d.relatedGeneValue}`);
+            .html(`Gene: ${d.selectedGene}<br>UMI Counts: ${d.relatedGeneValue}`);
     }
 
     function handleMouseOut() {

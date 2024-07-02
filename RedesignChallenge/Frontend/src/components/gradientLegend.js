@@ -8,7 +8,7 @@ export const GradientLegend = ({ min, max, selectedGene }) => {
         const svgElement = ref.current;
         const svg = d3.select(svgElement);
         const boundingRect = svgElement.getBoundingClientRect();
-        const width = boundingRect.width; // Get the dynamic width
+        const width = boundingRect.width;
         const height = 20;
 
         svg.selectAll("*").remove();

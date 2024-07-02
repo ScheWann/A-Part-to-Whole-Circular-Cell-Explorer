@@ -100,7 +100,7 @@ function App() {
             ))}
           </div>
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Gene Expression Legend</h5>
+            <h5 style={{ marginBottom: 5, fontWeight: 500 }}>UMI counts Legend</h5>
             <Tooltip placement="right" title={"Choosing a gene from the gene list first to show the specific gene expression value scale"} overlayInnerStyle={{color: '#000'}} color={"white"} arrow={mergedArrow}>
               <QuestionCircleOutlined style={{ fontSize: 10 }} />
             </Tooltip>
