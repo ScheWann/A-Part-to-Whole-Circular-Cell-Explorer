@@ -23,6 +23,7 @@ function App() {
   const [selectedData, setSelectedData] = useState([]);
   const [showBackgroundImage, setShowBackgroundImage] = useState(true);
   const [showKosaraCharts, setShowKosaraCharts] = useState(true);
+  const [UMITotalCounts, setUMITotalCounts] = useState({});
   const [opacity, setOpacity] = useState(1);
   const [selectedGene, setSelectedGene] = useState(null);
   const [relatedGeneData, setRelatedGeneData] = useState();
@@ -56,6 +57,16 @@ function App() {
       setShowKosaraCharts(false);
     }
   }, [selectedGene]);
+
+  useEffect(() => {
+    if (!showKosaraCharts && selectedGene === null) {
+      fetch("/getUMITotalCounts")
+      .then(res => res.json())
+      .then(data => {
+        setUMITotalCounts(data);
+      });
+    }
+  }, [showKosaraCharts]);
 
   function opacityChange(value) {
     setOpacity(value);
@@ -117,6 +128,7 @@ function App() {
         opacity={opacity}
         relatedGeneData={relatedGeneData}
         selectedGene={selectedGene}
+        UMITotalCounts={UMITotalCounts}
         setGeneExpressionScale={setGeneExpressionScale}
       />
       <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "99vh" }}>

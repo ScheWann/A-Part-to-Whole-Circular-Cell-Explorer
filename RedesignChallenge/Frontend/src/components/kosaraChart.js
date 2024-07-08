@@ -18,7 +18,7 @@ const officialColors = {
     X9: '#355E3B'
 }
 
-export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene }) => {
+export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
     const [kosaraData, setKosaraData] = useState([]);
@@ -104,6 +104,29 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         d3.select(tooltipRef.current).style("display", "none");
     }
 
+    function circleRender(data, svgGroup) {
+        const maxValue = Math.max(...Object.values(data));
+        const minValue = Math.min(...Object.values(data));
+        console.log(minValue, maxValue, 'minValue, maxValue');
+        setGeneExpressionScale([minValue, maxValue]);
+        const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([minValue, maxValue]);
+
+        kosaraData.forEach((d) => {
+            const relatedGeneValue = data[d.barcode];
+            const color = relatedGeneValue ? colorScale(relatedGeneValue) : 'none';
+            const group = svgGroup.append("g")
+                .attr("transform", `translate(${d.x}, ${d.y})`)
+                .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, relatedGeneValue: relatedGeneValue }))
+                .on("mouseout", handleMouseOut);
+
+            group.append("circle")
+                .attr("r", radius)
+                .attr("fill", color)
+                .attr("stroke", "black")
+                .attr("stroke-width", 0.1);
+        });
+    }
+
     // loading data
     useEffect(() => {
         fetch("/getKosaraData")
@@ -140,7 +163,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 setKosaraData(transformedData);
             });
     }, []);
-    
+
 
     // rendering background image
     useEffect(() => {
@@ -173,7 +196,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         // remove duplicate brush
         svg.select(".brush").remove();
 
-        if(showKosaraCharts) {
+        if (showKosaraCharts) {
             svg.append("g").attr("class", "brush").call(brush);
         }
         // .call(d3.zoom().scaleExtent([1, 15]).on("zoom", (event) => {
@@ -253,29 +276,14 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             });
         }
         if (relatedGeneData && !showKosaraCharts) {
-            const maxGeneExpressionValue = Math.max(...Object.values(relatedGeneData));
-            const minGeneExpressionValue = Math.min(...Object.values(relatedGeneData));
-            setGeneExpressionScale([minGeneExpressionValue, maxGeneExpressionValue])
-            const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([minGeneExpressionValue, maxGeneExpressionValue]);
-
-            kosaraData.forEach((d) => {
-                const ratios = Object.entries(d.ratios);
-                const relatedGeneValue = relatedGeneData[d.barcode];
-                const color = relatedGeneValue ? colorScale(relatedGeneValue) : 'none';
-                const group = contentGroup.append("g")
-                    .attr("transform", `translate(${d.x}, ${d.y})`)
-                    .on("mouseover", (event) => handleGeneMouseOver(event, {selectedGene: selectedGene, relatedGeneValue: relatedGeneValue}))
-                    .on("mouseout", handleMouseOut);
-
-                group.append("circle")
-                    .attr("r", radius)
-                    .attr("fill", color)
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 0.1);
-            });
+            circleRender(relatedGeneData, contentGroup);
         }
 
-    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData]);
+        if (Object.keys(UMITotalCounts).length !== 0 && !showKosaraCharts) {
+            circleRender(UMITotalCounts, contentGroup);
+        }
+
+    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts]);
 
     return (
         <div style={{ display: "flex", height: "99vh" }}>
