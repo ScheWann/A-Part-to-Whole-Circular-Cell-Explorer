@@ -108,7 +108,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         const maxValue = Math.max(...Object.values(data));
         const minValue = Math.min(...Object.values(data));
         setGeneExpressionScale([minValue, maxValue]);
-        const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([minValue, maxValue]);
+        const colorScale = d3.scaleSequential(d3.interpolateOranges).domain([minValue, maxValue]);
 
         kosaraData.forEach((d) => {
             const relatedGeneValue = data[d.barcode];

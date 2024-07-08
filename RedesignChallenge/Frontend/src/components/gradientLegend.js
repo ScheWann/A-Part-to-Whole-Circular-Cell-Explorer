@@ -23,11 +23,11 @@ export const GradientLegend = ({ min, max, selectedGene, showKosaraCharts }) => 
 
         gradient.append("stop")
             .attr("offset", "0%")
-            .attr("stop-color", d3.interpolateBlues(0));
+            .attr("stop-color", d3.interpolateOranges(0));
 
         gradient.append("stop")
             .attr("offset", "100%")
-            .attr("stop-color", d3.interpolateBlues(1));
+            .attr("stop-color", d3.interpolateOranges(1));
 
         // Add rectangle filled with gradient
         svg.append("rect")
