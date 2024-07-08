@@ -26,7 +26,7 @@ function App() {
   const [UMITotalCounts, setUMITotalCounts] = useState({});
   const [opacity, setOpacity] = useState(1);
   const [selectedGene, setSelectedGene] = useState(null);
-  const [relatedGeneData, setRelatedGeneData] = useState();
+  const [relatedGeneData, setRelatedGeneData] = useState(null);
   const [geneExpressionScale, setGeneExpressionScale] = useState([]);
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
@@ -65,8 +65,10 @@ function App() {
       .then(data => {
         setUMITotalCounts(data);
       });
+    } else {
+      setUMITotalCounts({});
     }
-  }, [showKosaraCharts]);
+  }, [showKosaraCharts, selectedGene]);
 
   function opacityChange(value) {
     setOpacity(value);

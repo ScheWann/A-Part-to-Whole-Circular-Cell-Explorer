@@ -45,7 +45,7 @@ export const GradientLegend = ({ min, max, selectedGene }) => {
         svg.append("text")
             .attr("x", width / 2)
             .attr("y", height + 15)
-            .text(selectedGene)
+            .text(selectedGene ? selectedGene : "Total UMI Counts")
             .attr("font-size", "12px")
             .style("text-anchor", "middle");
 

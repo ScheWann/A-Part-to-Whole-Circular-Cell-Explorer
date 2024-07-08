@@ -27,18 +27,23 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData }) 
     };
 
     const handleItemClick = (item) => {
-        setSelectedGene(item);
-        fetch("/geneExpression", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ gene: item })
-        })
-            .then(response => response.json())
-            .then(data => {
-                setRelatedGeneData(data);
-            });
+        if (selectedGene === item) {
+            setSelectedGene(null);
+            setRelatedGeneData(null);
+        } else {
+            setSelectedGene(item);
+            fetch("/geneExpression", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ gene: item })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    setRelatedGeneData(data);
+                });
+        }
     };
 
     const filteredData = searchTerm ? geneListData.filter(item => item.toLowerCase().includes(searchTerm.toLowerCase())) : geneListData;

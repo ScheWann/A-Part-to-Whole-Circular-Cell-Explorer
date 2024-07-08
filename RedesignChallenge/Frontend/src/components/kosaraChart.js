@@ -107,7 +107,6 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     function circleRender(data, svgGroup) {
         const maxValue = Math.max(...Object.values(data));
         const minValue = Math.min(...Object.values(data));
-        console.log(minValue, maxValue, 'minValue, maxValue');
         setGeneExpressionScale([minValue, maxValue]);
         const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([minValue, maxValue]);
 
@@ -274,13 +273,14 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                     .attr("stroke", "black")
                     .attr("stroke-width", 0.1);
             });
-        }
-        if (relatedGeneData && !showKosaraCharts) {
-            circleRender(relatedGeneData, contentGroup);
-        }
 
-        if (Object.keys(UMITotalCounts).length !== 0 && !showKosaraCharts) {
-            circleRender(UMITotalCounts, contentGroup);
+            if(relatedGeneData) {
+                circleRender(relatedGeneData, contentGroup); 
+            }
+
+            if (Object.keys(UMITotalCounts).length !== 0) {
+                circleRender(UMITotalCounts, contentGroup);
+            }
         }
 
     }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts]);
