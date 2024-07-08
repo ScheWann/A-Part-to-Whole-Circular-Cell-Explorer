@@ -94,7 +94,7 @@ function App() {
           <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" checked={showBackgroundImage} />
           <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Kosara Chart Opacity</h5>
+            <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Opacity</h5>
             <Tooltip placement="right" title={"Slided the bar to see the relationship of the cell types and the tissue"} overlayInnerStyle={{color: '#000'}} color={"white"} arrow={mergedArrow}>
               <QuestionCircleOutlined style={{ fontSize: 10 }} />
             </Tooltip>
@@ -118,7 +118,7 @@ function App() {
               <QuestionCircleOutlined style={{ fontSize: 10 }} />
             </Tooltip>
           </div>
-          <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} />
+          <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} showKosaraCharts={showKosaraCharts}/>
         </div>
       </Card>
       <KosaraChart
