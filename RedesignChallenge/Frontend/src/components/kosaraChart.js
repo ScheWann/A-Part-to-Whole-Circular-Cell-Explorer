@@ -97,8 +97,8 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY + 10}px`)
             .style("z-index", "1000")
-            .html(`Gene: ${d.selectedGene}<br>UMI Counts: ${d.relatedGeneValue}`);
-    }
+            .html(`${d.selectedGene ? `Gene: ${d.selectedGene}<br>` : ''}Barcode: ${d.barcode}<br>UMI Counts: ${d.relatedGeneValue}`);
+    }    
 
     function handleMouseOut() {
         d3.select(tooltipRef.current).style("display", "none");
@@ -115,7 +115,8 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             const color = relatedGeneValue ? colorScale(relatedGeneValue) : 'none';
             const group = svgGroup.append("g")
                 .attr("transform", `translate(${d.x}, ${d.y})`)
-                .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, relatedGeneValue: relatedGeneValue }))
+                .attr("opacity", opacity)
+                .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, barcode: d.barcode, relatedGeneValue: relatedGeneValue }))
                 .on("mouseout", handleMouseOut);
 
             group.append("circle")
@@ -259,21 +260,6 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 });
             });
         } else {
-            kosaraData.forEach((d) => {
-                const ratios = Object.entries(d.ratios);
-                const group = contentGroup.append("g")
-                    .attr("transform", `translate(${d.x}, ${d.y})`)
-                    .attr("opacity", opacity)
-                    .on("mouseover", (event) => handleKosaraMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
-                    .on("mouseout", handleMouseOut);
-
-                group.append("circle")
-                    .attr("r", radius)
-                    .attr("fill", "none")
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 0.1);
-            });
-
             if(relatedGeneData) {
                 circleRender(relatedGeneData, contentGroup); 
             }

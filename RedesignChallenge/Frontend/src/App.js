@@ -99,7 +99,7 @@ function App() {
               <QuestionCircleOutlined style={{ fontSize: 10 }} />
             </Tooltip>
           </div>
-          <Slider style={{ margin: 0 }} defaultValue={1} onChange={opacityChange} disabled={!showKosaraCharts} step={0.1} max={1} min={0} />
+          <Slider style={{ margin: 0 }} defaultValue={1} onChange={opacityChange} step={0.1} max={1} min={0} />
           <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
             {Object.entries(officialColors).map(([key, color]) => (
               <div key={key} style={{ display: 'flex', alignItems: 'center', marginRight: 10, marginBottom: 5 }}>
