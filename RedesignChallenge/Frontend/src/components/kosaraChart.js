@@ -123,7 +123,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 .attr("r", radius)
                 .attr("fill", color)
                 .attr("stroke", "black")
-                .attr("stroke-width", 0.1);
+                .attr("stroke-width", 1);
         });
     }
 
@@ -252,6 +252,8 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                     .attr("r", radius)
                     .attr("fill", "none")
                     .attr("stroke", "black")
+                    .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, barcode: d.barcode }))
+                    .on("mouseout", handleMouseOut)
                     .attr("stroke-width", 0.1);
                 paths.forEach(({ path, color }) => {
                     group.append('path')
