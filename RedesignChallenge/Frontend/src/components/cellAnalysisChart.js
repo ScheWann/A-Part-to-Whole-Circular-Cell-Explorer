@@ -120,7 +120,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
                 .text("Counts");
         }
 
-    }, [selectedData, tabKey, tSNEData]);
+    }, [selectedData, tabKey]);
 
     useEffect(() => {
         if (tabKey !== "tSNETab" || !tSNEData.length || !svgRef.current) return;
@@ -130,22 +130,63 @@ export const CellAnalysisChart = ({ selectedData }) => {
 
         const width = svgRef.current.clientWidth;
         const height = svgRef.current.clientHeight;
-        const margin = { top: 30, right: 30, bottom: 30, left: 30 };
+        const margin = { top: 25, right: 25, bottom: 25, left: 25 };
 
-        svgElement.attr("viewBox", `0 0 ${width} ${height}`);
+        svgElement.append("defs").append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("width", width - margin.left - margin.right + 10)
+            .attr("height", height - margin.top - margin.bottom + 10)
+            .attr("x", margin.left - 5)
+            .attr("y", margin.top - 5);
+
+        const xExtent = d3.extent(tSNEData, d => d.coordinates.x);
+        const yExtent = d3.extent(tSNEData, d => d.coordinates.y);
+        const xPadding = (xExtent[1] - xExtent[0]) * 0.05;
+        const yPadding = (yExtent[1] - yExtent[0]) * 0.05;
 
         const xScale = d3.scaleLinear()
-            .domain(d3.extent(tSNEData, d => d.coordinates.x))
+            .domain([xExtent[0] - xPadding, xExtent[1] + xPadding])
             .range([margin.left, width - margin.right]);
 
         const yScale = d3.scaleLinear()
-            .domain(d3.extent(tSNEData, d => d.coordinates.y))
+            .domain([yExtent[0] - yPadding, yExtent[1] + yPadding])
             .range([height - margin.bottom, margin.top]);
 
         const colorScale = d3.scaleSequentialLog(d3.interpolateBlues)
             .domain(d3.extent(tSNEData, d => d.total_counts));
 
-        svgElement.selectAll(".dot")
+        const xAxis = d3.axisBottom(xScale).tickSize(-height + margin.top + margin.bottom)
+            .tickPadding(10);
+        const yAxis = d3.axisLeft(yScale).tickSize(-width + margin.left + margin.right)
+            .tickPadding(10);
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.5, 8])
+            .on("zoom", ({ transform }) => {
+                svgElement.selectAll(".dot")
+                    .attr('cx', d => transform.applyX(xScale(d.coordinates.x)))
+                    .attr('cy', d => transform.applyY(yScale(d.coordinates.y)));
+                svgElement.select(".x-axis").call(xAxis.scale(transform.rescaleX(xScale)));
+                svgElement.select(".y-axis").call(yAxis.scale(transform.rescaleY(yScale)));
+            });
+
+        svgElement.append("g")
+            .classed("x-axis", true)
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(xAxis)
+            .selectAll(".tick line").attr("stroke", "lightgrey");
+
+        svgElement.append("g")
+            .classed("y-axis", true)
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(yAxis)
+            .selectAll(".tick line").attr("stroke", "lightgrey");
+
+        const dotsGroup = svgElement.append("g")
+            .attr("clip-path", "url(#clip)");
+
+        dotsGroup.selectAll(".dot")
             .data(tSNEData)
             .enter()
             .append("circle")
@@ -156,24 +197,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .attr("fill", d => colorScale(d.total_counts))
             .attr("stroke", "black");
 
-        // x-axis label
-        svgElement.append("text")
-            .attr("x", width / 2)
-            .attr("y", height - margin.bottom / 3)
-            .attr("text-anchor", "middle")
-            .attr("font-weight", "bold")
-            .attr("font-size", "0.8em")
-            .text("t-SNE 1");
-
-        // y-axis label
-        svgElement.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("x", -height / 2)
-            .attr("y", margin.left / 3)
-            .attr("font-weight", "bold")
-            .attr("font-size", "0.8em")
-            .attr("text-anchor", "middle")
-            .text("t-SNE 2");
+        svgElement.call(zoom);
 
     }, [tSNEData, tabKey]);
 
