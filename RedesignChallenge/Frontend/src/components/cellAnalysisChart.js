@@ -220,17 +220,17 @@ export const CellAnalysisChart = ({ selectedData }) => {
 
         svgElement.call(zoom);
 
-}, [tSNEData, tabKey]);
+    }, [tSNEData, tabKey]);
 
-return (
-    <Card
-        size="small"
-        tabList={tabList}
-        activeTabKey={tabKey}
-        onTabChange={onChangeTabKey}
-        style={{ height: "50vh" }}
-    >
-        {chartList[tabKey]}
-    </Card>
-);
+    return (
+        <Card
+            size="small"
+            tabList={tabList}
+            activeTabKey={tabKey}
+            onTabChange={onChangeTabKey}
+            style={{ height: "50vh" }}
+        >
+            {chartList[tabKey]}
+        </Card>
+    );
 };
