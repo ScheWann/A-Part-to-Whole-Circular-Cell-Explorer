@@ -6,6 +6,7 @@ import "./Styles/cellAnalysisChart.css";
 export const CellAnalysisChart = ({ selectedData }) => {
     const svgRef = useRef(null);
     const [tabKey, setTabKey] = useState("cellTypeTab");
+    const [tSNEData, setTSNEData] = useState([]);
 
     const labels = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
     const officialColors = {
@@ -19,7 +20,6 @@ export const CellAnalysisChart = ({ selectedData }) => {
         X8: '#74C365',
         X9: '#355E3B'
     };
-
     const tabList = [
         {
             key: "cellTypeTab",
@@ -32,12 +32,27 @@ export const CellAnalysisChart = ({ selectedData }) => {
     ]
     const chartList = {
         "cellTypeTab": <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>,
-        "tSNETab": <div>123</div>
+        "tSNETab": <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
     }
 
     const onChangeTabKey = (newTabKey) => {
         setTabKey(newTabKey);
-        console.log(newTabKey);
+        if (newTabKey === "tSNETab") {
+            fetch("/getTSNEData")
+                .then(res => res.json())
+                .then(data => {
+                    const barcodes = Object.keys(data.barcode);
+                    const transformedData = barcodes.map(index => ({
+                        barcode: data.barcode[index],
+                        total_counts: data.total_counts[index],
+                        coordinates: {
+                            x: data.x[index],
+                            y: data.y[index]
+                        }
+                    }))
+                    setTSNEData(transformedData);
+                });
+        }
     };
 
     useEffect(() => {
@@ -50,11 +65,6 @@ export const CellAnalysisChart = ({ selectedData }) => {
 
             const svgElement = d3.select(svgRef.current);
             svgElement.selectAll("*").remove();
-
-            if (!svgRef.current) {
-                console.log('SVG element is not yet available.');
-                return;
-            }
 
             const width = svgRef.current.clientWidth;
             const height = svgRef.current.clientHeight;
@@ -108,10 +118,43 @@ export const CellAnalysisChart = ({ selectedData }) => {
                 .attr("font-size", "0.8em")
                 .attr("text-anchor", "middle")
                 .text("Counts");
-
         }
 
-    }, [selectedData, tabKey]);
+    }, [selectedData, tabKey, tSNEData]);
+
+    useEffect(() => {
+        if (tabKey !== "tSNETab" || !tSNEData.length || !svgRef.current) return;
+
+        const svgElement = d3.select(svgRef.current);
+        svgElement.selectAll("*").remove();
+
+        const width = svgRef.current.clientWidth;
+        const height = svgRef.current.clientHeight;
+        const margin ={ top: 20, right: 20, bottom: 50, left: 20 };
+
+        const xScale = d3.scaleLinear()
+            .domain(d3.extent(tSNEData, d => d.coordinates.x))
+            .range([margin.left, width - margin.right]);
+
+        const yScale = d3.scaleLinear()
+            .domain(d3.extent(tSNEData, d => d.coordinates.y))
+            .range([height - margin.bottom, margin.top]);
+
+        const colorScale = d3.scaleSequentialLog(d3.interpolateGreys)
+            .domain(d3.extent(tSNEData, d => d.total_counts));
+
+        svgElement.selectAll(".dot")
+            .data(tSNEData)
+            .enter()
+            .append("circle")
+            .classed("dot", true)
+            .attr("cx", d => xScale(d.coordinates.x))
+            .attr("cy", d => yScale(d.coordinates.y))
+            .attr("r", 5)
+            .attr("fill", d => colorScale(d.total_counts))
+            .attr("stroke", "black");
+
+    }, [tSNEData, tabKey]);
 
     return (
         <Card

@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from process import (get_gene_list, get_gene_expression, get_kosara_data, get_UMI_totalCounts)
+from process import (get_gene_list, get_gene_expression, get_kosara_data, get_UMI_totalCounts, get_tSNE_data)
 app = Flask(__name__)
 
 
@@ -24,6 +24,10 @@ def get_kosaraData():
 @app.route('/getUMITotalCounts')
 def get_UMITotalCounts():
     return jsonify(get_UMI_totalCounts())
+
+@app.route('/getTSNEData')
+def get_tSNEData():
+    return jsonify(get_tSNE_data().to_dict())
 
 if __name__ == '__main__':
     app.run(debug=True)
