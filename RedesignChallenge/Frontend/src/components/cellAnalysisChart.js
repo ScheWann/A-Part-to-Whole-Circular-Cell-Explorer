@@ -55,6 +55,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
         }
     };
 
+    // Cell Type Counts(bar chart)
     useEffect(() => {
         if (!selectedData || selectedData.length === 0 || !svgRef.current) return;
 
@@ -122,6 +123,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
 
     }, [selectedData, tabKey]);
 
+    // t-SNE plot
     useEffect(() => {
         if (tabKey !== "tSNETab" || !tSNEData.length || !svgRef.current) return;
 
@@ -130,7 +132,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
 
         const width = svgRef.current.clientWidth;
         const height = svgRef.current.clientHeight;
-        const margin = { top: 25, right: 25, bottom: 25, left: 25 };
+        const margin = { top: 50, right: 25, bottom: 35, left: 40 };
 
         svgElement.append("defs").append("clipPath")
             .attr("id", "clip")
@@ -197,19 +199,38 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .attr("fill", d => colorScale(d.total_counts))
             .attr("stroke", "black");
 
+        // x-axis label
+        svgElement.append("text")
+            .attr("x", width / 2)
+            .attr("y", height - margin.bottom / 3 + 8)
+            .attr("text-anchor", "middle")
+            .attr("font-weight", "bold")
+            .attr("font-size", "0.8em")
+            .text("Cell Types");
+
+        // y-axis label
+        svgElement.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", margin.left / 3)
+            .attr("font-weight", "bold")
+            .attr("font-size", "0.8em")
+            .attr("text-anchor", "middle")
+            .text("Counts");
+
         svgElement.call(zoom);
 
-    }, [tSNEData, tabKey]);
+}, [tSNEData, tabKey]);
 
-    return (
-        <Card
-            size="small"
-            tabList={tabList}
-            activeTabKey={tabKey}
-            onTabChange={onChangeTabKey}
-            style={{ height: "50vh" }}
-        >
-            {chartList[tabKey]}
-        </Card>
-    );
+return (
+    <Card
+        size="small"
+        tabList={tabList}
+        activeTabKey={tabKey}
+        onTabChange={onChangeTabKey}
+        style={{ height: "50vh" }}
+    >
+        {chartList[tabKey]}
+    </Card>
+);
 };
