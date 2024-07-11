@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Tabs } from "antd";
 import * as d3 from "d3";
-import "./Styles/cellTypeChart.css";
+import "./Styles/cellAnalysisChart.css";
 
-export const CellTypeChart = ({ selectedData }) => {
+export const CellAnalysisChart = ({ selectedData }) => {
     const svgRef = useRef(null);
     const [tabKey, setTabKey] = useState("cellTypeTab");
 

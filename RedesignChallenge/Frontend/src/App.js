@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Card, Slider, Switch, Checkbox, Tooltip } from "antd";
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { KosaraChart } from './components/kosaraChart';
-import { CellTypeChart } from './components/cellTypeChart';
+import { CellAnalysisChart } from './components/cellAnalysisChart';
 import { GeneList } from './components/geneList';
 import { GradientLegend } from './components/gradientLegend';
 
@@ -134,7 +134,7 @@ function App() {
         setGeneExpressionScale={setGeneExpressionScale}
       />
       <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "99vh" }}>
-        <CellTypeChart
+        <CellAnalysisChart
           className="CellTypeChart"
           selectedData={selectedData}
           selectedGene={selectedGene}
