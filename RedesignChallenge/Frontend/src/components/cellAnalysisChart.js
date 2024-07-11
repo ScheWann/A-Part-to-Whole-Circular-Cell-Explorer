@@ -68,7 +68,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
 
             const width = svgRef.current.clientWidth;
             const height = svgRef.current.clientHeight;
-            const margin = { top: 10, right: 20, bottom: 80, left: 45 };
+            const margin = { top: 10, right: 20, bottom: 38, left: 50 };
 
             svgElement.attr("viewBox", `0 0 ${width} ${height}`);
 
@@ -103,7 +103,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
             // x-axis label
             svgElement.append("text")
                 .attr("x", width / 2)
-                .attr("y", height - margin.bottom / 2)
+                .attr("y", height - margin.bottom / 5)
                 .attr("text-anchor", "middle")
                 .attr("font-weight", "bold")
                 .attr("font-size", "0.8em")
@@ -130,7 +130,9 @@ export const CellAnalysisChart = ({ selectedData }) => {
 
         const width = svgRef.current.clientWidth;
         const height = svgRef.current.clientHeight;
-        const margin ={ top: 20, right: 20, bottom: 50, left: 20 };
+        const margin = { top: 30, right: 30, bottom: 30, left: 30 };
+
+        svgElement.attr("viewBox", `0 0 ${width} ${height}`);
 
         const xScale = d3.scaleLinear()
             .domain(d3.extent(tSNEData, d => d.coordinates.x))
@@ -140,7 +142,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .domain(d3.extent(tSNEData, d => d.coordinates.y))
             .range([height - margin.bottom, margin.top]);
 
-        const colorScale = d3.scaleSequentialLog(d3.interpolateGreys)
+        const colorScale = d3.scaleSequentialLog(d3.interpolateBlues)
             .domain(d3.extent(tSNEData, d => d.total_counts));
 
         svgElement.selectAll(".dot")
@@ -153,6 +155,25 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .attr("r", 5)
             .attr("fill", d => colorScale(d.total_counts))
             .attr("stroke", "black");
+
+        // x-axis label
+        svgElement.append("text")
+            .attr("x", width / 2)
+            .attr("y", height - margin.bottom / 3)
+            .attr("text-anchor", "middle")
+            .attr("font-weight", "bold")
+            .attr("font-size", "0.8em")
+            .text("t-SNE 1");
+
+        // y-axis label
+        svgElement.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", margin.left / 3)
+            .attr("font-weight", "bold")
+            .attr("font-size", "0.8em")
+            .attr("text-anchor", "middle")
+            .text("t-SNE 2");
 
     }, [tSNEData, tabKey]);
 
