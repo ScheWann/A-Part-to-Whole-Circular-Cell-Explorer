@@ -118,7 +118,7 @@ function App() {
               <QuestionCircleOutlined style={{ fontSize: 10 }} />
             </Tooltip>
           </div>
-          <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} showKosaraCharts={showKosaraCharts}/>
+          <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} colorScaleType="Orange" />
         </div>
       </Card>
       <KosaraChart

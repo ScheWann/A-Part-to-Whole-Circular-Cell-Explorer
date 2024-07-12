@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Button } from "antd";
 import * as d3 from "d3";
+import { GradientLegend } from "./gradientLegend"
 import "./Styles/cellAnalysisChart.css";
 
 export const CellAnalysisChart = ({ selectedData }) => {
@@ -9,6 +10,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
     const tooltip = useRef(null);
     const [tabKey, setTabKey] = useState("cellTypeTab");
     const [tSNEData, setTSNEData] = useState([]);
+    const [tSNEExpressionScale, settSNEExpressionScale] = useState([]);
 
     const labels = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
     const officialColors = {
@@ -45,7 +47,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
 
     const chartList = {
         "cellTypeTab": <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>,
-        "tSNETab": <div className="t-SNEDiv"><Button onClick={resetZoom}>Reset Zoom</Button><svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg></div>
+        "tSNETab": <div className="t-SNEDiv"><Button onClick={resetZoom}>Reset Zoom</Button><GradientLegend min={tSNEExpressionScale[0]} max={tSNEExpressionScale[tSNEExpressionScale.length - 1]} colorScaleType="Blue" /><svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg></div>
     }
 
     const onChangeTabKey = (newTabKey) => {
@@ -63,6 +65,10 @@ export const CellAnalysisChart = ({ selectedData }) => {
                             y: data.y[index]
                         }
                     }))
+                    const totalCounts = transformedData.map(d => d.total_counts);
+                    const maxValue = Math.max(...Object.values(totalCounts));
+                    const minValue = Math.min(...Object.values(totalCounts));
+                    settSNEExpressionScale([minValue, maxValue]);
                     setTSNEData(transformedData);
                 });
         }
