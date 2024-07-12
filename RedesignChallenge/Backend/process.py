@@ -12,9 +12,11 @@ geneList = pd.read_csv("../Data/Genes.csv")
 positions = pd.read_csv("../Data/SpotPositions.csv")
 kosaraData = pd.read_csv("../Data/kosaraChart.csv")
 adata = sc.read_10x_h5("../Data/Filtered_feature_bc_matrix.h5")
-tSNE_df = pd.read_csv("../Data/t-SNE-Projection.csv")
+tSNE_df = pd.read_csv("../Data/t-SNE_Projection.csv")
+tSNE_cluster_df = pd.read_csv("../Data/t-SNE_Graph_Based.csv")
 
 tSNE_df.rename(columns={'X Coordinate': 'x', 'Y Coordinate': 'y', 'Barcode': 'barcode'}, inplace=True)
+tSNE_cluster_df.rename(columns={'Barcode': 'barcode'}, inplace=True)
 
 # Convert feature matrix to sparse matrix
 adata.var_names_make_unique()
@@ -28,6 +30,7 @@ cellTotal_df = pd.DataFrame(
 total_counts_dict = total_counts.to_dict()
 
 cell_tsne_df = pd.merge(cellTotal_df, tSNE_df, on="barcode")
+cell_cluster_UMI_tsne_df = pd.merge(cell_tsne_df, tSNE_cluster_df, on="barcode")
 
 def get_gene_list():
     return list(geneList["gene"])
@@ -44,4 +47,4 @@ def get_UMI_totalCounts():
     return total_counts_dict
 
 def get_tSNE_data():
-    return cell_tsne_df
+    return cell_cluster_UMI_tsne_df

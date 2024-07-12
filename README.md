@@ -15,7 +15,7 @@ This project uses [Flask](https://flask.palletsprojects.com/en/3.0.x/) to provid
    ```
 5. Run the Flask Application:
    ```
-   python app.py
+   python server.py
    ```
 6. Go RedesignChallenge/Frontend folder
 7. Run the React:
