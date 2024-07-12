@@ -60,6 +60,6 @@ export const GradientLegend = ({ min, max, selectedGene, colorScaleType }) => {
     }, [min, max, selectedGene, colorScaleType]);
 
     return (
-        <svg ref={ref} style={{ width: "100%", height: "60px" }} />
+        <svg ref={ref} style={{ width: "100%", height: "50px" }} />
     )
 };

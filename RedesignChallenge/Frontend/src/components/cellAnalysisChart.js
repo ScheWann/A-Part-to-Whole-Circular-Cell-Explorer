@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Card, Button, Switch } from "antd";
 import * as d3 from "d3";
 import { GradientLegend } from "./gradientLegend"
+import { ClusterLegend } from "./clusterLegend"
 import "./Styles/cellAnalysisChart.css";
+
+const clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
 
 export const CellAnalysisChart = ({ selectedData }) => {
     const svgRef = useRef(null);
@@ -54,7 +57,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
                     <Button onClick={resetZoom}>Reset Zoom</Button>
                     <Switch onChange={() => setShowtSNECluster(!showtSNECluster)} checkedChildren="Show t-SNE by UMI Counts" unCheckedChildren="Show t-SNE by Clustering" checked={showtSNECluster}/>
                 </div>
-                <GradientLegend min={tSNEExpressionScale[0]} max={tSNEExpressionScale[tSNEExpressionScale.length - 1]} colorScaleType="Blue" />
+                {showtSNECluster ? <ClusterLegend scale={clusterColors} /> : <GradientLegend min={tSNEExpressionScale[0]} max={tSNEExpressionScale[tSNEExpressionScale.length - 1]} colorScaleType="Blue" />}
                 <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
             </div>
     }
@@ -156,13 +159,14 @@ export const CellAnalysisChart = ({ selectedData }) => {
     useEffect(() => {
         if (tabKey !== "tSNETab" || !tSNEData.length || !svgRef.current) return;
 
-        const clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
+        clusterColors.domain(tSNEData.map(d => d.cluster).filter((v, i, a) => a.indexOf(v) === i));
+
         const svgElement = d3.select(svgRef.current);
         svgElement.selectAll("*").remove();
 
         const width = svgRef.current.clientWidth;
         const height = svgRef.current.clientHeight;
-        const margin = { top: 50, right: 25, bottom: 35, left: 40 };
+        const margin = { top: 5, right: 25, bottom: 35, left: 40 };
 
         svgElement.append("defs").append("clipPath")
             .attr("id", "clip")
@@ -252,7 +256,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .attr("text-anchor", "middle")
             .attr("font-weight", "bold")
             .attr("font-size", "0.8em")
-            .text("Cell Types");
+            .text("t-SNE 1");
 
         // y-axis label
         svgElement.append("text")
@@ -262,7 +266,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .attr("font-weight", "bold")
             .attr("font-size", "0.8em")
             .attr("text-anchor", "middle")
-            .text("Counts");
+            .text("t-SNE 2");
 
         svgElement.call(zoom);
         zoomRef.current = zoom;
