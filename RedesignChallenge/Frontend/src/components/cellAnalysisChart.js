@@ -6,6 +6,7 @@ import "./Styles/cellAnalysisChart.css";
 export const CellAnalysisChart = ({ selectedData }) => {
     const svgRef = useRef(null);
     const zoomRef = useRef();
+    const tooltip = useRef(null);
     const [tabKey, setTabKey] = useState("cellTypeTab");
     const [tSNEData, setTSNEData] = useState([]);
 
@@ -31,6 +32,11 @@ export const CellAnalysisChart = ({ selectedData }) => {
             tab: "t-SNE Plot"
         }
     ]
+    if (!tooltip.current) {
+        tooltip.current = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+    }
 
     const resetZoom = () => {
         const svgElement = d3.select(svgRef.current);
@@ -206,8 +212,20 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .attr("r", 5)
             .attr("fill", d => colorScale(d.total_counts))
             .attr("stroke-width", 0.3)
-            .attr("stroke", "black");
-            
+            .attr("stroke", "black")
+            .on("mouseover", (event, d) => {
+                tooltip.current.html(`Barcode: ${d.barcode}<br/>UMI Counts: ${d.total_counts}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+                tooltip.current.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+            })
+            .on("mouseout", d => {
+                tooltip.current.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
 
         // x-axis label
         svgElement.append("text")

@@ -86,6 +86,8 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             .style("display", "block")
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY + 10}px`)
+            .style("font-size", "12px")
+            .style("font-family", "sans-serif")
             .style("z-index", "1000")
             .html(topSix.map(item => `${item[0]}: ${(item[1] * 100).toFixed(2)}%`).join("<br>"));
     }
@@ -96,6 +98,8 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             .style("display", "block")
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY + 10}px`)
+            .style("font-size", "12px")
+            .style("font-family", "sans-serif")
             .style("z-index", "1000")
             .html(`${d.selectedGene ? `Gene: ${d.selectedGene}<br>` : ''}Barcode: ${d.barcode}<br>UMI Counts: ${d.relatedGeneValue}`);
     }    
@@ -123,7 +127,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 .attr("r", radius)
                 .attr("fill", color)
                 .attr("stroke", "black")
-                .attr("stroke-width", 1);
+                .attr("stroke-width", 0.1);
         });
     }
 
