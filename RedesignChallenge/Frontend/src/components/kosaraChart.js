@@ -99,6 +99,9 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY + 10}px`)
             .style("font-size", "12px")
+            .style("border", "1px solid #ccc")
+            .style("border-radius", "4px")
+            .style("padding", "8px")
             .style("font-family", "sans-serif")
             .style("z-index", "1000")
             .html(`${d.selectedGene ? `Gene: ${d.selectedGene}<br>` : ''}Barcode: ${d.barcode}<br>UMI Counts: ${d.relatedGeneValue}`);
