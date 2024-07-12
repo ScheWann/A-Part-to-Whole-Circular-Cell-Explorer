@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Card, Button } from "antd";
+import { Card, Button, Switch } from "antd";
 import * as d3 from "d3";
 import { GradientLegend } from "./gradientLegend"
 import "./Styles/cellAnalysisChart.css";
@@ -11,6 +11,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
     const [tabKey, setTabKey] = useState("cellTypeTab");
     const [tSNEData, setTSNEData] = useState([]);
     const [tSNEExpressionScale, settSNEExpressionScale] = useState([]);
+    const [showtSNECluster, setShowtSNECluster] = useState(false);
 
     const labels = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
     const officialColors = {
@@ -47,7 +48,15 @@ export const CellAnalysisChart = ({ selectedData }) => {
 
     const chartList = {
         "cellTypeTab": <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>,
-        "tSNETab": <div className="t-SNEDiv"><Button onClick={resetZoom}>Reset Zoom</Button><GradientLegend min={tSNEExpressionScale[0]} max={tSNEExpressionScale[tSNEExpressionScale.length - 1]} colorScaleType="Blue" /><svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg></div>
+        "tSNETab":
+            <div className="t-SNEDiv">
+                <div className="controlGroup">
+                    <Button onClick={resetZoom}>Reset Zoom</Button>
+                    <Switch onChange={() => setShowtSNECluster(!showtSNECluster)} checkedChildren="Show t-SNE by UMI Counts" unCheckedChildren="Show t-SNE by Clustering" checked={showtSNECluster}/>
+                </div>
+                <GradientLegend min={tSNEExpressionScale[0]} max={tSNEExpressionScale[tSNEExpressionScale.length - 1]} colorScaleType="Blue" />
+                <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+            </div>
     }
 
     const onChangeTabKey = (newTabKey) => {
@@ -63,7 +72,8 @@ export const CellAnalysisChart = ({ selectedData }) => {
                         coordinates: {
                             x: data.x[index],
                             y: data.y[index]
-                        }
+                        },
+                        cluster: data.cluster[index]
                     }))
                     const totalCounts = transformedData.map(d => d.total_counts);
                     const maxValue = Math.max(...Object.values(totalCounts));
@@ -146,6 +156,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
     useEffect(() => {
         if (tabKey !== "tSNETab" || !tSNEData.length || !svgRef.current) return;
 
+        const clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
         const svgElement = d3.select(svgRef.current);
         svgElement.selectAll("*").remove();
 
@@ -174,7 +185,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .domain([yExtent[0] - yPadding, yExtent[1] + yPadding])
             .range([height - margin.bottom, margin.top]);
 
-        const colorScale = d3.scaleSequentialLog(d3.interpolateBlues)
+        const colorScale = showtSNECluster ? clusterColors : d3.scaleSequentialLog(d3.interpolateBlues)
             .domain(d3.extent(tSNEData, d => d.total_counts));
 
         const xAxis = d3.axisBottom(xScale).tickSize(-height + margin.top + margin.bottom)
@@ -216,11 +227,12 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .attr("cx", d => xScale(d.coordinates.x))
             .attr("cy", d => yScale(d.coordinates.y))
             .attr("r", 5)
-            .attr("fill", d => colorScale(d.total_counts))
+            .attr("fill", d => showtSNECluster ? clusterColors(d.cluster) : colorScale(d.total_counts))
             .attr("stroke-width", 0.3)
             .attr("stroke", "black")
             .on("mouseover", (event, d) => {
-                tooltip.current.html(`Barcode: ${d.barcode}<br/>UMI Counts: ${d.total_counts}`)
+                const info = `Barcode: ${d.barcode}<br/>${showtSNECluster ? 'Cluster: ' + d.cluster : 'UMI Counts: ' + d.total_counts}`;
+                tooltip.current.html(info)
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 28) + "px");
                 tooltip.current.transition()
@@ -255,7 +267,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
         svgElement.call(zoom);
         zoomRef.current = zoom;
 
-    }, [tSNEData, tabKey]);
+    }, [tSNEData, tabKey, showtSNECluster]);
 
     return (
         <Card

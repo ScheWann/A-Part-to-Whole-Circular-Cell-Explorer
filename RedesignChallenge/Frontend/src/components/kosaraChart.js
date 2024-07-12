@@ -104,7 +104,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             .style("font-family", "sans-serif")
             .style("z-index", "1000")
             .html(`${d.selectedGene ? `Gene: ${d.selectedGene}<br>` : ''}Barcode: ${d.barcode}<br>UMI Counts: ${d.relatedGeneValue}`);
-    }    
+    }
 
     function handleMouseOut() {
         d3.select(tooltipRef.current).style("display", "none");
@@ -268,8 +268,8 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 });
             });
         } else {
-            if(relatedGeneData) {
-                circleRender(relatedGeneData, contentGroup); 
+            if (relatedGeneData) {
+                circleRender(relatedGeneData, contentGroup);
             }
 
             if (Object.keys(UMITotalCounts).length !== 0) {

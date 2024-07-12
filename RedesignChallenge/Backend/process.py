@@ -16,7 +16,7 @@ tSNE_df = pd.read_csv("../Data/t-SNE_Projection.csv")
 tSNE_cluster_df = pd.read_csv("../Data/t-SNE_Graph_Based.csv")
 
 tSNE_df.rename(columns={'X Coordinate': 'x', 'Y Coordinate': 'y', 'Barcode': 'barcode'}, inplace=True)
-tSNE_cluster_df.rename(columns={'Barcode': 'barcode'}, inplace=True)
+tSNE_cluster_df.rename(columns={'Barcode': 'barcode', 'Graph-based': 'cluster'}, inplace=True)
 
 # Convert feature matrix to sparse matrix
 adata.var_names_make_unique()
