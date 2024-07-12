@@ -54,8 +54,8 @@ export const CellAnalysisChart = ({ selectedData }) => {
         "tSNETab":
             <div className="t-SNEDiv">
                 <div className="controlGroup">
-                    <Button onClick={resetZoom}>Reset Zoom</Button>
-                    <Switch onChange={() => setShowtSNECluster(!showtSNECluster)} checkedChildren="Show t-SNE by UMI Counts" unCheckedChildren="Show t-SNE by Clustering" checked={showtSNECluster}/>
+                    <Button size="small" onClick={resetZoom}>Reset Zoom</Button>
+                    <Switch style={{ marginLeft: 20, backgroundColor: showtSNECluster ? '#ED9121' : '#6785A7' }} onChange={() => setShowtSNECluster(!showtSNECluster)} checkedChildren="Show t-SNE by UMI Counts" unCheckedChildren="Show t-SNE by Clustering" checked={showtSNECluster}/>
                 </div>
                 {showtSNECluster ? <ClusterLegend scale={clusterColors} /> : <GradientLegend min={tSNEExpressionScale[0]} max={tSNEExpressionScale[tSNEExpressionScale.length - 1]} colorScaleType="Blue" />}
                 <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
