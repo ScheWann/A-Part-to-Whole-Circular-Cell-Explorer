@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Card, Tabs } from "antd";
+import { Card, Button } from "antd";
 import * as d3 from "d3";
 import "./Styles/cellAnalysisChart.css";
 
 export const CellAnalysisChart = ({ selectedData }) => {
     const svgRef = useRef(null);
+    const zoomRef = useRef();
     const [tabKey, setTabKey] = useState("cellTypeTab");
     const [tSNEData, setTSNEData] = useState([]);
 
@@ -30,9 +31,15 @@ export const CellAnalysisChart = ({ selectedData }) => {
             tab: "t-SNE Plot"
         }
     ]
+
+    const resetZoom = () => {
+        const svgElement = d3.select(svgRef.current);
+        svgElement.transition().duration(750).call(zoomRef.current.transform, d3.zoomIdentity);
+    };
+
     const chartList = {
         "cellTypeTab": <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>,
-        "tSNETab": <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+        "tSNETab": <div className="t-SNEDiv"><Button onClick={resetZoom}>Reset Zoom</Button><svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg></div>
     }
 
     const onChangeTabKey = (newTabKey) => {
@@ -198,7 +205,9 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .attr("cy", d => yScale(d.coordinates.y))
             .attr("r", 5)
             .attr("fill", d => colorScale(d.total_counts))
+            .attr("stroke-width", 0.3)
             .attr("stroke", "black");
+            
 
         // x-axis label
         svgElement.append("text")
@@ -220,6 +229,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .text("Counts");
 
         svgElement.call(zoom);
+        zoomRef.current = zoom;
 
     }, [tSNEData, tabKey]);
 
