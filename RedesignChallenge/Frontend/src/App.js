@@ -142,6 +142,8 @@ function App() {
       <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "99vh" }}>
         <CellAnalysisChart
           className="CellTypeChart"
+          showKosaraCharts={showKosaraCharts}
+          setShowKosaraCharts={setShowKosaraCharts}
           selectedData={selectedData}
           selectedGene={selectedGene}
           setSelectedGene={setSelectedGene}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Card, Button, Switch } from "antd";
+import { Card, Button, Switch, Checkbox } from "antd";
 import * as d3 from "d3";
 import { GradientLegend } from "./gradientLegend"
 import { ClusterLegend } from "./clusterLegend"
@@ -7,7 +7,7 @@ import "./Styles/cellAnalysisChart.css";
 
 const clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
 
-export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell }) => {
+export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosaraCharts, setShowKosaraCharts }) => {
     const svgRef = useRef(null);
     const zoomRef = useRef();
     const tooltip = useRef(null);
@@ -49,6 +49,28 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell }) => {
         svgElement.transition().duration(750).call(zoomRef.current.transform, d3.zoomIdentity);
     };
 
+    const fetchTSNEData = () => {
+        fetch("/getTSNEData")
+        .then(res => res.json())
+        .then(data => {
+            const barcodes = Object.keys(data.barcode);
+            const transformedData = barcodes.map(index => ({
+                barcode: data.barcode[index],
+                total_counts: data.total_counts[index],
+                coordinates: {
+                    x: data.x[index],
+                    y: data.y[index]
+                },
+                cluster: data.cluster[index]
+            }))
+            const totalCounts = transformedData.map(d => d.total_counts);
+            const maxValue = Math.max(...Object.values(totalCounts));
+            const minValue = Math.min(...Object.values(totalCounts));
+            settSNEExpressionScale([minValue, maxValue]);
+            setTSNEData(transformedData);
+        });
+    };
+
     const chartList = {
         "cellTypeTab": <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>,
         "tSNETab":
@@ -65,31 +87,22 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell }) => {
     const onChangeTabKey = (newTabKey) => {
         setTabKey(newTabKey);
         if (newTabKey === "tSNETab") {
-            fetch("/getTSNEData")
-                .then(res => res.json())
-                .then(data => {
-                    const barcodes = Object.keys(data.barcode);
-                    const transformedData = barcodes.map(index => ({
-                        barcode: data.barcode[index],
-                        total_counts: data.total_counts[index],
-                        coordinates: {
-                            x: data.x[index],
-                            y: data.y[index]
-                        },
-                        cluster: data.cluster[index]
-                    }))
-                    const totalCounts = transformedData.map(d => d.total_counts);
-                    const maxValue = Math.max(...Object.values(totalCounts));
-                    const minValue = Math.min(...Object.values(totalCounts));
-                    settSNEExpressionScale([minValue, maxValue]);
-                    setTSNEData(transformedData);
-                });
+            setShowKosaraCharts(false);
+            fetchTSNEData();
+        } else {
+            setShowKosaraCharts(true);
         }
     };
 
     // Cell Type Counts(bar chart)
     useEffect(() => {
         if (!selectedData || selectedData.length === 0 || !svgRef.current) return;
+        if (!showKosaraCharts) {
+            setTabKey("tSNETab");
+            fetchTSNEData();
+        } else {
+            setTabKey("cellTypeTab");
+        }
 
         if (tabKey === "cellTypeTab") {
             const counts = labels.map(label =>
@@ -269,7 +282,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell }) => {
         svgElement.call(zoom);
         zoomRef.current = zoom;
 
-    }, [tSNEData, tabKey, showtSNECluster, setHoveronTSNECell]);
+    }, [tSNEData, tabKey, showtSNECluster, setHoveronTSNECell, showKosaraCharts]);
 
     return (
         <Card
