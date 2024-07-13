@@ -21,6 +21,7 @@ const officialColors = {
 
 function App() {
   const [selectedData, setSelectedData] = useState([]);
+  const [hoveronTSNECell, setHoveronTSNECell] = useState(null);
   const [showBackgroundImage, setShowBackgroundImage] = useState(true);
   const [showKosaraCharts, setShowKosaraCharts] = useState(true);
   const [UMITotalCounts, setUMITotalCounts] = useState({});
@@ -61,10 +62,10 @@ function App() {
   useEffect(() => {
     if (!showKosaraCharts && selectedGene === null) {
       fetch("/getUMITotalCounts")
-      .then(res => res.json())
-      .then(data => {
-        setUMITotalCounts(data);
-      });
+        .then(res => res.json())
+        .then(data => {
+          setUMITotalCounts(data);
+        });
     } else {
       setUMITotalCounts({});
     }
@@ -95,7 +96,7 @@ function App() {
           <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Opacity</h5>
-            <Tooltip placement="right" title={"Slided the bar to see the relationship of the cell types and the tissue"} overlayInnerStyle={{color: '#000'}} color={"white"} arrow={mergedArrow}>
+            <Tooltip placement="right" title={"Slided the bar to see the relationship of the cell types and the tissue"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
               <QuestionCircleOutlined style={{ fontSize: 10 }} />
             </Tooltip>
           </div>
@@ -112,13 +113,17 @@ function App() {
               </div>
             ))}
           </div>
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <h5 style={{ marginBottom: 5, fontWeight: 500 }}>UMI counts Legend</h5>
-            <Tooltip placement="right" title={"Choosing a gene from the gene list first to show the specific gene expression value scale"} overlayInnerStyle={{color: '#000'}} color={"white"} arrow={mergedArrow}>
-              <QuestionCircleOutlined style={{ fontSize: 10 }} />
-            </Tooltip>
-          </div>
-          <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} colorScaleType="Orange" />
+          {showKosaraCharts ? null : (
+            <>
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <h5 style={{ marginBottom: 5, fontWeight: 500 }}>UMI counts Legend</h5>
+                <Tooltip placement="right" title={"Choosing a gene from the gene list first to show the specific gene expression value scale"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
+                  <QuestionCircleOutlined style={{ fontSize: 10 }} />
+                </Tooltip>
+              </div>
+              <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} colorScaleType="Orange" />
+            </>
+          )}
         </div>
       </Card>
       <KosaraChart
@@ -127,6 +132,7 @@ function App() {
         showBackgroundImage={showBackgroundImage}
         showKosaraCharts={showKosaraCharts}
         cellShownStatus={cellShownStatus}
+        hoveronTSNECell={hoveronTSNECell}
         opacity={opacity}
         relatedGeneData={relatedGeneData}
         selectedGene={selectedGene}
@@ -139,6 +145,7 @@ function App() {
           selectedData={selectedData}
           selectedGene={selectedGene}
           setSelectedGene={setSelectedGene}
+          setHoveronTSNECell={setHoveronTSNECell}
         />
         <GeneList
           selectedGene={selectedGene}

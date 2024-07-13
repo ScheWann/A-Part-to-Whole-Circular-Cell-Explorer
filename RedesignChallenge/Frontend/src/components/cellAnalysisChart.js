@@ -7,7 +7,7 @@ import "./Styles/cellAnalysisChart.css";
 
 const clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
 
-export const CellAnalysisChart = ({ selectedData }) => {
+export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell }) => {
     const svgRef = useRef(null);
     const zoomRef = useRef();
     const tooltip = useRef(null);
@@ -236,17 +236,15 @@ export const CellAnalysisChart = ({ selectedData }) => {
             .attr("stroke", "black")
             .on("mouseover", (event, d) => {
                 const info = `Barcode: ${d.barcode}<br/>${showtSNECluster ? 'Cluster: ' + d.cluster : 'UMI Counts: ' + d.total_counts}`;
+                setHoveronTSNECell(d.barcode);
                 tooltip.current.html(info)
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 28) + "px");
-                tooltip.current.transition()
-                    .duration(200)
-                    .style("opacity", .9);
+                tooltip.current.style("opacity", .9);
             })
             .on("mouseout", d => {
-                tooltip.current.transition()
-                    .duration(500)
-                    .style("opacity", 0);
+                setHoveronTSNECell(null);
+                tooltip.current.style("opacity", 0);
             });
 
         // x-axis label
@@ -271,7 +269,7 @@ export const CellAnalysisChart = ({ selectedData }) => {
         svgElement.call(zoom);
         zoomRef.current = zoom;
 
-    }, [tSNEData, tabKey, showtSNECluster]);
+    }, [tSNEData, tabKey, showtSNECluster, setHoveronTSNECell]);
 
     return (
         <Card

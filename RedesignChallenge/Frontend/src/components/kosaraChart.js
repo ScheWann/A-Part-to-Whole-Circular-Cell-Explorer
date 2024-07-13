@@ -17,7 +17,7 @@ const officialColors = {
     X9: '#355E3B'
 }
 
-export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts }) => {
+export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
     const [kosaraData, setKosaraData] = useState([]);
@@ -205,9 +205,6 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         if (showKosaraCharts) {
             svg.append("g").attr("class", "brush").call(brush);
         }
-        // .call(d3.zoom().scaleExtent([1, 15]).on("zoom", (event) => {
-        //     svg.selectAll("g.content, g.background").attr("transform", event.transform);
-        // }));
 
         const selectedCells = Object.keys(cellShownStatus).filter(cell => cellShownStatus[cell]);
         setSelectedData(kosaraData.map(d => ({
@@ -266,6 +263,10 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                         .attr('d', path)
                         .attr('fill', color);
                 });
+
+                if(d.barcode === hoveronTSNECell) {
+                    group.select("circle").attr("stroke", "#333").attr("stroke-width", 2);
+                }
             });
         } else {
             if (relatedGeneData) {
@@ -277,7 +278,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             }
         }
 
-    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts]);
+    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell]);
 
     return (
         <div style={{ display: "flex", height: "99vh" }}>
