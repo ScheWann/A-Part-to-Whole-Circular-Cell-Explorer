@@ -166,6 +166,7 @@ function App() {
           setShowtSNECluster={setShowtSNECluster}
         />
         <GeneList
+          setShowtSNECluster={setShowtSNECluster}
           selectedGene={selectedGene}
           setSelectedGene={setSelectedGene}
           setRelatedGeneData={setRelatedGeneData}

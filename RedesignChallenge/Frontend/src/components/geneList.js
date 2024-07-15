@@ -3,7 +3,7 @@ import { List, Card, Input } from "antd";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import "./Styles/geneList.css";
 
-export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData }) => {
+export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, setShowtSNECluster }) => {
     const [geneListData, setGeneListData] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
@@ -29,9 +29,11 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData }) 
 
     const handleItemClick = (item) => {
         if (selectedGene === item) {
+            setShowtSNECluster(true);
             setSelectedGene(null);
             setRelatedGeneData(null);
         } else {
+            setShowtSNECluster(false);
             setSelectedGene(item);
             fetch("/geneExpression", {
                 method: 'POST',
