@@ -48,7 +48,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
         svgElement.transition().duration(750).call(zoomRef.current.transform, d3.zoomIdentity);
     };
 
-    const fetchTSNEData = () => {
+    useEffect(() => {
         fetch("/getTSNEData")
         .then(res => res.json())
         .then(data => {
@@ -68,7 +68,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
             settSNEExpressionScale([minValue, maxValue]);
             setTSNEData(transformedData);
         });
-    };
+    }, []);
 
     const chartList = {
         "cellTypeTab": <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>,
@@ -87,7 +87,6 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
         setTabKey(newTabKey);
         if (newTabKey === "tSNETab") {
             setShowKosaraCharts(false);
-            fetchTSNEData();
         } else {
             setShowKosaraCharts(true);
         }
@@ -98,7 +97,6 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
         if (!selectedData || selectedData.length === 0 || !svgRef.current) return;
         if (!showKosaraCharts) {
             setTabKey("tSNETab");
-            fetchTSNEData();
         } else {
             setTabKey("cellTypeTab");
         }

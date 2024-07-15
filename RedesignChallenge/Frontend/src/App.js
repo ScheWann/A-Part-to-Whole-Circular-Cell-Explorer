@@ -78,7 +78,6 @@ function App() {
             barcode: data.barcode[index],
             cluster: data.cluster[index]
           }))
-          console.log(transformedData, 'transformedData');
           setTissueClusterData(transformedData);
         });
     }
