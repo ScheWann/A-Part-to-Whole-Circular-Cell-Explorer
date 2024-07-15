@@ -29,6 +29,8 @@ function App() {
   const [selectedGene, setSelectedGene] = useState(null);
   const [relatedGeneData, setRelatedGeneData] = useState(null);
   const [geneExpressionScale, setGeneExpressionScale] = useState([]);
+  const [showtSNECluster, setShowtSNECluster] = useState(false);
+  const [tissueClusterData, setTissueClusterData] = useState([]);
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
     X2: true,
@@ -60,7 +62,7 @@ function App() {
   }, [selectedGene]);
 
   useEffect(() => {
-    if (!showKosaraCharts && selectedGene === null) {
+    if (!showKosaraCharts && selectedGene === null && !showtSNECluster) {
       fetch("/getUMITotalCounts")
         .then(res => res.json())
         .then(data => {
@@ -68,8 +70,19 @@ function App() {
         });
     } else {
       setUMITotalCounts({});
+      fetch("./getCellClusterUMItsne")
+        .then(res => res.json())
+        .then(data => {
+          const barcodes =  Object.keys(data.barcode);
+          const transformedData = barcodes.map( index => ({
+            barcode: data.barcode[index],
+            cluster: data.cluster[index]
+          }))
+          console.log(transformedData, 'transformedData');
+          setTissueClusterData(transformedData);
+        });
     }
-  }, [showKosaraCharts, selectedGene]);
+  }, [showKosaraCharts, selectedGene]);  
 
   function opacityChange(value) {
     setOpacity(value);
@@ -136,7 +149,9 @@ function App() {
         opacity={opacity}
         relatedGeneData={relatedGeneData}
         selectedGene={selectedGene}
+        showtSNECluster={showtSNECluster}
         UMITotalCounts={UMITotalCounts}
+        tissueClusterData={tissueClusterData}
         setGeneExpressionScale={setGeneExpressionScale}
       />
       <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "99vh" }}>
@@ -148,6 +163,8 @@ function App() {
           selectedGene={selectedGene}
           setSelectedGene={setSelectedGene}
           setHoveronTSNECell={setHoveronTSNECell}
+          showtSNECluster={showtSNECluster}
+          setShowtSNECluster={setShowtSNECluster}
         />
         <GeneList
           selectedGene={selectedGene}

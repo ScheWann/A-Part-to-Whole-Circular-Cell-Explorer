@@ -7,14 +7,13 @@ import "./Styles/cellAnalysisChart.css";
 
 const clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
 
-export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosaraCharts, setShowKosaraCharts }) => {
+export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosaraCharts, setShowKosaraCharts, showtSNECluster, setShowtSNECluster }) => {
     const svgRef = useRef(null);
     const zoomRef = useRef();
     const tooltip = useRef(null);
     const [tabKey, setTabKey] = useState("cellTypeTab");
     const [tSNEData, setTSNEData] = useState([]);
     const [tSNEExpressionScale, settSNEExpressionScale] = useState([]);
-    const [showtSNECluster, setShowtSNECluster] = useState(false);
 
     const labels = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
     const officialColors = {

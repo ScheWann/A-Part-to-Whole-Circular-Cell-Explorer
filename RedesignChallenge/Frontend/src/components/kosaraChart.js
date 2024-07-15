@@ -17,7 +17,7 @@ const officialColors = {
     X9: '#355E3B'
 }
 
-export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell }) => {
+export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell, showtSNECluster, tissueClusterData }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
     const [kosaraData, setKosaraData] = useState([]);
@@ -103,7 +103,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             .style("padding", "8px")
             .style("font-family", "sans-serif")
             .style("z-index", "1000")
-            .html(`${d.selectedGene ? `Gene: ${d.selectedGene}<br>` : ''}Barcode: ${d.barcode}<br>UMI Counts: ${d.relatedGeneValue}`);
+            .html(`${d.selectedGene ? `Gene: ${d.selectedGene}<br>` : ''}Barcode: ${d.barcode}<br>${showtSNECluster ? `Cluster: ${d.cluster}` : `UMI Counts: ${d.relatedGeneValue}`}`);
     }
 
     function handleMouseOut() {
@@ -111,26 +111,47 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     }
 
     function circleRender(data, svgGroup) {
-        const maxValue = Math.max(...Object.values(data));
-        const minValue = Math.min(...Object.values(data));
-        setGeneExpressionScale([minValue, maxValue]);
-        const colorScale = d3.scaleSequential(d3.interpolateOranges).domain([minValue, maxValue]);
+        if (!showtSNECluster) {
+            const minValue = Math.min(...Object.values(data));
+            const maxValue = Math.max(...Object.values(data));
 
-        kosaraData.forEach((d) => {
-            const relatedGeneValue = data[d.barcode];
-            const color = relatedGeneValue ? colorScale(relatedGeneValue) : 'none';
-            const group = svgGroup.append("g")
-                .attr("transform", `translate(${d.x}, ${d.y})`)
-                .attr("opacity", opacity)
-                .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, barcode: d.barcode, relatedGeneValue: relatedGeneValue }))
-                .on("mouseout", handleMouseOut);
+            setGeneExpressionScale([minValue, maxValue]);
+            const colorScale = d3.scaleSequential(d3.interpolateOranges).domain([minValue, maxValue]);
 
-            group.append("circle")
-                .attr("r", radius)
-                .attr("fill", color)
-                .attr("stroke", "black")
-                .attr("stroke-width", 0.1);
-        });
+            kosaraData.forEach((d) => {
+                const relatedGeneValue = data[d.barcode];
+                const color = relatedGeneValue ? colorScale(relatedGeneValue) : 'none';
+                const group = svgGroup.append("g")
+                    .attr("transform", `translate(${d.x}, ${d.y})`)
+                    .attr("opacity", opacity)
+                    .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, barcode: d.barcode, relatedGeneValue: relatedGeneValue }))
+                    .on("mouseout", handleMouseOut);
+
+                group.append("circle")
+                    .attr("r", radius)
+                    .attr("fill", color)
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 0.1);
+            });
+        } else {
+            const clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
+            kosaraData.forEach((d) => {
+                const dataItem = data.find(item => item.barcode === d.barcode);
+                const cluster = dataItem ? dataItem.cluster : null;
+                const color = cluster !== null ? clusterColors(cluster) : 'none';
+                const group = svgGroup.append("g")
+                    .attr("transform", `translate(${d.x}, ${d.y})`)
+                    .attr("opacity", opacity)
+                    .on("mouseover", (event) => handleGeneMouseOver(event, { barcode: d.barcode, cluster: cluster }))
+                    .on("mouseout", handleMouseOut);
+    
+                group.append("circle")
+                    .attr("r", radius)
+                    .attr("fill", color)
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 0.1);
+            });
+        }
     }
 
     // loading data
@@ -264,21 +285,25 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                         .attr('fill', color);
                 });
 
-                if(d.barcode === hoveronTSNECell) {
+                if (d.barcode === hoveronTSNECell) {
                     group.select("circle").attr("stroke", "#333").attr("stroke-width", 2);
                 }
             });
         } else {
-            if (relatedGeneData) {
+            if (relatedGeneData && !showtSNECluster) {
                 circleRender(relatedGeneData, contentGroup);
             }
 
-            if (Object.keys(UMITotalCounts).length !== 0) {
+            if (Object.keys(UMITotalCounts).length !== 0 && !showtSNECluster) {
                 circleRender(UMITotalCounts, contentGroup);
+            }
+
+            if (showtSNECluster) {
+                circleRender(tissueClusterData, contentGroup);
             }
         }
 
-    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell]);
+    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell, showtSNECluster]);
 
     return (
         <div style={{ display: "flex", height: "99vh" }}>

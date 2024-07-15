@@ -48,3 +48,6 @@ def get_UMI_totalCounts():
 
 def get_tSNE_data():
     return cell_cluster_UMI_tsne_df
+
+def get_cell_cluster_UMI_tsne_df():
+    return tSNE_cluster_df
