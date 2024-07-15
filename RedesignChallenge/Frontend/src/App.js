@@ -125,7 +125,7 @@ function App() {
               </div>
             ))}
           </div>
-          {showKosaraCharts ? null : (
+          {showKosaraCharts || showtSNECluster ? null : (
             <>
               <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                 <h5 style={{ marginBottom: 5, fontWeight: 500 }}>UMI counts Legend</h5>
