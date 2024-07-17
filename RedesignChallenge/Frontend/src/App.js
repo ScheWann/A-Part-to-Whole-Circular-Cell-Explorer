@@ -73,18 +73,23 @@ function App() {
       fetch("./getCellClusterUMItsne")
         .then(res => res.json())
         .then(data => {
-          const barcodes =  Object.keys(data.barcode);
-          const transformedData = barcodes.map( index => ({
+          const barcodes = Object.keys(data.barcode);
+          const transformedData = barcodes.map(index => ({
             barcode: data.barcode[index],
             cluster: data.cluster[index]
           }))
           setTissueClusterData(transformedData);
         });
     }
-  }, [showKosaraCharts, selectedGene]);  
+  }, [showKosaraCharts, selectedGene]);
 
   function opacityChange(value) {
     setOpacity(value);
+  }
+
+  function kosaraChartsChange(value) {
+    setShowKosaraCharts(value);
+    setSelectedGene(null);
   }
 
   function onChangeShowCell(cell) {
@@ -105,7 +110,7 @@ function App() {
       >
         <div style={{ display: "flex", flexDirection: "column" }}>
           <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" checked={showBackgroundImage} />
-          <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={() => setShowKosaraCharts(!showKosaraCharts)} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
+          <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={kosaraChartsChange} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Opacity</h5>
             <Tooltip placement="right" title={"Slided the bar to see the relationship of the cell types and the tissue"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
@@ -125,17 +130,23 @@ function App() {
               </div>
             ))}
           </div>
-          {showKosaraCharts || showtSNECluster ? null : (
-            <>
-              <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <h5 style={{ marginBottom: 5, fontWeight: 500 }}>UMI counts Legend</h5>
-                <Tooltip placement="right" title={"Choosing a gene from the gene list first to show the specific gene expression value scale"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
-                  <QuestionCircleOutlined style={{ fontSize: 10 }} />
-                </Tooltip>
-              </div>
-              <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} colorScaleType="Orange" />
-            </>
-          )}
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <h5 style={{ marginBottom: 5, fontWeight: 500 }}>UMI counts Legend</h5>
+            <Tooltip placement="right" title={"Choosing a gene from the gene list first to show the specific gene expression value scale"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
+              <QuestionCircleOutlined style={{ fontSize: 10 }} />
+            </Tooltip>
+          </div>
+          {showKosaraCharts ? 
+            <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} showKosaraCharts={showKosaraCharts} colorScaleType="Grey" />
+            : 
+            <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} showKosaraCharts={showKosaraCharts} colorScaleType="Orange" />
+          }
+          <GeneList
+            setShowtSNECluster={setShowtSNECluster}
+            selectedGene={selectedGene}
+            setSelectedGene={setSelectedGene}
+            setRelatedGeneData={setRelatedGeneData}
+          />
         </div>
       </Card>
       <KosaraChart
@@ -165,12 +176,12 @@ function App() {
           showtSNECluster={showtSNECluster}
           setShowtSNECluster={setShowtSNECluster}
         />
-        <GeneList
+        {/* <GeneList
           setShowtSNECluster={setShowtSNECluster}
           selectedGene={selectedGene}
           setSelectedGene={setSelectedGene}
           setRelatedGeneData={setRelatedGeneData}
-        />
+        /> */}
       </div>
     </div>
   );
