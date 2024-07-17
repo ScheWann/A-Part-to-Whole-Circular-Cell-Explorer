@@ -55,10 +55,8 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, se
             <div className="geneListTitle">Gene List</div>
             <Card
                 size="small"
-                // id="scrollableCard"
-                // title="Gene List"
                 extra={<Input size="small" placeholder="Search Genes" onChange={e => setSearchTerm(e.target.value)} />}
-                style={{ marginTop: 15, height: "46vh" }}
+                style={{ marginTop: 15, height: "59vh" }}
             >
                 <div id="scrollableCard" style={{ height: "95%", overflow: "auto" }}>
                     <InfiniteScroll

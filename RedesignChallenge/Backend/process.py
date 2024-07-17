@@ -7,7 +7,7 @@ from scipy.optimize import fsolve
 import h5py
 
 # Load data
-'''
+"""
 geneList: list of genes
     ---attributes: 'gene', 'feature_type'
 
@@ -33,7 +33,7 @@ cellTotal_df: each cell's total UMI counts
 
 up_regulated_L2FC_genes_df: list of up-regulated genes after L2FC analysis
     ---attributes: 'FeatureID', 'FeatureName', 'Cluster 1 Average', 'Cluster 1 Log2 Fold Change', 'Cluster 1 P-Value' ... 'Cluster 9 P-Value'
-'''
+"""
 
 geneList = pd.read_csv("../Data/Genes.csv")
 positions = pd.read_csv("../Data/SpotPositions.csv")
@@ -43,8 +43,45 @@ tSNE_df = pd.read_csv("../Data/t-SNE_Projection.csv")
 tSNE_cluster_df = pd.read_csv("../Data/t-SNE_Graph_Based.csv")
 up_regulated_L2FC_genes_df = pd.read_csv("../Data/up_regulated_L2FC_genes.csv")
 
-tSNE_df.rename(columns={'X Coordinate': 'x', 'Y Coordinate': 'y', 'Barcode': 'barcode'}, inplace=True)
-tSNE_cluster_df.rename(columns={'Barcode': 'barcode', 'Graph-based': 'cluster'}, inplace=True)
+tSNE_df.rename(
+    columns={"X Coordinate": "x", "Y Coordinate": "y", "Barcode": "barcode"},
+    inplace=True,
+)
+tSNE_cluster_df.rename(
+    columns={"Barcode": "barcode", "Graph-based": "cluster"}, inplace=True
+)
+up_regulated_L2FC_genes_df.rename(
+    columns={
+        "Cluster 1 Average": "cluster1Avg",
+        "Cluster 1 Log2 Fold Change": "cluster1L2FC",
+        "Cluster 1 P-Value": "cluster1PValue",
+        "Cluster 2 Average": "cluster2Avg",
+        "Cluster 2 Log2 Fold Change": "cluster2L2FC",
+        "Cluster 2 P-Value": "cluster2PValue",
+        "Cluster 3 Average": "cluster3Avg",
+        "Cluster 3 Log2 Fold Change": "cluster3L2FC",
+        "Cluster 3 P-Value": "cluster3PValue",
+        "Cluster 4 Average": "cluster4Avg",
+        "Cluster 4 Log2 Fold Change": "cluster4L2FC",
+        "Cluster 4 P-Value": "cluster4PValue",
+        "Cluster 5 Average": "cluster5Avg",
+        "Cluster 5 Log2 Fold Change": "cluster5L2FC",
+        "Cluster 5 P-Value": "cluster5PValue",
+        "Cluster 6 Average": "cluster6Avg",
+        "Cluster 6 Log2 Fold Change": "cluster6L2FC",
+        "Cluster 6 P-Value": "cluster6PValue",
+        "Cluster 7 Average": "cluster7Avg",
+        "Cluster 7 Log2 Fold Change": "cluster7L2FC",
+        "Cluster 7 P-Value": "cluster7PValue",
+        "Cluster 8 Average": "cluster8Avg",
+        "Cluster 8 Log2 Fold Change": "cluster8L2FC",
+        "Cluster 8 P-Value": "cluster8PValue",
+        "Cluster 9 Average": "cluster9Avg",
+        "Cluster 9 Log2 Fold Change": "cluster9L2FC",
+        "Cluster 9 P-Value": "cluster9PValue",
+    },
+    inplace=True,
+)
 
 # Convert feature matrix to dataframe
 adata.var_names_make_unique()
@@ -61,6 +98,7 @@ total_counts_dict = total_counts.to_dict()
 cell_tsne_df = pd.merge(cellTotal_df, tSNE_df, on="barcode")
 cell_cluster_UMI_tsne_df = pd.merge(cell_tsne_df, tSNE_cluster_df, on="barcode")
 
+
 def get_gene_list():
     return list(geneList["gene"])
 
@@ -72,14 +110,18 @@ def get_gene_expression(gene):
 def get_kosara_data():
     return kosaraData
 
+
 def get_UMI_totalCounts():
     return total_counts_dict
+
 
 def get_tSNE_data():
     return cell_cluster_UMI_tsne_df
 
+
 def get_cell_cluster_UMI_tsne_df():
     return tSNE_cluster_df
+
 
 def get_up_regulated_L2FC_genes():
     return up_regulated_L2FC_genes_df

@@ -27,7 +27,7 @@ def get_UMITotalCounts():
 
 @app.route('/getCellClusterUMItsne')
 def get_cellClusterUMItsne():
-    return jsonify(get_cell_cluster_UMI_tsne_df().to_dict())
+    return jsonify(get_cell_cluster_UMI_tsne_df().to_dict("records"))
 
 @app.route('/getTSNEData')
 def get_tSNEData():
@@ -35,7 +35,24 @@ def get_tSNEData():
 
 @app.route('/getUpRegulatedL2FCGenes')
 def get_upRegulatedL2FCGenes():
-    return jsonify(get_up_regulated_L2FC_genes().to_dict())
+    page = request.args.get('page', default=1, type=int)
+    per_page = request.args.get('per_page', default=15, type=int)
+    data = get_up_regulated_L2FC_genes().to_dict("records")
+
+    # Calculate start and end indexes
+    start = (page - 1) * per_page
+    end = start + per_page
+    total = len(data)
+    
+    # Slice the data based on pagination
+    paginated_data = data[start:end]
+
+    return jsonify({
+        'items': paginated_data,
+        'total': total,
+        'page': page,
+        'per_page': per_page
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)

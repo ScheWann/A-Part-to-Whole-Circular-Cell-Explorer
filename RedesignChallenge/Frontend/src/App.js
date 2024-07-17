@@ -4,6 +4,7 @@ import { Card, Slider, Switch, Checkbox, Tooltip } from "antd";
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { KosaraChart } from './components/kosaraChart';
 import { CellAnalysisChart } from './components/cellAnalysisChart';
+import { DifferentialChart } from './components/differentialChart';
 import { GeneList } from './components/geneList';
 import { GradientLegend } from './components/gradientLegend';
 
@@ -73,12 +74,7 @@ function App() {
       fetch("./getCellClusterUMItsne")
         .then(res => res.json())
         .then(data => {
-          const barcodes = Object.keys(data.barcode);
-          const transformedData = barcodes.map(index => ({
-            barcode: data.barcode[index],
-            cluster: data.cluster[index]
-          }))
-          setTissueClusterData(transformedData);
+          setTissueClusterData(data);
         });
     }
   }, [showKosaraCharts, selectedGene]);
@@ -108,7 +104,7 @@ function App() {
           width: 300,
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" checked={showBackgroundImage} />
           <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={kosaraChartsChange} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -182,6 +178,7 @@ function App() {
           setSelectedGene={setSelectedGene}
           setRelatedGeneData={setRelatedGeneData}
         /> */}
+        <DifferentialChart />
       </div>
     </div>
   );
