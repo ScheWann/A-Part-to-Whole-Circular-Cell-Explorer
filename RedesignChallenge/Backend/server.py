@@ -33,7 +33,7 @@ def get_cellClusterUMItsne():
 def get_tSNEData():
     return jsonify(get_tSNE_data().to_dict())
 
-@app.route('/getUpRegulatedL2FCGenes')
+@app.route('/getUpRegulatedL2FCGenesbyPage')
 def get_upRegulatedL2FCGenes():
     page = request.args.get('page', default=1, type=int)
     per_page = request.args.get('per_page', default=15, type=int)
@@ -53,6 +53,10 @@ def get_upRegulatedL2FCGenes():
         'page': page,
         'per_page': per_page
     })
+
+@app.route('/getUpRegulatedL2FCGenes')
+def get_upRegulatedL2FCGenesWithoutPages():
+    return jsonify(get_up_regulated_L2FC_genes().to_dict("records"))
 
 if __name__ == '__main__':
     app.run(debug=True)

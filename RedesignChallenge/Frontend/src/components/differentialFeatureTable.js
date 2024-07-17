@@ -13,15 +13,11 @@ export const DifferentialFeatureTable = () => {
     const [pageSize, setPageSize] = useState(15);
 
     useEffect(() => {
-        fetchDifferentialData(1, 10);
-    }, []);
-
-    useEffect(() => {
         fetchDifferentialData(currentPage, pageSize);
     }, [currentPage, pageSize]);
 
     const fetchDifferentialData = (page, size) => {
-        fetch(`/getUpRegulatedL2FCGenes?page=${page}&per_page=${size}`)
+        fetch(`/getUpRegulatedL2FCGenesbyPage?page=${page}&per_page=${size}`)
             .then(response => response.json())
             .then(data => {
                 setDifferentialChartData(data);

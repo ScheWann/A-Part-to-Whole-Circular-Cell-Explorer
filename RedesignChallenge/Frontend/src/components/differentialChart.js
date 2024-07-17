@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, Button, Switch, Checkbox } from "antd";
 import { DifferentialFeatureTable } from './differentialFeatureTable';
+import { DifferentialFeatureHeatmap } from './differentialFeatureHeatmap';
 
 export const DifferentialChart = () => {
     const [differentialChartTabKey, setDifferentialChartTabKey] = useState("tableTab");
@@ -11,7 +12,7 @@ export const DifferentialChart = () => {
 
     const differentialChartList = {
         "tableTab": <DifferentialFeatureTable />,
-        "HeatmapTab": <div>Heatmap Tab</div>,
+        "HeatmapTab": <DifferentialFeatureHeatmap />,
         "ViolinTab": <div>Violin Tab</div>
     }
 
