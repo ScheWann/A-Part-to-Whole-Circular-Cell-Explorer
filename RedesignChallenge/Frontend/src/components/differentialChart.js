@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Card, Button, Switch, Checkbox } from "antd";
 import { DifferentialFeatureTable } from './differentialFeatureTable';
 import { DifferentialFeatureHeatmap } from './differentialFeatureHeatmap';
+// import { DifferentialFeatureViolinPlot } from './differentialFeatureViolinPlot';
+import { BoxplotViolinMirrorDemo } from './violinPlot/BoxplotViolinMirrorDemo.tsx'
 
-export const DifferentialChart = () => {
+export const DifferentialChart = ({ selectedGene }) => {
     const [differentialChartTabKey, setDifferentialChartTabKey] = useState("tableTab");
     const [differentialChartData, setDifferentialChartData] = useState({
         items: [],
@@ -32,7 +34,8 @@ export const DifferentialChart = () => {
     const differentialChartList = {
         "tableTab": <DifferentialFeatureTable differentialChartData={differentialChartData} currentPage={currentPage} pageSize={pageSize} setCurrentPage={setCurrentPage} setPageSize={setPageSize} />,
         "HeatmapTab": <DifferentialFeatureHeatmap differentialChartData={differentialChartData} />,
-        "ViolinTab": <div>Violin Tab</div>
+        // "ViolinTab": <DifferentialFeatureViolinPlot selectedGene={selectedGene} />
+        "ViolinTab" : <BoxplotViolinMirrorDemo />
     }
 
     const tabList = [
