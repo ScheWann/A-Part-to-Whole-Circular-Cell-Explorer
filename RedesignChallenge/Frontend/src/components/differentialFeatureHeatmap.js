@@ -4,7 +4,8 @@ import "./Styles/differentialFeatureTable.css";
 
 export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
     const ref = useRef();
-
+    const heatmapTooltip = useRef(null);
+    
     useEffect(() => {
         if (!differentialChartData) return;
 
@@ -12,7 +13,7 @@ export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
         svg.selectAll("*").remove();
         const width = ref.current.clientWidth;
         const height = ref.current.clientHeight;
-        const margin = { top: 10, right: 20, bottom: 38, left: 50 };
+        const margin = { top: 10, right: 20, bottom: 30, left: 50 };
         
         svg.attr("viewBox", `0 0 ${width} ${height}`);
         
@@ -28,6 +29,12 @@ export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
             { cluster: 'Cluster 9', gene: feature.FeatureName, value: feature.cluster9L2FC },
         ]);
 
+        if (!heatmapTooltip.current) {
+            heatmapTooltip.current = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+        }
+
         const xScale = d3.scaleBand()
             .domain(differentialChartData.items.map(d => d.FeatureName))
             .range([margin.left, width - margin.right])
@@ -42,7 +49,6 @@ export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
             .interpolator(d3.interpolateRdYlBu)
             .domain(d3.extent(data, d => d.value));
 
-        // Render heatmap cells
         svg.selectAll("rect")
             .data(data)
             .join("rect")
@@ -50,7 +56,17 @@ export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
             .attr("y", d => yScale(d.cluster))
             .attr("width", xScale.bandwidth())
             .attr("height", yScale.bandwidth())
-            .attr("fill", d => colorScale(d.value));
+            .attr("fill", d => colorScale(d.value))
+            .on("mouseover", (event, d) => {
+                const info = `Gene: ${d.gene}<br>Cluster: ${d.cluster}<br>L2FC: ${d.value.toExponential(2)}`;
+                heatmapTooltip.current.html(info)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 15) + "px")
+                    .style("opacity", 0.9);
+            })
+            .on("mouseout", () => {
+                heatmapTooltip.current.style("opacity", 0);
+            });
 
         const yAxis = d3.axisLeft(yScale);
 
