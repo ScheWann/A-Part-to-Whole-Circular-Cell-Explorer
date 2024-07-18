@@ -111,7 +111,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
 
             const width = svgRef.current.clientWidth;
             const height = svgRef.current.clientHeight;
-            const margin = { top: 10, right: 20, bottom: 38, left: 50 };
+            const margin = { top: 5, right: 25, bottom: 35, left: 50 };
 
             svgElement.attr("viewBox", `0 0 ${width} ${height}`);
 

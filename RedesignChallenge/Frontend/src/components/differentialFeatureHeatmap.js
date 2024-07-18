@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import { GradientLegend } from "./gradientLegend"
 import "./Styles/differentialFeatureTable.css";
 
 export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
     const ref = useRef();
     const heatmapTooltip = useRef(null);
-    
+    const [featureL2FCScale, setFeatureL2FCScale] = useState([]);
     useEffect(() => {
         if (!differentialChartData) return;
 
@@ -13,7 +14,7 @@ export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
         svg.selectAll("*").remove();
         const width = ref.current.clientWidth;
         const height = ref.current.clientHeight;
-        const margin = { top: 10, right: 20, bottom: 30, left: 50 };
+        const margin = { top: 10, right: 20, bottom: 50, left: 50 };
         
         svg.attr("viewBox", `0 0 ${width} ${height}`);
         
@@ -28,7 +29,7 @@ export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
             { cluster: 'Cluster 8', gene: feature.FeatureName, value: feature.cluster8L2FC },
             { cluster: 'Cluster 9', gene: feature.FeatureName, value: feature.cluster9L2FC },
         ]);
-
+        setFeatureL2FCScale(d3.extent(data, d => d.value));
         if (!heatmapTooltip.current) {
             heatmapTooltip.current = d3.select("body").append("div")
                 .attr("class", "tooltip")
@@ -77,6 +78,12 @@ export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
     }, [differentialChartData]);
 
     return (
-        <svg ref={ref} width="100%" height="100%"></svg>
+        <>
+            <GradientLegend min={featureL2FCScale[0]} max={featureL2FCScale[featureL2FCScale.length - 1]} colorScaleType="double"/>
+            {/* {featureL2FCScale.length > 0 && (
+                <GradientLegend min={featureL2FCScale[0]} max={featureL2FCScale[1]} colorScaleType="double"/>
+            )} */}
+            <svg ref={ref} width="100%" height="100%"></svg>
+        </> 
     );
 };

@@ -30,14 +30,36 @@ export const GradientLegend = ({ min, max, selectedGene, colorScaleType, showKos
             gradient.append("stop")
                 .attr("offset", "100%")
                 .attr("stop-color", "#808080");
-        } else {
+        }
+
+        if (colorScaleType === "Orange") {
             gradient.append("stop")
                 .attr("offset", "0%")
-                .attr("stop-color", colorScaleType === "Orange" ? d3.interpolateOranges(0) : d3.interpolateBlues(0));
-
+                .attr("stop-color", d3.interpolateOranges(0));
             gradient.append("stop")
                 .attr("offset", "100%")
-                .attr("stop-color", colorScaleType === "Orange" ? d3.interpolateOranges(1) : d3.interpolateBlues(1));
+                .attr("stop-color", d3.interpolateOranges(1));
+        }
+
+        if (colorScaleType === "Blue") {
+            gradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", d3.interpolateBlues(0));
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", d3.interpolateBlues(1));
+        }
+
+        if (colorScaleType === "double") {
+            gradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", d3.interpolateRdYlBu(0));
+            gradient.append("stop")
+                .attr("offset", "50%")
+                .attr("stop-color", d3.interpolateRdYlBu(0.5));
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", d3.interpolateRdYlBu(1));
         }
 
         // Add rectangle filled with gradient
@@ -57,13 +79,15 @@ export const GradientLegend = ({ min, max, selectedGene, colorScaleType, showKos
         svg.append("text")
             .attr("x", 0)
             .attr("y", height + 15)
-            .text(!showKosaraCharts ? min : "")
+            // .text(!showKosaraCharts ? (Number.isInteger(min) ? min : min.toFixed(2)) : "")
+            .text(min)
             .attr("font-size", "12px");
 
         svg.append("text")
             .attr("x", width)
             .attr("y", height + 15)
-            .text(!showKosaraCharts ? max : "")
+            // .text(!showKosaraCharts ? (Number.isInteger(max) ? max : max.toFixed(2)) : "")
+            .text(max)
             .attr("font-size", "12px")
             .style("text-anchor", "end");
 
@@ -71,6 +95,9 @@ export const GradientLegend = ({ min, max, selectedGene, colorScaleType, showKos
 
 
     return (
+        (colorScaleType === "double") ?
+        <svg ref={ref} style={{ width: "100%", height: "35px" }} />
+        :
         <svg ref={ref} style={{ width: "100%", height: "50px" }} />
     )
 };
