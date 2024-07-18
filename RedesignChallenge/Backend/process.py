@@ -25,7 +25,7 @@ tSNE_df: t-SNE projection positions
 tSNE_cluster_df: based on t-SNE projection, each cell's cluster
     ---attributes: 'Barcode', 'Graph-based'
 
-expression_data: converted 'adata' to pandas dataframe
+umi_counts: converted 'adata' to pandas dataframe
     ---attributes: rows are barcode, columns are gene name
 
 cellTotal_df: each cell's total UMI counts
@@ -43,6 +43,7 @@ tSNE_df = pd.read_csv("../Data/t-SNE_Projection.csv")
 tSNE_cluster_df = pd.read_csv("../Data/t-SNE_Graph_Based.csv")
 up_regulated_L2FC_genes_df = pd.read_csv("../Data/up_regulated_L2FC_genes.csv")
 
+# rename columns
 tSNE_df.rename(
     columns={"X Coordinate": "x", "Y Coordinate": "y", "Barcode": "barcode"},
     inplace=True,
@@ -85,9 +86,13 @@ up_regulated_L2FC_genes_df.rename(
 
 # Convert feature matrix to dataframe
 adata.var_names_make_unique()
-expression_data = adata.to_df()
+umi_counts = adata.to_df()
+total_counts = umi_counts.sum(axis=1)
 
-total_counts = expression_data.sum(axis=1)
+# for geting normalized UMI counts
+umi_df = umi_counts
+umi_df.reset_index(inplace=True)
+umi_df.rename(columns={'index': 'barcode'}, inplace=True)
 
 # get total UMI counts for each cell
 cellTotal_df = pd.DataFrame(
@@ -96,15 +101,24 @@ cellTotal_df = pd.DataFrame(
 total_counts_dict = total_counts.to_dict()
 
 cell_tsne_df = pd.merge(cellTotal_df, tSNE_df, on="barcode")
+umi_with_total_counts_df = pd.merge(umi_df, cellTotal_df, on="barcode")
 cell_cluster_UMI_tsne_df = pd.merge(cell_tsne_df, tSNE_cluster_df, on="barcode")
 
+# log2 transformation
+umi_df.loc[:, umi_df.columns != 'barcode'] = np.log2(umi_df.loc[:, umi_df.columns != 'barcode'] + 1)
 
+# log Normalization transformation
+umi_with_total_counts_df.loc[:, umi_with_total_counts_df.columns != 'barcode'] = umi_with_total_counts_df.loc[:, umi_with_total_counts_df.columns != 'barcode'].div(umi_with_total_counts_df['total_counts'], axis=0) * 10000
+umi_with_total_counts_df.loc[:, umi_with_total_counts_df.columns != 'barcode'] = np.log1p(umi_with_total_counts_df.loc[:, umi_with_total_counts_df.columns != 'barcode'])
+
+violin_log2_df = pd.merge(tSNE_cluster_df, umi_df, on="barcode")
+violin_logNorm_df = pd.merge(tSNE_cluster_df, umi_with_total_counts_df, on="barcode")
 def get_gene_list():
     return list(geneList["gene"])
 
 
 def get_gene_expression(gene):
-    return expression_data[gene]
+    return umi_counts[gene]
 
 
 def get_kosara_data():
@@ -125,3 +139,11 @@ def get_cell_cluster_UMI_tsne_df():
 
 def get_up_regulated_L2FC_genes():
     return up_regulated_L2FC_genes_df
+
+
+def get_log2_violin_plot_data():
+    return violin_log2_df
+
+
+def get_logNorm_violin_plot_data():
+    return violin_logNorm_df

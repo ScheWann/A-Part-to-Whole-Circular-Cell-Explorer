@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import * as d3 from 'd3';
 import "./Styles/differentialFeatureTable.css";
 
-export const DifferentialFeatureHeatmap = () => {
+export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
+    const ref = useRef();
 
     useEffect(() => {
-        fetch('/getUpRegulatedL2FCGenes')
-            .then(response => response.json())
-            .then(data => {
-                console.log(data, '//////');
-            });
+        console.log(differentialChartData, '//////')
     }, []);
 
     return (

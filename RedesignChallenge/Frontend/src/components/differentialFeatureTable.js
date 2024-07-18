@@ -2,27 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table } from "antd";
 import "./Styles/differentialFeatureTable.css";
 
-export const DifferentialFeatureTable = () => {
-    const [differentialChartData, setDifferentialChartData] = useState({
-        items: [],
-        page: 1,
-        per_page: 15,
-        total: 0
-    });
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(15);
-
-    useEffect(() => {
-        fetchDifferentialData(currentPage, pageSize);
-    }, [currentPage, pageSize]);
-
-    const fetchDifferentialData = (page, size) => {
-        fetch(`/getUpRegulatedL2FCGenesbyPage?page=${page}&per_page=${size}`)
-            .then(response => response.json())
-            .then(data => {
-                setDifferentialChartData(data);
-            });
-    };
+export const DifferentialFeatureTable = ({ differentialChartData, currentPage, pageSize, setCurrentPage, setPageSize }) => {
 
     const columns = [
         {

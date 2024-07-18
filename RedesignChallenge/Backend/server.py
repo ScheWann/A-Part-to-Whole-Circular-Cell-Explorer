@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from process import (get_gene_list, get_gene_expression, get_kosara_data, get_UMI_totalCounts, get_tSNE_data, get_cell_cluster_UMI_tsne_df, get_up_regulated_L2FC_genes)
+from process import (get_gene_list, get_gene_expression, get_kosara_data, get_UMI_totalCounts, get_tSNE_data, get_cell_cluster_UMI_tsne_df, get_up_regulated_L2FC_genes, get_log2_violin_plot_data, get_logNorm_violin_plot_data)
 app = Flask(__name__)
 
 
@@ -57,6 +57,23 @@ def get_upRegulatedL2FCGenes():
 @app.route('/getUpRegulatedL2FCGenes')
 def get_upRegulatedL2FCGenesWithoutPages():
     return jsonify(get_up_regulated_L2FC_genes().to_dict("records"))
+
+@app.route('/getLog2ViolinPlotData', methods=['POST'])
+def get_violin_plot_data():
+    gene_name = request.json['gene']
+    df = get_log2_violin_plot_data()
+    violin_data = df[['barcode', 'cluster', gene_name]]
+    violin_data.columns = ['barcode', 'cluster', 'value']
+
+    categories = violin_data['cluster'].unique().tolist()
+    values = [violin_data[violin_data['cluster'] == cluster]['value'].tolist() for cluster in categories]
+
+    response_data = {
+        "categories": categories,
+        "values": values
+    }
+
+    return jsonify(response_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
