@@ -35,7 +35,7 @@ export const DifferentialChart = ({ selectedGene }) => {
         "tableTab": <DifferentialFeatureTable differentialChartData={differentialChartData} currentPage={currentPage} pageSize={pageSize} setCurrentPage={setCurrentPage} setPageSize={setPageSize} />,
         "HeatmapTab": <DifferentialFeatureHeatmap differentialChartData={differentialChartData} />,
         // "ViolinTab": <DifferentialFeatureViolinPlot selectedGene={selectedGene} />
-        "ViolinTab" : <BoxplotViolinMirrorDemo />
+        "ViolinTab" : <BoxplotViolinMirrorDemo selectedGene={selectedGene}/>
     }
 
     const tabList = [

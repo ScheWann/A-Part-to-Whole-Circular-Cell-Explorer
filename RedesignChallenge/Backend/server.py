@@ -58,23 +58,6 @@ def get_upRegulatedL2FCGenes():
 def get_upRegulatedL2FCGenesWithoutPages():
     return jsonify(get_up_regulated_L2FC_genes().to_dict("records"))
 
-# @app.route('/getLog2ViolinPlotData', methods=['POST'])
-# def get_violin_plot_data():
-#     gene_name = request.json['gene']
-#     df = get_log2_violin_plot_data()
-#     violin_data = df[['barcode', 'cluster', gene_name]]
-#     violin_data.columns = ['barcode', 'cluster', 'value']
-
-#     categories = violin_data['cluster'].unique().tolist()
-#     values = [violin_data[violin_data['cluster'] == cluster]['value'].tolist() for cluster in categories]
-
-#     response_data = {
-#         "categories": categories,
-#         "values": values
-#     }
-
-#     return jsonify(response_data)
-
 @app.route('/getLog2ViolinPlotData', methods=['POST'])
 def get_violin_plot_data():
     gene_name = request.json['gene']
