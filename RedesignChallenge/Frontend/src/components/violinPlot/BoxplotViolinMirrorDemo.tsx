@@ -1,10 +1,25 @@
-import React, { useEffect } from "react";
-import { Empty, Typography } from "antd";
+import React, { useEffect, useState } from "react";
+import { Empty, Typography, Select } from "antd";
 import { BoxplotViolinMirror } from "./BoxplotViolinMirror.tsx";
-import { useState } from "react";
+import "../Styles/violinPlot.css";
 
 const HEADER_HEIGHT = 70;
 const FOOTER_HEIGHT = 50;
+
+const options = [
+  {
+    value: 'linear',
+    label: 'Linear',
+  },
+  {
+    value: 'log2',
+    label: 'Log2',
+  },
+  {
+    value: 'logNorm',
+    label: 'LogNorm',
+  }
+];
 
 export const BoxplotViolinMirrorDemo = ({
   width = 700,
@@ -14,20 +29,42 @@ export const BoxplotViolinMirrorDemo = ({
   const [mirrorPosition, setMirrorPosition] = useState(0.6);
   const [violinPlotData, setViolinPlotData] = useState(null);
   const [smoothing, setSmoothing] = useState(true);
+  const [featureAnalysisType, setFeatureAnalysisType] = useState("log2");
 
   useEffect(() => {
-    fetch("/getLog2ViolinPlotData", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ gene: selectedGene }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setViolinPlotData(data.values);
-      });
-  }, [selectedGene]);
+    if(featureAnalysisType === "log2" && selectedGene) {
+      fetch("/getLog2ViolinPlotData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ gene: selectedGene }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setViolinPlotData(data.values);
+        });
+    } else if(featureAnalysisType === "logNorm" && selectedGene) {
+      fetch("/getLogNormViolinPlotData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ gene: selectedGene }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setViolinPlotData(data.values);
+        });
+    }
+
+
+  }, [selectedGene, featureAnalysisType]);
+
+  const handleChange = (value: string) => {
+    setFeatureAnalysisType(value);
+    console.log(`selected ${value}`);
+  };
 
   return selectedGene ? (
     <div style={{ height, width }}>
@@ -40,7 +77,7 @@ export const BoxplotViolinMirrorDemo = ({
           justifyContent: "center",
         }}
       >
-        <div>
+        <div className="controlGroup">
           <input
             type="range"
             min={0}
@@ -50,6 +87,7 @@ export const BoxplotViolinMirrorDemo = ({
             onChange={(e) => setMirrorPosition(Number(e.target.value))}
             style={{ height: 2, opacity: 0.5 }}
           />
+          <Select size="small" defaultValue="log2" options={options} onChange={handleChange} />
         </div>
       </div>
       {violinPlotData && (
@@ -92,7 +130,6 @@ export const BoxplotViolinMirrorDemo = ({
           Choosing a gene from the gene list to display the violin plot.
         </Typography.Text>
       }
-    >
-    </Empty>
+    />
   );
 };

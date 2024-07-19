@@ -1,0 +1,4 @@
+.controlGroup {
+    display: flex;
+    justify-content: end;
+}
