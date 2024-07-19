@@ -22,7 +22,7 @@ const options = [
 ];
 
 export const BoxplotViolinMirrorDemo = ({
-  width = 700,
+  width = 650,
   height = 400,
   selectedGene,
 }) => {

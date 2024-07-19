@@ -59,7 +59,7 @@ export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
             .attr("height", yScale.bandwidth())
             .attr("fill", d => colorScale(d.value))
             .on("mouseover", (event, d) => {
-                const info = `Gene: ${d.gene}<br>Cluster: ${d.cluster}<br>L2FC: ${d.value.toExponential(2)}`;
+                const info = `Gene: ${d.gene}<br>Cluster: ${d.cluster}<br>L2FC: ${d.value.toFixed(3)}`;
                 heatmapTooltip.current.html(info)
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 15) + "px")
