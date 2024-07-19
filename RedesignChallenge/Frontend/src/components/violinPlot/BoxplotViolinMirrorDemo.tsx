@@ -75,7 +75,7 @@ export const BoxplotViolinMirrorDemo = ({
         }}
       >
         <div className="controlGroup">
-          <input
+          {/* <input
             type="range"
             min={0}
             max={1}
@@ -83,7 +83,7 @@ export const BoxplotViolinMirrorDemo = ({
             step={0.01}
             onChange={(e) => setMirrorPosition(Number(e.target.value))}
             style={{ height: 2, opacity: 0.5 }}
-          />
+          /> */}
           <div className="text">Scale Value: </div>
           <Select
             size="small"

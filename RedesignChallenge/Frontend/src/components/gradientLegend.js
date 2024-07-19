@@ -79,14 +79,14 @@ export const GradientLegend = ({ min, max, selectedGene, colorScaleType, showKos
         svg.append("text")
             .attr("x", 0)
             .attr("y", height + 15)
-            .text(!showKosaraCharts && min ? (Number.isInteger(min) ? min : min.toFixed(3)) : "")
-            // .text(min)
-            .attr("font-size", "12px");
+            .text((!showKosaraCharts && min || min === 0) ? (Number.isInteger(min) ? min : min.toFixed(3)) : "")
+            .attr("font-size", "12px")
+            .style("text-anchor", "start");
 
         svg.append("text")
             .attr("x", width)
             .attr("y", height + 15)
-            .text(!showKosaraCharts && max ? (Number.isInteger(max) ? max : max.toFixed(3)) : "")
+            .text((!showKosaraCharts && max || max === 0)? (Number.isInteger(max) ? max : max.toFixed(3)) : "")
             .attr("font-size", "12px")
             .style("text-anchor", "end");
 
