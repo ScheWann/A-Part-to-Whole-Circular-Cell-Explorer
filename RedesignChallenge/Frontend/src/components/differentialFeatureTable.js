@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table } from "antd";
+import { Table, Tooltip } from "antd";
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import "./Styles/differentialFeatureTable.css";
 
 export const DifferentialFeatureTable = ({ differentialChartData, currentPage, pageSize, setCurrentPage, setPageSize }) => {
@@ -11,7 +12,8 @@ export const DifferentialFeatureTable = ({ differentialChartData, currentPage, p
             key: 'FeatureName',
             fixed: 'left',
             align: 'center',
-            width: 60
+            width: 60,
+            sorter: (a, b) => a.FeatureName.localeCompare(b.FeatureName)
         },
         ...Array.from({ length: 9 }, (_, i) => ({
             title: `Cluster ${i + 1}`,
@@ -25,25 +27,35 @@ export const DifferentialFeatureTable = ({ differentialChartData, currentPage, p
                 //     render: (value) => `${Number(value).toExponential(2)}`
                 // },
                 {
-                    title: 'L2FC',
+                    title: (
+                        <Tooltip placement="right" title="L2FC(Log2 fold change)is the ratio of the normalized mean gene UMI counts in the cluster relative to all other clusters, Features with L2FC < 0 were grayed out." overlayInnerStyle={{ color: '#000' }} color={"white"}>
+                            <span>L2FC <QuestionCircleOutlined style={{ fontSize: 12 }} /></span>
+                        </Tooltip>
+                    ),
                     dataIndex: `cluster${i + 1}L2FC`,
                     key: `cluster${i + 1}L2FC`,
-                    width: 50,
+                    width: 80,
                     align: 'center',
+                    // sorter: (a, b) => a[`cluster${i + 1}L2FC`] - b[`cluster${i + 1}L2FC`],
                     render: (value, record) => {
                         const style = value < 0 && record[`cluster${i + 1}PValue`] >= 0.10 ? { color: '#808080' } : {};
-                        return <span style={style}>{Number(value).toFixed(2)}</span>;
+                        return <span style={style}>{Number(value).toFixed(3)}</span>;
                     }
                 },
                 {
-                    title: 'P-value',
+                    title: (
+                        <Tooltip placement="right" title="Genes with a smaller p-value are considered to be differentially expressed. P-values are adjusted using the Benjamini-Hochberg correction for multiple tests. Adjusted p-value >= 0.10 were grayed out, and p-value <=0.001 values were replaced by 'X'" overlayInnerStyle={{ color: '#000' }} color={"white"}>
+                            <span>P-Value <QuestionCircleOutlined style={{ fontSize: 12 }} /></span>
+                        </Tooltip>
+                    ),
                     dataIndex: `cluster${i + 1}PValue`,
                     key: `cluster${i + 1}PValue`,
                     width: 80,
                     align: 'center',
+                    // sorter: (a, b) => a[`cluster${i + 1}PValue`] - b[`cluster${i + 1}PValue`],
                     render: (value, record) => {
                         const style = record[`cluster${i + 1}L2FC`] < 0 && value >= 0.10 ? { color: '#808080' } : {};
-                        return <span style={style}>{Number(value).toFixed(2)}</span>;
+                        return <span style={style}>{value <= 0.001 ? 'X' : Number(value).toFixed(3)}</span>;
                     }
                 }
             ]
