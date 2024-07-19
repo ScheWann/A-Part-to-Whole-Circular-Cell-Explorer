@@ -3,22 +3,22 @@ import { Empty, Typography, Select } from "antd";
 import { BoxplotViolinMirror } from "./BoxplotViolinMirror.tsx";
 import "../Styles/violinPlot.css";
 
-const HEADER_HEIGHT = 70;
-const FOOTER_HEIGHT = 50;
+const HEADER_HEIGHT = 50;
+const FOOTER_HEIGHT = 30;
 
 const options = [
   {
-    value: 'linear',
-    label: 'Linear',
+    value: "linear",
+    label: "Linear",
   },
   {
-    value: 'log2',
-    label: 'Log2',
+    value: "log2",
+    label: "Log2",
   },
   {
-    value: 'logNorm',
-    label: 'LogNorm',
-  }
+    value: "logNorm",
+    label: "LogNorm",
+  },
 ];
 
 export const BoxplotViolinMirrorDemo = ({
@@ -32,7 +32,7 @@ export const BoxplotViolinMirrorDemo = ({
   const [featureAnalysisType, setFeatureAnalysisType] = useState("log2");
 
   useEffect(() => {
-    if(featureAnalysisType === "log2" && selectedGene) {
+    if (featureAnalysisType === "log2" && selectedGene) {
       fetch("/getLog2ViolinPlotData", {
         method: "POST",
         headers: {
@@ -44,7 +44,7 @@ export const BoxplotViolinMirrorDemo = ({
         .then((data) => {
           setViolinPlotData(data.values);
         });
-    } else if(featureAnalysisType === "logNorm" && selectedGene) {
+    } else if (featureAnalysisType === "logNorm" && selectedGene) {
       fetch("/getLogNormViolinPlotData", {
         method: "POST",
         headers: {
@@ -57,8 +57,6 @@ export const BoxplotViolinMirrorDemo = ({
           setViolinPlotData(data.values);
         });
     }
-
-
   }, [selectedGene, featureAnalysisType]);
 
   const handleChange = (value: string) => {
@@ -87,7 +85,15 @@ export const BoxplotViolinMirrorDemo = ({
             onChange={(e) => setMirrorPosition(Number(e.target.value))}
             style={{ height: 2, opacity: 0.5 }}
           />
-          <Select size="small" defaultValue="log2" options={options} onChange={handleChange} />
+          <Select
+            size="small"
+            style={{
+              width: 100,
+            }}
+            defaultValue="log2"
+            options={options}
+            onChange={handleChange}
+          />
         </div>
       </div>
       {violinPlotData && (
@@ -99,7 +105,7 @@ export const BoxplotViolinMirrorDemo = ({
           smoothing={smoothing}
         />
       )}
-      <div style={{ height: FOOTER_HEIGHT }}>
+      <div style={{ height: FOOTER_HEIGHT, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <i style={{ color: "grey", fontSize: 14 }}>
           You can use{" "}
           <span

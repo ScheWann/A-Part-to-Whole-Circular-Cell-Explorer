@@ -4,7 +4,7 @@ import React from "react";
 type VerticalViolinShapeProps = {
   data: number[];
   binNumber: number;
-  yScale: d3.scaleLinear<number, number, never>;
+  yScale: d3.ScaleLinear<number, number, never>;
   width: number;
   fill: string;
   smoothing: boolean;
@@ -35,7 +35,7 @@ export const VerticalViolinShape = ({
     .range([0, width]);
 
   const areaBuilder = d3
-    .area<d3.bin<number, number>>()
+    .area<d3.Bin<number, number>>()
     .x0((d) => wScale(-d.length))
     .x1((d) => wScale(d.length))
     .y((d) => {
@@ -44,10 +44,9 @@ export const VerticalViolinShape = ({
     .curve(smoothing ? d3.curveBumpY : d3.curveStep);
 
   const areaPath = areaBuilder(bins);
-
   return (
     <path
-      d={areaPath}
+      d={areaPath ? areaPath : ""}
       opacity={1}
       stroke="black"
       fill={fill}

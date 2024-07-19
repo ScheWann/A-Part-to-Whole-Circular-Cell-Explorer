@@ -6,7 +6,7 @@ import { AxisBottom } from "./AxisBottomCategoric.tsx";
 import { VerticalBox } from "./VerticalBox.tsx";
 import { VerticalViolinShape } from "./VerticalViolinShape.tsx";
 
-const MARGIN = { top: 20, right: 30, bottom: 50, left: 50 };
+const MARGIN = { top: 0, right: 0, bottom: 30, left: 40 };
 const JITTER_WIDTH = 40;
 const COLORS = ["#e85252", "#6689c6", "#9a6fb0", "#a53253"];
 
@@ -38,7 +38,12 @@ export const BoxplotViolinMirror = ({
       number,
       number
     ];
-    const groups = [...new Set(data.map((d) => d.name))];
+    const clusterGroups = [...new Set(data.map((d) => d.name))];
+    const groups = clusterGroups.sort((a, b) => {
+      const numA = parseInt(a.split(' ')[1]);
+      const numB = parseInt(b.split(' ')[1]);
+      return numA - numB;
+    });
     return { chartMin, chartMax, groups };
   }, [data]);
 

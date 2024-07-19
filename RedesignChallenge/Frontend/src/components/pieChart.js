@@ -212,7 +212,6 @@ export const PieChart = () => {
         }
         const offsetX = brushedCoords.x1;
         const offsetY = brushedCoords.y0;
-        // console.log(offsetX, offsetY);
         mirrorGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
 
         svgElement.select("#clip-path-mirrored").remove();
@@ -295,7 +294,6 @@ export const PieChart = () => {
         const zoomed = (event) => {
             const transform = event.transform;
             if (transform.k === 1) {
-                console.log(brushedCoords.x1, brushedCoords.y0, '?????????')
                 mirrorGroup.attr("transform", `translate(${brushedCoords.x1},${brushedCoords.y0})`);
             } else {
                 const limitedX = Math.min(Math.max(transform.x, -brushedCoords.x0), 600 - brushedCoords.x1);
