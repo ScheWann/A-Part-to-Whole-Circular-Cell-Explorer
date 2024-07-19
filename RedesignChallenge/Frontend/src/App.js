@@ -166,19 +166,11 @@ function App() {
           showKosaraCharts={showKosaraCharts}
           setShowKosaraCharts={setShowKosaraCharts}
           selectedData={selectedData}
-          selectedGene={selectedGene}
-          setSelectedGene={setSelectedGene}
           setHoveronTSNECell={setHoveronTSNECell}
           showtSNECluster={showtSNECluster}
           setShowtSNECluster={setShowtSNECluster}
         />
-        {/* <GeneList
-          setShowtSNECluster={setShowtSNECluster}
-          selectedGene={selectedGene}
-          setSelectedGene={setSelectedGene}
-          setRelatedGeneData={setRelatedGeneData}
-        /> */}
-        <DifferentialChart />
+        <DifferentialChart selectedGene={selectedGene}/>
       </div>
     </div>
   );

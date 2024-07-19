@@ -11,20 +11,17 @@ export const BoxplotViolinMirrorDemo = ({ width = 700, height = 400, selectedGen
   const [smoothing, setSmoothing] = useState(true);
 
   useEffect(() => {
-      console.log(selectedGene)
       fetch("/getLog2ViolinPlotData", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ gene: 'Xkr4' }),
+        body: JSON.stringify({ gene: selectedGene }),
       })
       .then((response) => response.json())
       .then((data) => {
-
-        setViolinPlotData(data.values);
-        // console.log(selectedGene, data.values);
-      });
+          setViolinPlotData(data.values);
+        })
   }, [selectedGene]);
   
 

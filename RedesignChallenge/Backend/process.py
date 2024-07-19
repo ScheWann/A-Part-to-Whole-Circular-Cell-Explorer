@@ -90,7 +90,7 @@ umi_counts = adata.to_df()
 total_counts = umi_counts.sum(axis=1)
 
 # for geting normalized UMI counts
-umi_df = umi_counts
+umi_df = umi_counts.copy()
 umi_df.reset_index(inplace=True)
 umi_df.rename(columns={'index': 'barcode'}, inplace=True)
 
