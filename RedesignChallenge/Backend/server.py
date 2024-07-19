@@ -77,7 +77,6 @@ def get_log2violin_plot_data():
 def get_logNormviolin_plot_data():
     gene_name = request.json['gene']
     df = get_logNorm_violin_plot_data()
-    print(df)
     violin_data = df[['barcode', 'cluster', gene_name]]
     violin_data.columns = ['barcode', 'cluster', 'value']
 

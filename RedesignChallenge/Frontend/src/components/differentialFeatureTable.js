@@ -28,22 +28,22 @@ export const DifferentialFeatureTable = ({ differentialChartData, currentPage, p
                     title: 'L2FC',
                     dataIndex: `cluster${i + 1}L2FC`,
                     key: `cluster${i + 1}L2FC`,
-                    width: 100,
+                    width: 50,
                     align: 'center',
                     render: (value, record) => {
                         const style = value < 0 && record[`cluster${i + 1}PValue`] >= 0.10 ? { color: '#808080' } : {};
-                        return <span style={style}>{Number(value).toExponential(2)}</span>;
+                        return <span style={style}>{Number(value).toFixed(2)}</span>;
                     }
                 },
                 {
                     title: 'P-value',
                     dataIndex: `cluster${i + 1}PValue`,
                     key: `cluster${i + 1}PValue`,
-                    width: 100,
+                    width: 80,
                     align: 'center',
                     render: (value, record) => {
                         const style = record[`cluster${i + 1}L2FC`] < 0 && value >= 0.10 ? { color: '#808080' } : {};
-                        return <span style={style}>{Number(value).toExponential(2)}</span>;
+                        return <span style={style}>{Number(value).toFixed(2)}</span>;
                     }
                 }
             ]
@@ -57,7 +57,7 @@ export const DifferentialFeatureTable = ({ differentialChartData, currentPage, p
 
     return (
         <Table
-            style={{ height: "100%", width: "100%" }}
+            style={{ height: "100%", width: "100%", display: "inline-block" }}
             size="small"
             columns={columns}
             dataSource={differentialChartData.items.map((item, index) => ({ key: index, ...item }))}
@@ -68,7 +68,7 @@ export const DifferentialFeatureTable = ({ differentialChartData, currentPage, p
                 showSizeChanger: false,
                 onChange: handleTableChange,
             }}
-            scroll={{ x: 1000, y: '33vh' }}
+            scroll={{ x: 700, y: '33vh' }}
         />
     );
 };

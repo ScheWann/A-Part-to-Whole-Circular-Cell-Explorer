@@ -3,7 +3,7 @@ import { Empty, Typography, Select } from "antd";
 import { BoxplotViolinMirror } from "./BoxplotViolinMirror.tsx";
 import "../Styles/violinPlot.css";
 
-const HEADER_HEIGHT = 50;
+const HEADER_HEIGHT = 35;
 const FOOTER_HEIGHT = 30;
 
 const options = [
@@ -26,7 +26,7 @@ export const BoxplotViolinMirrorDemo = ({
   height = 400,
   selectedGene,
 }) => {
-  const [mirrorPosition, setMirrorPosition] = useState(0.6);
+  const [mirrorPosition, setMirrorPosition] = useState(1);
   const [violinPlotData, setViolinPlotData] = useState(null);
   const [smoothing, setSmoothing] = useState(true);
   const [featureAnalysisType, setFeatureAnalysisType] = useState("log2");
@@ -61,7 +61,6 @@ export const BoxplotViolinMirrorDemo = ({
 
   const handleChange = (value: string) => {
     setFeatureAnalysisType(value);
-    console.log(`selected ${value}`);
   };
 
   return selectedGene ? (
@@ -85,6 +84,7 @@ export const BoxplotViolinMirrorDemo = ({
             onChange={(e) => setMirrorPosition(Number(e.target.value))}
             style={{ height: 2, opacity: 0.5 }}
           />
+          <div className="text">Scale Value: </div>
           <Select
             size="small"
             style={{

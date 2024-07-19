@@ -287,7 +287,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
             tabList={tabList}
             activeTabKey={tabKey}
             onTabChange={onChangeTabKey}
-            style={{ height: "50vh" }}
+            style={{ height: "50vh", width: "100%" }}
         >
             {chartList[tabKey]}
         </Card>

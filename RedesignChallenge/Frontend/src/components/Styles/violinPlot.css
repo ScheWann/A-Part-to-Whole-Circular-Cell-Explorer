@@ -2,3 +2,9 @@
     display: flex;
     justify-content: end;
 }
+
+.text {
+    font-weight: 500;
+    font-size: 0.83em;
+    margin: 0 5px 0 5px;
+}

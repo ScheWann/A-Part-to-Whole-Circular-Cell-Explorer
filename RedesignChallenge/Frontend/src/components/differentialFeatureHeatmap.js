@@ -13,8 +13,8 @@ export const DifferentialFeatureHeatmap = ({ differentialChartData }) => {
         const svg = d3.select(ref.current);
         svg.selectAll("*").remove();
         const width = ref.current.clientWidth;
-        const height = ref.current.clientHeight;
-        const margin = { top: 20, right: 20, bottom: 50, left: 50 };
+        const height = ref.current.clientHeight - 50;
+        const margin = { top: 0, right: 20, bottom: 30, left: 50 };
         
         svg.attr("viewBox", `0 0 ${width} ${height}`);
         
