@@ -80,12 +80,13 @@ export const GradientLegend = ({ min, max, selectedGene, colorScaleType, showKos
             .attr("x", 0)
             .attr("y", height + 15)
             .text(!showKosaraCharts && min ? (Number.isInteger(min) ? min : min.toFixed(3)) : "")
+            // .text(min)
             .attr("font-size", "12px");
 
         svg.append("text")
             .attr("x", width)
             .attr("y", height + 15)
-            .text(!showKosaraCharts && max ? (Number.isInteger(max) ? max : max.toFixed(2)) : "")
+            .text(!showKosaraCharts && max ? (Number.isInteger(max) ? max : max.toFixed(3)) : "")
             .attr("font-size", "12px")
             .style("text-anchor", "end");
 
