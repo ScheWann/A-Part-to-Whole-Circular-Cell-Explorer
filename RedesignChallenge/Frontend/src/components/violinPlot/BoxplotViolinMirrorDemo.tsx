@@ -1,31 +1,35 @@
 import React, { useEffect } from "react";
+import { Empty, Typography } from "antd";
 import { BoxplotViolinMirror } from "./BoxplotViolinMirror.tsx";
 import { useState } from "react";
 
 const HEADER_HEIGHT = 70;
 const FOOTER_HEIGHT = 50;
 
-export const BoxplotViolinMirrorDemo = ({ width = 700, height = 400, selectedGene }) => {
+export const BoxplotViolinMirrorDemo = ({
+  width = 700,
+  height = 400,
+  selectedGene,
+}) => {
   const [mirrorPosition, setMirrorPosition] = useState(0.6);
   const [violinPlotData, setViolinPlotData] = useState(null);
   const [smoothing, setSmoothing] = useState(true);
 
   useEffect(() => {
-      fetch("/getLog2ViolinPlotData", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ gene: selectedGene }),
-      })
+    fetch("/getLog2ViolinPlotData", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ gene: selectedGene }),
+    })
       .then((response) => response.json())
       .then((data) => {
-          setViolinPlotData(data.values);
-        })
+        setViolinPlotData(data.values);
+      });
   }, [selectedGene]);
-  
 
-  return (
+  return selectedGene ? (
     <div style={{ height, width }}>
       <div
         style={{
@@ -77,5 +81,18 @@ export const BoxplotViolinMirrorDemo = ({ width = 700, height = 400, selectedGen
         </i>
       </div>
     </div>
+  ) : (
+    <Empty
+      image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+      imageStyle={{
+        height: 60,
+      }}
+      description={
+        <Typography.Text>
+          Choosing a gene from the gene list to display the violin plot.
+        </Typography.Text>
+      }
+    >
+    </Empty>
   );
 };
