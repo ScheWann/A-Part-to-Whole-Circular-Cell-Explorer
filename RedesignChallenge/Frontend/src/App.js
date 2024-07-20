@@ -101,7 +101,8 @@ function App() {
         size="small"
         title="Tools"
         style={{
-          width: 300,
+          width: "20vw",
+          height: "100vh",
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -160,7 +161,7 @@ function App() {
         tissueClusterData={tissueClusterData}
         setGeneExpressionScale={setGeneExpressionScale}
       />
-      <div style={{ display: "flex", flexDirection: "column", width: "41%", height: "99vh", maxWidth: "72vh" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "30vw", height: "99vh", maxWidth: "30vw" }}>
         <CellAnalysisChart
           className="CellTypeChart"
           showKosaraCharts={showKosaraCharts}

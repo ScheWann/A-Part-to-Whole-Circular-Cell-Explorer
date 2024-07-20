@@ -111,7 +111,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
 
             const width = svgRef.current.clientWidth;
             const height = svgRef.current.clientHeight;
-            const margin = { top: 5, right: 25, bottom: 35, left: 50 };
+            const margin = { top: 5, right: 25, bottom: 40, left: 50 };
 
             svgElement.attr("viewBox", `0 0 ${width} ${height}`);
 
@@ -287,7 +287,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
             tabList={tabList}
             activeTabKey={tabKey}
             onTabChange={onChangeTabKey}
-            style={{ height: "50vh", width: "100%" }}
+            style={{ height: "50vh", width: "30vw" }}
         >
             {chartList[tabKey]}
         </Card>
