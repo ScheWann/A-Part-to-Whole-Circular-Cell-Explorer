@@ -57,7 +57,7 @@ export const DifferentialChart = ({ selectedGene }) => {
             tabList={tabList}
             activeTabKey={differentialChartTabKey}
             onTabChange={onChangedifferentialChartTabKey}
-            style={{ height: "49vh", width: "30vw" }}
+            style={{ height: "50vh", width: "100%" }}
         >
             {differentialChartList[differentialChartTabKey]}
         </Card>
