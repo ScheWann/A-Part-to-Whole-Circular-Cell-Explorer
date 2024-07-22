@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 type VerticalViolinShapeProps = {
   data: number[];
   binNumber: number;
-  yScale: d3.ScaleLinear<number, number, never>;
+  yScale: d3.scaleLinear<number, number, never>;
   width: number;
   fill: string;
   smoothing: boolean;
@@ -19,7 +19,7 @@ export const VerticalViolinShape = ({
   smoothing,
 }: VerticalViolinShapeProps) => {
   const [tooltipContent, setTooltipContent] = useState<string | null>(null);
-  const tooltip = useRef<null | d3.Selection<HTMLDivElement, unknown, HTMLElement, any>>(null);
+  const tooltip = useRef<null | d3.selection<HTMLDivElement, unknown, HTMLElement, any>>(null);
   const min = Math.min(...data);
   const max = Math.max(...data);
 
@@ -49,7 +49,7 @@ export const VerticalViolinShape = ({
     .range([0, width]);
 
   const areaBuilder = d3
-    .area<d3.Bin<number, number>>()
+    .area<d3.bin<number, number>>()
     .x0((d) => wScale(-d.length))
     .x1((d) => wScale(d.length))
     .y((d) => {
