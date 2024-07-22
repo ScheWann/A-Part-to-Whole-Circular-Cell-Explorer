@@ -58,7 +58,7 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, se
                     <div className="geneListTitle">
                         Gene List
                         <Tooltip placement="right" title={"Choosing a gene from the gene list first to show the violin plot and expression on the tissue"} overlayInnerStyle={{ color: '#000' }} color={"white"}>
-                            <QuestionCircleOutlined style={{ fontSize: 10 }} />
+                            <QuestionCircleOutlined style={{ marginLeft: 3, fontSize: 10 }} />
                         </Tooltip>
                     </div>
                     <Input size="small" placeholder="Search Genes" onChange={e => setSearchTerm(e.target.value)} />

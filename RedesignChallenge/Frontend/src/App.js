@@ -111,7 +111,7 @@ function App() {
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <h5 style={{ marginBottom: 5, marginTop: 5, fontWeight: 500 }}>Opacity</h5>
             <Tooltip placement="right" title={"Slided the bar to see the relationship of the cell types and the tissue"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
-              <QuestionCircleOutlined style={{ fontSize: 10 }} />
+              <QuestionCircleOutlined style={{ marginLeft: 3, fontSize: 10 }} />
             </Tooltip>
           </div>
           <Slider style={{ margin: 0 }} defaultValue={1} onChange={opacityChange} step={0.1} max={1} min={0} />
@@ -130,7 +130,7 @@ function App() {
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <h5 style={{ marginBottom: 5, marginTop: 5, fontWeight: 500 }}>UMI counts Legend</h5>
             <Tooltip placement="right" title={"Choosing a gene from the gene list first to show the specific gene expression value scale"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
-              <QuestionCircleOutlined style={{ fontSize: 10 }} />
+              <QuestionCircleOutlined style={{ marginLeft: 3, fontSize: 10 }} />
             </Tooltip>
           </div>
           {showKosaraCharts ? 

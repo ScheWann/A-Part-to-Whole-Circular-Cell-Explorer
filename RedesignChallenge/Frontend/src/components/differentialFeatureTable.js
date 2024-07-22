@@ -4,7 +4,6 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import "./Styles/differentialFeatureTable.css";
 
 export const DifferentialFeatureTable = ({ differentialChartData, currentPage, pageSize, setCurrentPage, setPageSize, cardHeight }) => {
-    console.log(cardHeight, '???')
     const columns = [
         {
             title: 'Gene',
