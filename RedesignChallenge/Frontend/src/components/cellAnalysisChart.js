@@ -275,7 +275,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
         svgElement.append("text")
             .attr("transform", "rotate(-90)")
             .attr("x", -height / 2)
-            .attr("y", margin.left / 3)
+            .attr("y", margin.left / 5)
             .attr("font-weight", "bold")
             .attr("font-size", "0.8em")
             .attr("text-anchor", "middle")
