@@ -54,9 +54,15 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, se
     return (
         <Card
             size="small"
-            extra={<div style={{ marginBottom: 8 }}><div className="geneListTitle">Gene List<Tooltip placement="right" title={"Choosing a gene from the gene list first to show the specific gene expression value scale"} overlayInnerStyle={{ color: '#000' }} color={"white"}>
-                <QuestionCircleOutlined style={{ fontSize: 10 }} />
-            </Tooltip></div><Input size="small" placeholder="Search Genes" onChange={e => setSearchTerm(e.target.value)} /></div>}
+            extra={<div style={{ marginBottom: 8 }}>
+                    <div className="geneListTitle">
+                        Gene List
+                        <Tooltip placement="right" title={"Choosing a gene from the gene list first to show the violin plot and expression on the tissue"} overlayInnerStyle={{ color: '#000' }} color={"white"}>
+                            <QuestionCircleOutlined style={{ fontSize: 10 }} />
+                        </Tooltip>
+                    </div>
+                    <Input size="small" placeholder="Search Genes" onChange={e => setSearchTerm(e.target.value)} />
+                </div>}
             style={{ marginTop: 5, height: "60%" }}
         >
             <div id="scrollableCard" style={{ height: "95%", overflow: "auto" }}>
