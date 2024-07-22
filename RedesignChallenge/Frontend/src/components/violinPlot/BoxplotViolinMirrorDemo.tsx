@@ -114,10 +114,11 @@ export const BoxplotViolinMirrorDemo = ({ selectedGene }) => {
         }}
       >
         <div className="controlGroup">
+          <div className="text">Violin-Box Scale: </div>
           <input
             type="range"
             min={0}
-            max={1}
+            max={0.6}
             value={mirrorPosition}
             step={0.01}
             onChange={(e) => setMirrorPosition(Number(e.target.value))}
