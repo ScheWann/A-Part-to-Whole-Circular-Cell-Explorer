@@ -80,7 +80,7 @@ export const DifferentialFeatureTable = ({ differentialChartData, currentPage, p
                 showSizeChanger: false,
                 onChange: handleTableChange,
             }}
-            scroll={{ x: 700, y: '33vh' }}
+            scroll={{ x: 700, y: 255 }}
         />
     );
 };

@@ -306,7 +306,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell, showtSNECluster]);
 
     return (
-        <div style={{ display: "flex", height: "100vh" }}>
+        <div style={{ display: "flex", height: "99vh" }}>
             <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
             <div ref={tooltipRef} style={{ position: "absolute", backgroundColor: "white", border: "1px solid #ccc", padding: "10px", display: "none", pointerEvents: "none" }}></div>
         </div>

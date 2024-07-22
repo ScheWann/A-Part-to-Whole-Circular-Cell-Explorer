@@ -102,14 +102,14 @@ function App() {
         title="Tools"
         style={{
           width: "280px",
-          height: "100vh",
+          height: "99vh",
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" checked={showBackgroundImage} />
           <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={kosaraChartsChange} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <h5 style={{ marginBottom: 5, fontWeight: 500 }}>Opacity</h5>
+            <h5 style={{ marginBottom: 5, marginTop: 5, fontWeight: 500 }}>Opacity</h5>
             <Tooltip placement="right" title={"Slided the bar to see the relationship of the cell types and the tissue"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
               <QuestionCircleOutlined style={{ fontSize: 10 }} />
             </Tooltip>
@@ -128,7 +128,7 @@ function App() {
             ))}
           </div>
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <h5 style={{ marginBottom: 5, fontWeight: 500 }}>UMI counts Legend</h5>
+            <h5 style={{ marginBottom: 5, marginTop: 5, fontWeight: 500 }}>UMI counts Legend</h5>
             <Tooltip placement="right" title={"Choosing a gene from the gene list first to show the specific gene expression value scale"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
               <QuestionCircleOutlined style={{ fontSize: 10 }} />
             </Tooltip>
