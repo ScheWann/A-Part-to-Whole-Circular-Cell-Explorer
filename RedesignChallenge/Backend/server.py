@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from process import (get_gene_list, get_gene_expression, get_kosara_data, get_UMI_totalCounts, get_tSNE_data, get_cell_cluster_UMI_tsne_df, get_up_regulated_L2FC_genes, get_log2_violin_plot_data, get_logNorm_violin_plot_data)
+from process import (get_gene_list, get_gene_expression, get_kosara_data, get_UMI_totalCounts, get_tSNE_data, get_cell_cluster_UMI_tsne_df, get_up_regulated_L2FC_genes, get_log2_violin_plot_data, get_logNorm_violin_plot_data, get_linear_violin_plot_data)
 app = Flask(__name__)
 
 
@@ -87,6 +87,22 @@ def get_logNormviolin_plot_data():
     }
 
     return jsonify(response_data)
+
+@app.route('/getLinearViolinPlotData', methods=['POST'])
+def get_linearviolin_plot_data():
+    gene_name = request.json['gene']
+    df = get_linear_violin_plot_data()
+    violin_data = df[['barcode', 'cluster', gene_name]]
+    violin_data.columns = ['barcode', 'cluster', 'value']
+
+    values = [{'name': row['cluster'], 'value': row['value']} for index, row in violin_data.iterrows()]
+
+    response_data = {
+        "values": values
+    }
+
+    return jsonify(response_data)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

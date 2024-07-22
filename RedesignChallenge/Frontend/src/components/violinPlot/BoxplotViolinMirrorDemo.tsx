@@ -67,8 +67,24 @@ export const BoxplotViolinMirrorDemo = ({ selectedGene }) => {
         .then((data) => {
           setViolinPlotData(data.values);
         });
-    } else if (featureAnalysisType === "logNorm" && selectedGene) {
+    } 
+
+    if (featureAnalysisType === "logNorm" && selectedGene) {
       fetch("/getLogNormViolinPlotData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ gene: selectedGene }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setViolinPlotData(data.values);
+        });
+    }
+
+    if (featureAnalysisType === "linear" && selectedGene) {
+      fetch("/getLinearViolinPlotData", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

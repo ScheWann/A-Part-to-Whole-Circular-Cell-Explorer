@@ -93,6 +93,8 @@ total_counts = umi_counts.sum(axis=1)
 umi_df = umi_counts.copy()
 umi_df.reset_index(inplace=True)
 umi_df.rename(columns={'index': 'barcode'}, inplace=True)
+# for linear feature violin plot
+umi_linear_df = umi_df.copy()
 
 # get total UMI counts for each cell
 cellTotal_df = pd.DataFrame(
@@ -113,6 +115,8 @@ umi_with_total_counts_df.loc[:, umi_with_total_counts_df.columns != 'barcode'] =
 
 violin_log2_df = pd.merge(tSNE_cluster_df, umi_df, on="barcode")
 violin_logNorm_df = pd.merge(tSNE_cluster_df, umi_with_total_counts_df, on="barcode")
+violin_linear_df = pd.merge(tSNE_cluster_df, umi_linear_df, on="barcode")
+
 def get_gene_list():
     return list(geneList["gene"])
 
@@ -147,3 +151,7 @@ def get_log2_violin_plot_data():
 
 def get_logNorm_violin_plot_data():
     return violin_logNorm_df
+
+
+def get_linear_violin_plot_data():
+    return violin_linear_df
