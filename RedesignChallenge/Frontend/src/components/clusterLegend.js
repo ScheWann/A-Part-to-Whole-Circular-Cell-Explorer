@@ -8,9 +8,9 @@ export const ClusterLegend = ({ scale }) => {
     });
 
     return (
-        <div style={{ display: "flex", alignItems: "center", height: "50px", justifyContent: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", height: "50px", justifyContent: "center", flexWrap: "wrap" }}>
             {clusters.map(cluster => (
-                <div key={cluster} style={{ display: 'flex', alignItems: 'center', marginLeft: '5px' }}>
+                <div key={cluster} style={{ display: 'flex', alignItems: 'center', marginLeft: '5px', fontSize: "10px" }}>
                     <div style={{ width: '10px', height: '10px', marginRight: '5px', backgroundColor: scale(cluster) }}></div>
                     {cluster}
                 </div>

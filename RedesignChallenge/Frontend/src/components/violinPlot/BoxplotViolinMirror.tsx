@@ -62,9 +62,11 @@ export const BoxplotViolinMirror = ({
     return d3.scaleBand().range([0, boundsWidth]).domain(groups).padding(0.15);
   }, [data, width]);
 
-  const colorScale = useMemo(() => {
-    return d3.scaleOrdinal<string>().domain(groups).range(COLORS);
-  }, [data]);
+  // const colorScale = useMemo(() => {
+  //   return d3.scaleOrdinal<string>().domain(groups).range(COLORS);
+  // }, [data]);
+
+  const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
 
   //
   // Boxplot boxes (with jittering on top)

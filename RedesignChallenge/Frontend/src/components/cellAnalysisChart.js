@@ -168,9 +168,14 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
     // t-SNE plot
     useEffect(() => {
         if (tabKey !== "tSNETab" || !tSNEData.length || !svgRef.current) return;
+        let clusters = tSNEData.map(d => d.cluster).filter((v, i, a) => a.indexOf(v) === i)
+        const sortedClusters = clusters.sort((a, b) => {
+            const numA = parseInt(a.split(' ')[1]);
+            const numB = parseInt(b.split(' ')[1]);
+            return numA - numB;
+        });
 
-        clusterColors.domain(tSNEData.map(d => d.cluster).filter((v, i, a) => a.indexOf(v) === i));
-
+        clusterColors.domain(sortedClusters);
         const svgElement = d3.select(svgRef.current);
         svgElement.selectAll("*").remove();
 
