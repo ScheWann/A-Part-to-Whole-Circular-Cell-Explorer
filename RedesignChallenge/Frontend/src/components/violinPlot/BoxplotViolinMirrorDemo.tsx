@@ -118,7 +118,7 @@ export const BoxplotViolinMirrorDemo = ({ selectedGene }) => {
           <input
             type="range"
             min={0}
-            max={0.6}
+            max={1}
             value={mirrorPosition}
             step={0.01}
             onChange={(e) => setMirrorPosition(Number(e.target.value))}

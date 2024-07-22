@@ -1,7 +1,9 @@
 import * as d3 from "d3";
 import React, { useState, useRef } from "react";
+import "../Styles/violinPlot.css";
 
 type VerticalViolinShapeProps = {
+  tooltip: React.MutableRefObject<any>;
   data: number[];
   binNumber: number;
   yScale: d3.scaleLinear<number, number, never>;
@@ -11,6 +13,7 @@ type VerticalViolinShapeProps = {
 };
 
 export const VerticalViolinShape = ({
+  tooltip,
   data,
   yScale,
   width,
@@ -18,8 +21,6 @@ export const VerticalViolinShape = ({
   fill,
   smoothing,
 }: VerticalViolinShapeProps) => {
-  const [tooltipContent, setTooltipContent] = useState<string | null>(null);
-  const tooltip = useRef<null | d3.selection<HTMLDivElement, unknown, HTMLElement, any>>(null);
   const min = Math.min(...data);
   const max = Math.max(...data);
 
@@ -34,13 +35,13 @@ export const VerticalViolinShape = ({
     .thresholds(thresholds)
     .value((d) => d);
   const bins = binBuilder(data);
-  if (!tooltip.current) {
-    tooltip.current = d3
-      .select("body")
-      .append("div")
-      .attr("class", "violinPlotTooltip")
-      .style("opacity", 0);
-  }
+  // if (!tooltip.current) {
+  //   tooltip.current = d3
+  //     .select("body")
+  //     .append("div")
+  //     .attr("class", "violinPlotTooltip")
+  //     .style("opacity", 0);
+  // }
   const biggestBin = Math.max(...bins.map((b) => b.length));
 
   const wScale = d3
@@ -68,8 +69,7 @@ export const VerticalViolinShape = ({
         fillOpacity={1}
         strokeWidth={1}
         onMouseMove={(event) => {
-          const info = `Min: ${min}, Max: ${max}`;
-          setTooltipContent(info);
+          const info = `Min: ${min}<br/>Max: ${max.toFixed(3)}<br/>Mean: ${d3.mean(data).toFixed(3)}<br/>Q1: ${d3.quantile(data, 0.25).toFixed(3)}<br/>Q3: ${d3.quantile(data, 0.75).toFixed(3)}<br/> `;
           tooltip.current?.html(info)
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY - 28}px`)

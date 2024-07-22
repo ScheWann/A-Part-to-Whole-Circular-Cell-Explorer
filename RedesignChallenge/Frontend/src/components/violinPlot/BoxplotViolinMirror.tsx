@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import * as d3 from "d3";
 import { getSummaryStats } from "./summary-stats.ts";
 import { AxisLeft } from "./AxisLeft.tsx";
@@ -8,7 +8,6 @@ import { VerticalViolinShape } from "./VerticalViolinShape.tsx";
 
 const MARGIN = { top: 10, right: 0, bottom: 25, left: 40 };
 const JITTER_WIDTH = 40;
-const COLORS = ["#e85252", "#6689c6", "#9a6fb0", "#a53253"];
 
 type BoxplotViolinMirrorProps = {
   width: number;
@@ -25,13 +24,20 @@ export const BoxplotViolinMirror = ({
   mirrorPosition,
   smoothing,
 }: BoxplotViolinMirrorProps) => {
+  const tooltip = useRef<null | d3.selection<HTMLDivElement, unknown, HTMLElement, any>>(null);
   const boundsWidth = useMemo(() => {
     return width - MARGIN.right - MARGIN.left;
   }, [width]);
   const boundsHeight = useMemo(() => {
     return height - MARGIN.top - MARGIN.bottom;
   }, [height]);
-
+  if (!tooltip.current) {
+    tooltip.current = d3
+      .select("body")
+      .append("div")
+      .attr("class", "violinPlotTooltip")
+      .style("opacity", 0);
+  }
   // Compute everything derived from the dataset:
   const { chartMin, chartMax, groups } = useMemo(() => {
     const [chartMin, chartMax] = d3.extent(data.map((d) => d.value)) as [
@@ -61,10 +67,6 @@ export const BoxplotViolinMirror = ({
   const xScale = useMemo(() => {
     return d3.scaleBand().range([0, boundsWidth]).domain(groups).padding(0.15);
   }, [data, width]);
-
-  // const colorScale = useMemo(() => {
-  //   return d3.scaleOrdinal<string>().domain(groups).range(COLORS);
-  // }, [data]);
 
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
 
@@ -149,6 +151,7 @@ export const BoxplotViolinMirror = ({
         >
           <svg height={boundsHeight} width={xScale.bandwidth()}>
             <VerticalViolinShape
+              tooltip={tooltip}
               data={groupData}
               binNumber={9}
               yScale={yScale}
