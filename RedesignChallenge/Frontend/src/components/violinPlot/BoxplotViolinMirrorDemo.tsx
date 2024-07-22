@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Empty, Typography, Select } from "antd";
 import { BoxplotViolinMirror } from "./BoxplotViolinMirror.tsx";
 import "../Styles/violinPlot.css";
@@ -21,15 +21,38 @@ const options = [
   },
 ];
 
-export const BoxplotViolinMirrorDemo = ({
-  width = 650,
-  height = 400,
-  selectedGene,
-}) => {
+export const BoxplotViolinMirrorDemo = ({ selectedGene }) => {
+  const containerRef = useRef(null);
   const [mirrorPosition, setMirrorPosition] = useState(1);
   const [violinPlotData, setViolinPlotData] = useState(null);
   const [smoothing, setSmoothing] = useState(true);
   const [featureAnalysisType, setFeatureAnalysisType] = useState("log2");
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const container = containerRef.current as HTMLElement;
+        setDimensions({
+          width: container.clientWidth,
+          height: container.clientHeight,
+        });
+      }
+    };
+  
+    const resizeObserver = new ResizeObserver(handleResize);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+  
+    handleResize();
+  
+    return () => {
+      if (containerRef.current) {
+        resizeObserver.unobserve(containerRef.current);
+      }
+    };
+  }, [selectedGene]);
 
   useEffect(() => {
     if (featureAnalysisType === "log2" && selectedGene) {
@@ -59,12 +82,12 @@ export const BoxplotViolinMirrorDemo = ({
     }
   }, [selectedGene, featureAnalysisType]);
 
-  const handleChange = (value: string) => {
+  const handleChange = (value) => {
     setFeatureAnalysisType(value);
   };
 
   return selectedGene ? (
-    <div style={{ height, width }}>
+    <div ref={containerRef} style={{ height: "100%", width: "100%" }}>
       <div
         style={{
           height: HEADER_HEIGHT,
@@ -75,15 +98,6 @@ export const BoxplotViolinMirrorDemo = ({
         }}
       >
         <div className="controlGroup">
-          {/* <input
-            type="range"
-            min={0}
-            max={1}
-            value={mirrorPosition}
-            step={0.01}
-            onChange={(e) => setMirrorPosition(Number(e.target.value))}
-            style={{ height: 2, opacity: 0.5 }}
-          /> */}
           <div className="text">Scale Value: </div>
           <Select
             size="small"
@@ -99,13 +113,20 @@ export const BoxplotViolinMirrorDemo = ({
       {violinPlotData && (
         <BoxplotViolinMirror
           data={violinPlotData}
-          width={width}
-          height={height - HEADER_HEIGHT - FOOTER_HEIGHT}
+          width={dimensions.width}
+          height={dimensions.height - HEADER_HEIGHT - FOOTER_HEIGHT}
           mirrorPosition={mirrorPosition}
           smoothing={smoothing}
         />
       )}
-      <div style={{ height: FOOTER_HEIGHT, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div
+        style={{
+          height: FOOTER_HEIGHT,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <i style={{ color: "grey", fontSize: 14 }}>
           You can use{" "}
           <span
