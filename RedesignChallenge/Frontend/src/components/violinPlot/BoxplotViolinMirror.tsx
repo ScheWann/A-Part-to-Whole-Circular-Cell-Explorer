@@ -24,7 +24,7 @@ export const BoxplotViolinMirror = ({
   mirrorPosition,
   smoothing,
 }: BoxplotViolinMirrorProps) => {
-  const tooltip = useRef<null | d3.selection<HTMLDivElement, unknown, HTMLElement, any>>(null);
+  const tooltip = useRef<null | d3.Selection<HTMLDivElement, unknown, HTMLElement, any>>(null);
   const boundsWidth = useMemo(() => {
     return width - MARGIN.right - MARGIN.left;
   }, [width]);
@@ -59,7 +59,7 @@ export const BoxplotViolinMirror = ({
   const yScale = useMemo(() => {
     return d3
       .scaleLinear()
-      .domain([chartMin, chartMax])
+      .domain([chartMin, chartMax + (chartMax - chartMin) * 0.1])
       .range([boundsHeight, 0])
       .nice();
   }, [data, height]);
@@ -100,9 +100,9 @@ export const BoxplotViolinMirror = ({
           <svg height={boundsHeight} width={xScale.bandwidth()}>
             <VerticalBox
               width={xScale.bandwidth()}
-              q1={yScale(q1)}
-              median={yScale(median)}
-              q3={yScale(q3)}
+              q1={yScale(q1 || 0)}
+              median={yScale(median || 0)}
+              q3={yScale(q3 || 0)}
               min={yScale(min)}
               max={yScale(max)}
               stroke="black"
