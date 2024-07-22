@@ -22,9 +22,16 @@ export const VerticalViolinShape = ({
   const tooltip = useRef<null | d3.Selection<HTMLDivElement, unknown, HTMLElement, any>>(null);
   const min = Math.min(...data);
   const max = Math.max(...data);
+
+  const thresholds = d3.range(min, max, (max - min) / binNumber);
+  if (thresholds[thresholds.length - 1] !== max) {
+    thresholds.push(max);
+  }
+  
   const binBuilder = d3
     .bin()
     .domain([min, max])
+    .thresholds(thresholds)
     .value((d) => d);
   const bins = binBuilder(data);
   if (!tooltip.current) {

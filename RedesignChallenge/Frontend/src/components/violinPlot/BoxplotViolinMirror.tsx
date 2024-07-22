@@ -6,7 +6,7 @@ import { AxisBottom } from "./AxisBottomCategoric.tsx";
 import { VerticalBox } from "./VerticalBox.tsx";
 import { VerticalViolinShape } from "./VerticalViolinShape.tsx";
 
-const MARGIN = { top: 0, right: 0, bottom: 30, left: 40 };
+const MARGIN = { top: 10, right: 0, bottom: 25, left: 40 };
 const JITTER_WIDTH = 40;
 const COLORS = ["#e85252", "#6689c6", "#9a6fb0", "#a53253"];
 
@@ -148,7 +148,7 @@ export const BoxplotViolinMirror = ({
           <svg height={boundsHeight} width={xScale.bandwidth()}>
             <VerticalViolinShape
               data={groupData}
-              binNumber={10}
+              binNumber={9}
               yScale={yScale}
               width={xScale.bandwidth()}
               fill={colorScale(group)}

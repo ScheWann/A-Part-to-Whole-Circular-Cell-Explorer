@@ -3,7 +3,7 @@ import { Empty, Typography, Select } from "antd";
 import { BoxplotViolinMirror } from "./BoxplotViolinMirror.tsx";
 import "../Styles/violinPlot.css";
 
-const HEADER_HEIGHT = 35;
+const HEADER_HEIGHT = 30;
 const FOOTER_HEIGHT = 30;
 
 const options = [
@@ -23,7 +23,7 @@ const options = [
 
 export const BoxplotViolinMirrorDemo = ({ selectedGene }) => {
   const containerRef = useRef(null);
-  const [mirrorPosition, setMirrorPosition] = useState(1);
+  const [mirrorPosition, setMirrorPosition] = useState(0.6);
   const [violinPlotData, setViolinPlotData] = useState(null);
   const [smoothing, setSmoothing] = useState(true);
   const [featureAnalysisType, setFeatureAnalysisType] = useState("log2");
@@ -34,8 +34,8 @@ export const BoxplotViolinMirrorDemo = ({ selectedGene }) => {
       if (containerRef.current) {
         const container = containerRef.current as HTMLElement;
         setDimensions({
-          width: container.clientWidth,
-          height: container.clientHeight,
+          width: container.offsetWidth,
+          height: container.offsetHeight,
         });
       }
     };
@@ -114,6 +114,15 @@ export const BoxplotViolinMirrorDemo = ({ selectedGene }) => {
         }}
       >
         <div className="controlGroup">
+          <input
+            type="range"
+            min={0}
+            max={1}
+            value={mirrorPosition}
+            step={0.01}
+            onChange={(e) => setMirrorPosition(Number(e.target.value))}
+            style={{ height: 2, opacity: 0.5 }}
+          />
           <div className="text">Scale Value: </div>
           <Select
             size="small"

@@ -9,13 +9,9 @@ export const getSummaryStats = (data: number[]) => {
     const median = d3.quantile(sortedData, .5)
     const q3 = d3.quantile(sortedData, .75)
 
-    if(!q3 || !q1 || !median){
-        return
-    }
-
     const interQuantileRange = q3 - q1
     const min = q1 - 1.5 * interQuantileRange
     const max = q3 + 1.5 * interQuantileRange
-
+    
     return {min, q1, median, q3, max}
 }
