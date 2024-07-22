@@ -14,13 +14,22 @@ export const DifferentialChart = ({ selectedGene }) => {
     });
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(15);
+    const [cardHeight, setCardHeight] = useState(0);
     const onChangedifferentialChartTabKey = key => {
         setDifferentialChartTabKey(key);
     }
 
+    const cardRef = useRef(null);
+
     useEffect(() => {
         fetchDifferentialData(currentPage, pageSize);
     }, [currentPage, pageSize]);
+
+    useEffect(() => {
+        if (cardRef.current) {
+            setCardHeight(cardRef.current.clientHeight);
+        }
+    }, [differentialChartTabKey]);
 
     const fetchDifferentialData = (page, size) => {
         fetch(`/getUpRegulatedL2FCGenesbyPage?page=${page}&per_page=${size}`)
@@ -31,7 +40,7 @@ export const DifferentialChart = ({ selectedGene }) => {
     };
 
     const differentialChartList = {
-        "tableTab": <DifferentialFeatureTable differentialChartData={differentialChartData} currentPage={currentPage} pageSize={pageSize} setCurrentPage={setCurrentPage} setPageSize={setPageSize} />,
+        "tableTab": <DifferentialFeatureTable differentialChartData={differentialChartData} currentPage={currentPage} pageSize={pageSize} setCurrentPage={setCurrentPage} setPageSize={setPageSize} cardHeight={cardHeight} />,
         "HeatmapTab": <DifferentialFeatureHeatmap differentialChartData={differentialChartData} />,
         "ViolinTab" : <BoxplotViolinMirrorDemo selectedGene={selectedGene}/>
     }
@@ -58,6 +67,7 @@ export const DifferentialChart = ({ selectedGene }) => {
             activeTabKey={differentialChartTabKey}
             onTabChange={onChangedifferentialChartTabKey}
             style={{ height: "54vh", width: "100%" }}
+            ref={cardRef}
         >
             {differentialChartList[differentialChartTabKey]}
         </Card>

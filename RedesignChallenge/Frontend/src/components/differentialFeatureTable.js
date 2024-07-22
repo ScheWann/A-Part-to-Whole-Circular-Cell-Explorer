@@ -3,8 +3,8 @@ import { Table, Tooltip } from "antd";
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import "./Styles/differentialFeatureTable.css";
 
-export const DifferentialFeatureTable = ({ differentialChartData, currentPage, pageSize, setCurrentPage, setPageSize }) => {
-
+export const DifferentialFeatureTable = ({ differentialChartData, currentPage, pageSize, setCurrentPage, setPageSize, cardHeight }) => {
+    console.log(cardHeight, '???')
     const columns = [
         {
             title: 'Gene',
@@ -80,7 +80,7 @@ export const DifferentialFeatureTable = ({ differentialChartData, currentPage, p
                 showSizeChanger: false,
                 onChange: handleTableChange,
             }}
-            scroll={{ x: 700, y: 255 }}
+            scroll={{ x: 700, y: cardHeight - 135}}
         />
     );
 };
