@@ -11,11 +11,11 @@ body {
 }
 
 .KosaraChart {
-  flex: 1 0 auto;
+  flex: 2 0;
 }
 
 .analysisGroup {
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column; 
   width: 30%;
