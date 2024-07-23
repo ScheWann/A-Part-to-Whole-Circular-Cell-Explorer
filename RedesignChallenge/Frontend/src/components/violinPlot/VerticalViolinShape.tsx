@@ -63,7 +63,10 @@ export const VerticalViolinShape = ({
         fillOpacity={1}
         strokeWidth={1}
         onMouseMove={(event) => {
-          const info = `Min: ${min}<br/>Max: ${max.toFixed(3)}<br/>Mean: ${d3.mean(data).toFixed(3)}<br/>Q1: ${d3.quantile(data, 0.25).toFixed(3)}<br/>Q3: ${d3.quantile(data, 0.75).toFixed(3)}<br/> `;
+          const mean = d3.mean(data) ?? 0;
+          const q1 = d3.quantile(data, 0.25) ?? 0;
+          const q3 = d3.quantile(data, 0.75) ?? 0;
+          const info = `Min: ${min}<br/>Max: ${max.toFixed(3)}<br/>Mean: ${mean.toFixed(3)}<br/>Q1: ${q1.toFixed(3)}<br/>Q3: ${q3.toFixed(3)}<br/> `;
           tooltip.current?.html(info)
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY - 28}px`)

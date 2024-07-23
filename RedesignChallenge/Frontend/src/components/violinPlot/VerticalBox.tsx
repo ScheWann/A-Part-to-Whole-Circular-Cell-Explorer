@@ -5,6 +5,7 @@ const STROKE_WIDTH = 40;
 // Note: numbers here are px, not the real values in the dataset.
 
 type VerticalBoxProps = {
+  tooltip: React.MutableRefObject<any>;
   min: number;
   q1: number;
   median: number;
@@ -13,9 +14,16 @@ type VerticalBoxProps = {
   width: number;
   stroke: string;
   fill: string;
+  q1Value: number;
+  medianValue: number;
+  q3Value: number;
+  minValue: number;
+  maxValue: number;
+  meanValue: number;
 };
 
 export const VerticalBox = ({
+  tooltip,
   min,
   q1,
   median,
@@ -24,7 +32,14 @@ export const VerticalBox = ({
   width,
   stroke,
   fill,
+  q1Value,
+  medianValue,
+  q3Value,
+  minValue,
+  maxValue,
+  meanValue,
 }: VerticalBoxProps) => {
+  console.log(minValue, q1Value, medianValue, meanValue, q3Value, maxValue, 'min, max, q1, q3, median');
   return (
     <>
       <line
@@ -42,6 +57,16 @@ export const VerticalBox = ({
         height={q1 - q3}
         stroke={stroke}
         fill={fill}
+        onMouseMove={(event) => {
+          const info = `Min: ${minValue}<br/>Max: ${maxValue.toFixed(3)}<br/>Mean: ${meanValue.toFixed(3)}<br/>Q1: ${q1Value.toFixed(3)}<br/>Q3: ${q3Value.toFixed(3)}<br/> `;
+          tooltip.current?.html(info)
+            .style("left", `${event.pageX + 10}px`)
+            .style("top", `${event.pageY - 28}px`)
+            .style("opacity", 0.9);
+        }}
+        onMouseOut={() => {
+          tooltip.current?.style("opacity", 0);
+        }}
       />
       <line
         x1={0}

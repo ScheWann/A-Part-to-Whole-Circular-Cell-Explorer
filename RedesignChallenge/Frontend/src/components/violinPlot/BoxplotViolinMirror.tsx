@@ -84,7 +84,7 @@ export const BoxplotViolinMirror = ({
         return null;
       }
 
-      const { min, q1, median, q3, max } = sumStats;
+      const { min, q1, median, mean, q3, max } = sumStats;
 
       return (
         <div
@@ -99,12 +99,19 @@ export const BoxplotViolinMirror = ({
         >
           <svg height={boundsHeight} width={xScale.bandwidth()}>
             <VerticalBox
+              tooltip={tooltip}
               width={xScale.bandwidth()}
               q1={yScale(q1 || 0)}
               median={yScale(median || 0)}
               q3={yScale(q3 || 0)}
               min={yScale(min)}
               max={yScale(max)}
+              q1Value={q1}
+              medianValue={median || 0}
+              q3Value={q3}
+              minValue={min}
+              maxValue={max}
+              meanValue={mean}
               stroke="black"
               fill={colorScale(group)}
             />
