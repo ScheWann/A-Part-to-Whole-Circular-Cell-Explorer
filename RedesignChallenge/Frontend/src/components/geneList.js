@@ -28,7 +28,7 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, se
 
     const handleItemClick = (item) => {
         if (selectedGene === item) {
-            setShowtSNECluster(true);
+            // setShowtSNECluster(true);
             setSelectedGene(null);
             setRelatedGeneData(null);
         } else {
