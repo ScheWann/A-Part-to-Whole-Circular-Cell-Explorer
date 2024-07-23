@@ -3,14 +3,12 @@ from process import (get_gene_list, get_gene_expression, get_kosara_data, get_UM
 app = Flask(__name__)
 
 
-@app.route('/geneList')
-def get_geneList():
-    page = request.args.get('page', default=1, type=int)
-    per_page = request.args.get('per_page', default=55, type=int)
+@app.route('/geneListSearch')
+def get_geneListSearch():
+    query = request.args.get('q', '').lower()
     gene_list = get_gene_list()
-    start = (page - 1) * per_page
-    end = start + per_page
-    return jsonify(gene_list[start:end])
+    results = [item for item in gene_list if query in item.lower()]
+    return jsonify(results)
 
 @app.route('/geneExpression', methods=['POST'])
 def get_geneExpression():
