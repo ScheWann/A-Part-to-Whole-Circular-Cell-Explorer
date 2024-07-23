@@ -133,7 +133,7 @@ function App() {
               <QuestionCircleOutlined style={{ marginLeft: 3, fontSize: 10 }} />
             </Tooltip>
           </div>
-          {showKosaraCharts ? 
+          {showKosaraCharts || showtSNECluster ? 
             <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} showKosaraCharts={showKosaraCharts} colorScaleType="Grey" />
             : 
             <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} showKosaraCharts={showKosaraCharts} colorScaleType="Orange" />

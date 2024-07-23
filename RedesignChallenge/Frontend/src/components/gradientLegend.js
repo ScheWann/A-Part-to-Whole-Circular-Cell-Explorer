@@ -75,28 +75,29 @@ export const GradientLegend = ({ min, max, selectedGene, colorScaleType, showKos
             .attr("font-size", "12px")
             .style("text-anchor", "middle");
 
-        // Add text labels for min and max
-        svg.append("text")
-            .attr("x", 0)
-            .attr("y", height + 15)
-            .text((!showKosaraCharts && min || min === 0) ? (Number.isInteger(min) ? min : min.toFixed(3)) : "")
-            .attr("font-size", "12px")
-            .style("text-anchor", "start");
+        if (colorScaleType !== "Grey") {
+            // Add text labels for min and max
+            svg.append("text")
+                .attr("x", 0)
+                .attr("y", height + 15)
+                .text((!showKosaraCharts && min || min === 0) ? (Number.isInteger(min) ? min : min.toFixed(3)) : "")
+                .attr("font-size", "12px")
+                .style("text-anchor", "start");
 
-        svg.append("text")
-            .attr("x", width)
-            .attr("y", height + 15)
-            .text((!showKosaraCharts && max || max === 0)? (Number.isInteger(max) ? max : max.toFixed(3)) : "")
-            .attr("font-size", "12px")
-            .style("text-anchor", "end");
+            svg.append("text")
+                .attr("x", width)
+                .attr("y", height + 15)
+                .text((!showKosaraCharts && max || max === 0) ? (Number.isInteger(max) ? max : max.toFixed(3)) : "")
+                .attr("font-size", "12px")
+                .style("text-anchor", "end");
+        }
 
     }, [min, max, selectedGene, colorScaleType, showKosaraCharts]);
 
-
     return (
         (colorScaleType === "double") ?
-        <svg ref={ref} style={{ width: "100%", height: "35px" }} />
-        :
-        <svg ref={ref} style={{ width: "100%", height: "50px" }} />
+            <svg ref={ref} style={{ width: "100%", height: "35px" }} />
+            :
+            <svg ref={ref} style={{ width: "100%", height: "50px" }} />
     )
 };

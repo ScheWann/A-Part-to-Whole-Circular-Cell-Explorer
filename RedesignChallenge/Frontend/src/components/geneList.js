@@ -21,6 +21,8 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, se
     }
 
     const onFieldClear = () => {
+        setSelectedGene(null);
+        setRelatedGeneData(null);
         setGeneListData([]);
     };
 
