@@ -124,6 +124,16 @@ export const BoxplotViolinMirror = ({
                 stroke="black"
                 strokeOpacity={0.2}
                 fillOpacity={0.3}
+                onMouseMove={(event) => {
+                  const info = `Value: ${value.toFixed(3)}`;
+                  tooltip.current?.html(info)
+                    .style("left", `${event.pageX + 10}px`)
+                    .style("top", `${event.pageY - 28}px`)
+                    .style("opacity", 0.9);
+                }}
+                onMouseOut={() => {
+                  tooltip.current?.style("opacity", 0);
+                }}
               />
             ))}
           </svg>
