@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { List, Card, Input, Tooltip } from "antd";
+import { List, Card, Input, Tooltip, Empty, Typography } from "antd";
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import "./Styles/geneList.css";
 
@@ -60,27 +60,39 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, se
             </div>}
             style={{ marginTop: 5, height: 'calc(100% - 280px)' }}
         >
-            <div id="scrollableCard" style={{ height: "95%", overflow: "auto" }}>
-                <List
-                    size="small"
-                    dataSource={geneListData}
-                    renderItem={(item) => (
-                        <List.Item
-                            style={{
-                                transition: "background-color 0.3s ease",
-                                backgroundColor: item === selectedGene ? '#6CB4EE' : 'transparent',
-                                color: item === selectedGene ? '#fff' : '#000',
-                                cursor: 'pointer'
-                            }}
-                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#6CB4EE"; e.currentTarget.style.color = "#fff"; }}
-                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = item === selectedGene ? '#6CB4EE' : 'transparent'; e.currentTarget.style.color = item === selectedGene ? '#fff' : '#000'; }}
-                            onClick={() => handleItemClick(item)}
-                        >
-                            {item}
-                        </List.Item>
-                    )}
-                />
-            </div>
-        </Card>
+            {geneListData.length !== 0 ? (
+                <div id="scrollableCard" style={{ height: "95%", overflow: "auto" }}>
+                    <List
+                        size="small"
+                        dataSource={geneListData}
+                        renderItem={(item) => (
+                            <List.Item
+                                style={{
+                                    transition: "background-color 0.3s ease",
+                                    backgroundColor: item === selectedGene ? '#6CB4EE' : 'transparent',
+                                    color: item === selectedGene ? '#fff' : '#000',
+                                    cursor: 'pointer'
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.backgroundColor = "#6CB4EE"; e.currentTarget.style.color = "#fff"; }}
+                                onMouseLeave={e => { e.currentTarget.style.backgroundColor = item === selectedGene ? '#6CB4EE' : 'transparent'; e.currentTarget.style.color = item === selectedGene ? '#fff' : '#000'; }}
+                                onClick={() => handleItemClick(item)}
+                            >
+                                {item}
+                            </List.Item>
+                        )}
+                    />
+                </div>) : (
+                <Empty
+                    image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                    imageStyle={{
+                        height: 60,
+                    }}
+                    description={
+                        <Typography.Text>
+                            Searching a gene first.
+                        </Typography.Text>
+                    }
+                />)}
+        </Card >
     );
 };
