@@ -1,4 +1,5 @@
 import React from "react";
+import * as d3 from "d3";
 const STROKE_WIDTH = 40;
 
 // A reusable component that builds a vertical box shape using svg
@@ -14,12 +15,7 @@ type VerticalBoxProps = {
   width: number;
   stroke: string;
   fill: string;
-  q1Value: number;
-  medianValue: number;
-  q3Value: number;
-  minValue: number;
-  maxValue: number;
-  meanValue: number;
+  data: number[];
 };
 
 export const VerticalBox = ({
@@ -32,14 +28,14 @@ export const VerticalBox = ({
   width,
   stroke,
   fill,
-  q1Value,
-  medianValue,
-  q3Value,
-  minValue,
-  maxValue,
-  meanValue,
+  data
 }: VerticalBoxProps) => {
-  console.log(minValue, q1Value, medianValue, meanValue, q3Value, maxValue, 'min, max, q1, q3, median');
+  const minValue = Math.min(...data);
+  const maxValue = Math.max(...data);
+  const meanValue = d3.mean(data) ?? 0;
+  const medianValue = d3.median(data) ?? 0;
+  const q1Value = d3.quantile(data, 0.25) ?? 0;
+  const q3Value = d3.quantile(data, 0.75) ?? 0;
   return (
     <>
       <line
@@ -58,7 +54,7 @@ export const VerticalBox = ({
         stroke={stroke}
         fill={fill}
         onMouseMove={(event) => {
-          const info = `Min: ${minValue}<br/>Max: ${maxValue.toFixed(3)}<br/>Mean: ${meanValue.toFixed(3)}<br/>Q1: ${q1Value.toFixed(3)}<br/>Q3: ${q3Value.toFixed(3)}<br/> `;
+          const info = `Min: ${minValue}<br/>Max: ${maxValue.toFixed(3)}<br/>Mean: ${meanValue.toFixed(3)}<br/>Median: ${medianValue.toFixed(3)}<br/>Q1: ${q1Value.toFixed(3)}<br/>Q3: ${q3Value.toFixed(3)}<br/> `;
           tooltip.current?.html(info)
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY - 28}px`)

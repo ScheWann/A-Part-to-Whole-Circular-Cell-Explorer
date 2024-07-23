@@ -66,7 +66,8 @@ export const VerticalViolinShape = ({
           const mean = d3.mean(data) ?? 0;
           const q1 = d3.quantile(data, 0.25) ?? 0;
           const q3 = d3.quantile(data, 0.75) ?? 0;
-          const info = `Min: ${min}<br/>Max: ${max.toFixed(3)}<br/>Mean: ${mean.toFixed(3)}<br/>Q1: ${q1.toFixed(3)}<br/>Q3: ${q3.toFixed(3)}<br/> `;
+          const median = d3.median(data) ?? 0;
+          const info = `Min: ${min}<br/>Max: ${max.toFixed(3)}<br/>Mean: ${mean.toFixed(3)}<br/>Median: ${median.toFixed(3)}<br/>Q1: ${q1.toFixed(3)}<br/>Q3: ${q3.toFixed(3)}<br/> `;
           tooltip.current?.html(info)
             .style("left", `${event.pageX + 10}px`)
             .style("top", `${event.pageY - 28}px`)

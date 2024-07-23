@@ -106,12 +106,7 @@ export const BoxplotViolinMirror = ({
               q3={yScale(q3 || 0)}
               min={yScale(min)}
               max={yScale(max)}
-              q1Value={q1}
-              medianValue={median || 0}
-              q3Value={q3}
-              minValue={min}
-              maxValue={max}
-              meanValue={mean}
+              data={groupData}
               stroke="black"
               fill={colorScale(group)}
             />
