@@ -23,7 +23,7 @@ const options = [
 
 export const BoxplotViolinMirrorDemo = ({ selectedGene }) => {
   const containerRef = useRef(null);
-  const [mirrorPosition, setMirrorPosition] = useState(0.6);
+  const [mirrorPosition, setMirrorPosition] = useState(0.5);
   const [violinPlotData, setViolinPlotData] = useState(null);
   const [smoothing, setSmoothing] = useState(true);
   const [featureAnalysisType, setFeatureAnalysisType] = useState("log2");
