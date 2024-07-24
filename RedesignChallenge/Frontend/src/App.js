@@ -99,7 +99,13 @@ function App() {
       {/* Button groups */}
       <Card
         size="small"
-        title="Tools"
+        title={
+        <span>
+          Tools
+          <Tooltip placement="right" title={"Control the entire inferface collection. In Kosara mode, you can select the cell type you are interested in to display. In Gene mode, you can display the number of UMIs of the gene you are interested in."} overlayInnerStyle={{ color: '#000' }} color={"white"}>
+            <QuestionCircleOutlined style={{ marginLeft: 3, fontSize: 10 }} />
+          </Tooltip>
+        </span>}
         style={{
           width: "280px",
           height: "99vh",
@@ -133,9 +139,9 @@ function App() {
               <QuestionCircleOutlined style={{ marginLeft: 3, fontSize: 10 }} />
             </Tooltip>
           </div>
-          {showKosaraCharts || showtSNECluster ? 
+          {showKosaraCharts || showtSNECluster ?
             <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} showKosaraCharts={showKosaraCharts} colorScaleType="Grey" />
-            : 
+            :
             <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} showKosaraCharts={showKosaraCharts} colorScaleType="Orange" />
           }
           <GeneList
@@ -171,7 +177,7 @@ function App() {
           showtSNECluster={showtSNECluster}
           setShowtSNECluster={setShowtSNECluster}
         />
-        <DifferentialChart selectedGene={selectedGene}/>
+        <DifferentialChart selectedGene={selectedGene} />
       </div>
     </div>
   );
