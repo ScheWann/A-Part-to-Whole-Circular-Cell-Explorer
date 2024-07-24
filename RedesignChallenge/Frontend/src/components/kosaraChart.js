@@ -75,7 +75,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             const lastAngle = topSixAngles[topSixAngles.length - 1][1];
             if (lastAngle < 90) {
                 let path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
-                paths.push({ path, color: 'lightgrey' });
+                paths.push({ path, color: 'white' });
             }
         }
         return paths;
