@@ -30,18 +30,27 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let paths = [];
         let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY = 0;
-        let topCells = Object.entries(cellShownStatus).filter(([key, value]) => value).map(([key, value]) => key);
-        let topSixIndices = ratios.filter(item => item[1] !== 0 && topCells.includes(item[0])).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]);
+        
+        // get selected cell types that are shown
+        let topCellTypes = Object.entries(cellShownStatus).filter(([key, value]) => value).map(([key, value]) => key);
+        let topSixIndices = ratios.filter(item => item[1] !== 0 && topCellTypes.includes(item[0])).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]);
         let topSixAngles = topSixIndices.map(index => angles.find(item => item[0] === index));
 
         // If no selected cells are shown, draw an empty circle
         if (topSixAngles.length === 0) {
             paths.push({ path: '', color: 'transparent' });
         } else {
-            topSixAngles = topSixAngles.map(angle => [angle[0], angle[1] + 8]);
+            topSixAngles = topSixAngles.map(angle => [angle[0], angle[1]]);
             topSixAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
 
-            topSixAngles.forEach((angle, index) => {
+            // Calculate cumulative angles
+            let cumulativeAngle = 0;
+            let processedAngles = topSixAngles.map(angle => {
+                cumulativeAngle += angle[1];
+                return [angle[0], cumulativeAngle];
+            });
+            
+            processedAngles.forEach((angle, index) => {
                 let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
                 let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
                 let endpointX = pointX - radius * Math.sin((45 - angle[1]) * Math.PI / 180);
@@ -51,11 +60,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
                 if (index === 0) {
                     path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
-                }
-                else if (index === topSixAngles.length - 1) {
-                    path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
-                }
-                else {
+                } else {
                     path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 }
 
@@ -66,6 +71,12 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 lastEndPointX = endpointX;
                 lastEndPointY = endpointY;
             });
+
+            const lastAngle = topSixAngles[topSixAngles.length - 1][1];
+            if (lastAngle < 90) {
+                let path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                paths.push({ path, color: 'lightgrey' });
+            }
         }
         return paths;
     }
@@ -144,7 +155,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                     .attr("opacity", opacity)
                     .on("mouseover", (event) => handleGeneMouseOver(event, { barcode: d.barcode, cluster: cluster }))
                     .on("mouseout", handleMouseOut);
-    
+
                 group.append("circle")
                     .attr("r", radius)
                     .attr("fill", color)

@@ -33,14 +33,14 @@ function App() {
   const [showtSNECluster, setShowtSNECluster] = useState(false);
   const [tissueClusterData, setTissueClusterData] = useState([]);
   const [cellShownStatus, setCellShownStatus] = useState({
-    X1: true,
-    X2: true,
-    X3: true,
-    X4: true,
-    X5: true,
-    X6: true,
-    X7: true,
-    X8: true,
+    X1: false,
+    X2: false,
+    X3: false,
+    X4: false,
+    X5: false,
+    X6: false,
+    X7: false,
+    X8: false,
     X9: true
   });
   const [arrow, setArrow] = useState('Show');
