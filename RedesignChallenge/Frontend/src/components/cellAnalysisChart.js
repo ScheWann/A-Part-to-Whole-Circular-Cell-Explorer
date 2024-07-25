@@ -105,7 +105,6 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
             const counts = labels.map(label =>
                 selectedData.reduce((count, item) => count + (item.ratios[label] > 0 ? 1 : 0), 0)
             );
-
             const svgElement = d3.select(svgRef.current);
             svgElement.selectAll("*").remove();
 
@@ -133,7 +132,16 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
                 .attr("y", d => yScale(d))
                 .attr("width", xScale.bandwidth())
                 .attr("height", d => height - margin.bottom - yScale(d))
-                .attr("fill", (d, i) => officialColors[labels[i]]);
+                .attr("fill", (d, i) => officialColors[labels[i]])
+                .on("mouseover", (event, d) => {
+                    tooltip.current.html(`Count: ${d}`)
+                        .style("left", `${event.pageX + 5}px`)
+                        .style("top", `${event.pageY - 28}px`);
+                    tooltip.current.style("opacity", .9);
+                })
+                .on("mouseout", () => {
+                    tooltip.current.style("opacity", 0);
+                });
 
             svgElement.append("g")
                 .attr("transform", `translate(0, ${height - margin.bottom})`)
@@ -254,7 +262,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
                 setHoveronTSNECell(d.barcode);
                 tooltip.current.html(info)
                     .style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 28) + "px");
+                    .style("top", (event.pageY - 28) + "px")
                 tooltip.current.style("opacity", .9);
             })
             .on("mouseout", d => {
