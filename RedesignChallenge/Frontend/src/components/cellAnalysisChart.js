@@ -7,7 +7,7 @@ import "./Styles/cellAnalysisChart.css";
 
 const clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
 
-export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosaraCharts, setShowKosaraCharts, showtSNECluster, setShowtSNECluster }) => {
+export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosaraCharts, setShowKosaraCharts, showtSNECluster, setShowtSNECluster, interestedCellType, setInterestedCellType }) => {
     const svgRef = useRef(null);
     const zoomRef = useRef();
     const tooltip = useRef(null);
@@ -50,24 +50,24 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
 
     useEffect(() => {
         fetch("/getTSNEData")
-        .then(res => res.json())
-        .then(data => {
-            const barcodes = Object.keys(data.barcode);
-            const transformedData = barcodes.map(index => ({
-                barcode: data.barcode[index],
-                total_counts: data.total_counts[index],
-                coordinates: {
-                    x: data.x[index],
-                    y: data.y[index]
-                },
-                cluster: data.cluster[index]
-            }))
-            const totalCounts = transformedData.map(d => d.total_counts);
-            const maxValue = Math.max(...Object.values(totalCounts));
-            const minValue = Math.min(...Object.values(totalCounts));
-            settSNEExpressionScale([minValue, maxValue]);
-            setTSNEData(transformedData);
-        });
+            .then(res => res.json())
+            .then(data => {
+                const barcodes = Object.keys(data.barcode);
+                const transformedData = barcodes.map(index => ({
+                    barcode: data.barcode[index],
+                    total_counts: data.total_counts[index],
+                    coordinates: {
+                        x: data.x[index],
+                        y: data.y[index]
+                    },
+                    cluster: data.cluster[index]
+                }))
+                const totalCounts = transformedData.map(d => d.total_counts);
+                const maxValue = Math.max(...Object.values(totalCounts));
+                const minValue = Math.min(...Object.values(totalCounts));
+                settSNEExpressionScale([minValue, maxValue]);
+                setTSNEData(transformedData);
+            });
     }, []);
 
     const chartList = {
@@ -76,7 +76,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
             <div className="t-SNEDiv">
                 <div className="controlGroup">
                     <Button size="small" onClick={resetZoom}>Reset Zoom</Button>
-                    <Switch style={{ marginLeft: 20, backgroundColor: showtSNECluster ? '#ED9121' : '#6785A7' }} onChange={() => setShowtSNECluster(!showtSNECluster)} checkedChildren="Show t-SNE by UMI Counts" unCheckedChildren="Show t-SNE by Clustering" checked={showtSNECluster}/>
+                    <Switch style={{ marginLeft: 20, backgroundColor: showtSNECluster ? '#ED9121' : '#6785A7' }} onChange={() => setShowtSNECluster(!showtSNECluster)} checkedChildren="Show t-SNE by UMI Counts" unCheckedChildren="Show t-SNE by Clustering" checked={showtSNECluster} />
                 </div>
                 {showtSNECluster ? <ClusterLegend scale={clusterColors} /> : <GradientLegend min={tSNEExpressionScale[0]} max={tSNEExpressionScale[tSNEExpressionScale.length - 1]} colorScaleType="Blue" />}
                 <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
@@ -128,6 +128,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
                 .enter()
                 .append("rect")
                 .classed("bar", true)
+                .attr("id", (d, i) => labels[i])
                 .attr("x", (d, i) => xScale(labels[i]))
                 .attr("y", d => yScale(d))
                 .attr("width", xScale.bandwidth())
@@ -141,6 +142,15 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
                 })
                 .on("mouseout", () => {
                     tooltip.current.style("opacity", 0);
+                })
+                .on("click", (event, d) => {
+                    const barId = event.target.id;
+                    if (interestedCellType === barId) {
+                        setInterestedCellType(null);
+                    } else {
+                        setInterestedCellType(barId);
+                    }
+                    event.stopPropagation();
                 });
 
             svgElement.append("g")
@@ -169,9 +179,34 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
                 .attr("font-size", "0.8em")
                 .attr("text-anchor", "middle")
                 .text("Counts");
-        }
 
+            const handleDocumentClick = () => {
+                if (interestedCellType) {
+
+                    setInterestedCellType(null);
+                }
+            };
+
+            document.addEventListener("click", handleDocumentClick);
+
+            return () => {
+                document.removeEventListener("click", handleDocumentClick);
+            };
+        }
     }, [selectedData, tabKey]);
+
+    useEffect(() => {
+        const svgElement = d3.select(svgRef.current);
+        if (interestedCellType) {
+            svgElement.selectAll(".bar")
+                .attr("fill", "lightgrey");
+            svgElement.select(`#${interestedCellType}`)
+                .attr("fill", officialColors[interestedCellType]);
+        } else {
+            svgElement.selectAll(".bar")
+                .attr("fill", (d, i) => officialColors[labels[i]]);
+        }
+    }, [interestedCellType, officialColors, labels]);
 
     // t-SNE plot
     useEffect(() => {

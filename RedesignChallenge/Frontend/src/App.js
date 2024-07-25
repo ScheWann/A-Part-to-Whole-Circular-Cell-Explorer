@@ -33,6 +33,7 @@ function App() {
   const [showtSNECluster, setShowtSNECluster] = useState(false);
   const [tissueClusterData, setTissueClusterData] = useState([]);
   const [featureAnalysisType, setFeatureAnalysisType] = useState("linear");
+  const [interestedCellType, setInterestedCellType] = useState(null);
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
     X2: true,
@@ -157,6 +158,7 @@ function App() {
       <KosaraChart
         className="KosaraChart"
         setSelectedData={setSelectedData}
+        interestedCellType={interestedCellType}
         showBackgroundImage={showBackgroundImage}
         showKosaraCharts={showKosaraCharts}
         cellShownStatus={cellShownStatus}
@@ -171,7 +173,8 @@ function App() {
       />
       <div className="analysisGroup">
         <CellAnalysisChart
-          // className="CellTypeChart"
+          interestedCellType={interestedCellType}
+          setInterestedCellType={setInterestedCellType}
           showKosaraCharts={showKosaraCharts}
           setShowKosaraCharts={setShowKosaraCharts}
           selectedData={selectedData}

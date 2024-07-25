@@ -19,7 +19,7 @@ const officialColors = {
     X9: '#355E3B'
 }
 
-export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell, showtSNECluster, tissueClusterData }) => {
+export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell, showtSNECluster, tissueClusterData, interestedCellType }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
     const [kosaraData, setKosaraData] = useState([]);
@@ -42,12 +42,19 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     const generateKosaraPath = (pointX, pointY, angles, ratios, cellShownStatus) => {
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let paths = [];
+        let cellTypes = []
         let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY = 0;
 
         // get selected cell types that are shown
-        let cellTypes = Object.entries(cellShownStatus).filter(([key, value]) => value).map(([key, value]) => key);
+        if(interestedCellType) {
+            cellTypes.push(interestedCellType);
+        } else {
+            cellTypes = Object.entries(cellShownStatus).filter(([key, value]) => value).map(([key, value]) => key);
+        }
+
         let cellIndices = ratios.filter(item => item[1] !== 0 && cellTypes.includes(item[0])).sort((a, b) => b[1] - a[1]).slice(0, 9).map(item => item[0]);
         let cellAngles = cellIndices.map(index => angles.find(item => item[0] === index));
+
         // If no selected cells are shown, draw an empty circle
         if (cellAngles.length === 0) {
             paths.push({ path: '', color: 'transparent' });
@@ -85,7 +92,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             });
 
             const lastAngle = processedAngles[cellAngles.length - 1][1];
-            if (lastAngle < 90 && unChckedCellTypes(cellShownStatus) > 0) {
+            if (lastAngle < 90 && (unChckedCellTypes(cellShownStatus) > 0 || interestedCellType)) {
                 let path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 paths.push({ path, color: 'white' });
             }
@@ -96,11 +103,18 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     function handleKosaraMouseOver(event, d) {
         const tooltip = d3.select(tooltipRef.current);
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
-
-        const cellTypes = d
+        let cellTypes;
+        if(!interestedCellType) {
+            cellTypes = d
             .filter(item => item[1] !== 0 && cellShownStatus[item[0]] === true)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 9);
+        } else {
+            cellTypes = d
+            .filter(item => item[1] !== 0 && item[0] === interestedCellType)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 9);
+        }
 
         cellTypes.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
 
@@ -332,7 +346,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 circleRender(tissueClusterData, contentGroup);
             }
         }
-    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell, showtSNECluster, brushActive]);
+    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell, showtSNECluster, brushActive, interestedCellType]);
 
     return (
         <>
