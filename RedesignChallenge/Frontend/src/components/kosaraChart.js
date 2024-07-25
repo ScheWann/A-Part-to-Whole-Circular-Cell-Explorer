@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Button } from "antd";
+import { SelectOutlined } from "@ant-design/icons";
 import * as d3 from "d3";
 import scaleJson from "../data/scalefactors_json.json";
 import hiresTissuePic from '../data/tissue_hires_image.png';
@@ -21,6 +23,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
     const [kosaraData, setKosaraData] = useState([]);
+    const [brushActive, setBrushActive] = useState(false);
 
     const hirescalef = 0.046594715;
     const spotDiameter = scaleJson["spot_diameter_fullres"];
@@ -256,7 +259,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
         const brush = d3.brush()
             .extent([[0, 0], [800, 800]])
-            .on("brush end", brushEnded);
+            .on("brush", brushEnded);
 
         const svg = svgElement
             .attr("viewBox", "0 0 800 800")
@@ -265,8 +268,10 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         // remove duplicate brush
         svg.select(".brush").remove();
 
-        if (showKosaraCharts) {
-            // svg.append("g").attr("class", "brush").call(brush);
+        if (showKosaraCharts && brushActive) {
+            svg.append("g")
+                .attr("class", "brush")
+                .call(brush)
         }
 
         const selectedCells = Object.keys(cellShownStatus).filter(cell => cellShownStatus[cell]);
@@ -327,13 +332,23 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 circleRender(tissueClusterData, contentGroup);
             }
         }
-
-    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell, showtSNECluster]);
+    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell, showtSNECluster, brushActive]);
 
     return (
-        <div style={{ display: "flex", height: "99vh" }}>
-            <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+        <>
+            <div style={{ display: "flex", height: "99vh", position: "relative" }}>
+                <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
+                <div style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    padding: "10px",
+                    zIndex: 1,
+                }}>
+                    <Button style={{ fontSize: 20, cursor: "pointer" }} icon={<SelectOutlined />} onClick={() => setBrushActive(!brushActive)} />
+                </div>
+            </div>
             <div ref={tooltipRef} style={{ position: "absolute", backgroundColor: "white", border: "1px solid #ccc", padding: "10px", display: "none", pointerEvents: "none" }}></div>
-        </div>
+        </>
     );
 };
