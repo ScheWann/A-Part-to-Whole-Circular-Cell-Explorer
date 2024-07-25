@@ -33,9 +33,9 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         
         // get selected cell types that are shown
         let topCellTypes = Object.entries(cellShownStatus).filter(([key, value]) => value).map(([key, value]) => key);
-        let topSixIndices = ratios.filter(item => item[1] !== 0 && topCellTypes.includes(item[0])).sort((a, b) => b[1] - a[1]).slice(0, 6).map(item => item[0]);
+        let topSixIndices = ratios.filter(item => item[1] !== 0 && topCellTypes.includes(item[0])).sort((a, b) => b[1] - a[1]).slice(0, 9).map(item => item[0]);
         let topSixAngles = topSixIndices.map(index => angles.find(item => item[0] === index));
-
+        console.log(topSixAngles);
         // If no selected cells are shown, draw an empty circle
         if (topSixAngles.length === 0) {
             paths.push({ path: '', color: 'transparent' });
@@ -73,10 +73,10 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             });
 
             const lastAngle = topSixAngles[topSixAngles.length - 1][1];
-            if (lastAngle < 90) {
-                let path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
-                paths.push({ path, color: 'white' });
-            }
+            // if (lastAngle < 90) {
+            //     let path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+            //     paths.push({ path, color: 'white' });
+            // }
         }
         return paths;
     }
@@ -88,7 +88,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         const topSix = d
             .filter(item => item[1] !== 0)
             .sort((a, b) => b[1] - a[1])
-            .slice(0, 6);
+            .slice(0, 9);
 
         topSix.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
 
@@ -235,7 +235,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         svg.select(".brush").remove();
 
         if (showKosaraCharts) {
-            svg.append("g").attr("class", "brush").call(brush);
+            // svg.append("g").attr("class", "brush").call(brush);
         }
 
         const selectedCells = Object.keys(cellShownStatus).filter(cell => cellShownStatus[cell]);
@@ -282,18 +282,20 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
                 const paths = generateKosaraPath(d.x, d.y, angles, ratios, cellShownStatus);
 
-                group.append("circle")
-                    .attr("transform", `translate(${d.x}, ${d.y})`)
-                    .attr("r", radius)
-                    .attr("fill", "none")
-                    .attr("stroke", "black")
-                    .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, barcode: d.barcode }))
-                    .on("mouseout", handleMouseOut)
-                    .attr("stroke-width", 0.1);
+                // group.append("circle")
+                //     .attr("transform", `translate(${d.x}, ${d.y})`)
+                //     .attr("r", radius)
+                //     .attr("fill", "none")
+                //     .attr("stroke", "black")
+                //     .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, barcode: d.barcode }))
+                //     .on("mouseout", handleMouseOut)
+                //     .attr("stroke-width", 0.1);
                 paths.forEach(({ path, color }) => {
                     group.append('path')
                         .attr('d', path)
-                        .attr('fill', color);
+                        .attr('fill', color)
+                        .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, barcode: d.barcode }))
+                        .on("mouseout", handleMouseOut);
                 });
 
                 if (d.barcode === hoveronTSNECell) {
