@@ -94,12 +94,12 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         const tooltip = d3.select(tooltipRef.current);
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
 
-        const topSix = d
-            .filter(item => item[1] !== 0)
+        const cellTypes = d
+            .filter(item => item[1] !== 0 && cellShownStatus[item[0]] === true)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 9);
 
-        topSix.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
+        cellTypes.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
 
         tooltip
             .style("display", "block")
@@ -108,7 +108,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             .style("font-size", "12px")
             .style("font-family", "sans-serif")
             .style("z-index", "1000")
-            .html(topSix.map(item => `${item[0]}: ${(item[1] * 100).toFixed(2)}%`).join("<br>"));
+            .html(cellTypes.map(item => `${item[0]}: ${(item[1] * 100).toFixed(2)}%`).join("<br>"));
     }
 
     function handleGeneMouseOver(event, d) {
@@ -266,7 +266,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         svg.select(".brush").remove();
 
         if (showKosaraCharts) {
-            svg.append("g").attr("class", "brush").call(brush);
+            // svg.append("g").attr("class", "brush").call(brush);
         }
 
         const selectedCells = Object.keys(cellShownStatus).filter(cell => cellShownStatus[cell]);
