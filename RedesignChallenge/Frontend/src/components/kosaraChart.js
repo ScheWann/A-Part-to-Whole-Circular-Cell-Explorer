@@ -348,7 +348,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                     <Button style={{ fontSize: 20, cursor: "pointer" }} icon={<SelectOutlined />} onClick={() => setBrushActive(!brushActive)} />
                 </div>
             </div>
-            <div ref={tooltipRef} style={{ position: "absolute", backgroundColor: "white", border: "1px solid #ccc", padding: "10px", display: "none", pointerEvents: "none" }}></div>
+            <div ref={tooltipRef} className="kosaraTooltip"></div>
         </>
     );
 };
