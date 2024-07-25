@@ -121,8 +121,13 @@ def get_gene_list():
     return list(geneList["gene"])
 
 
-def get_gene_expression(gene):
-    return umi_counts[gene]
+def get_gene_expression(gene, method):
+    if method == 'linear': 
+        return umi_counts[gene]
+    elif method == 'log2':
+        return violin_log2_df.set_index('barcode')[gene]
+    else:
+        return violin_logNorm_df.set_index('barcode')[gene]
 
 
 def get_kosara_data():

@@ -25,7 +25,6 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     const hirescalef = 0.046594715;
     const spotDiameter = scaleJson["spot_diameter_fullres"];
     const radius = spotDiameter * hirescalef / 2;
-    console.log(cellShownStatus, typeof (cellShownStatus), '?????')
 
     const unChckedCellTypes = (obj) => {
         let falseCount = 0;

@@ -13,7 +13,8 @@ def get_geneListSearch():
 @app.route('/geneExpression', methods=['POST'])
 def get_geneExpression():
     gene = request.json['gene']
-    return jsonify(get_gene_expression(gene).to_dict())
+    method = request.json['method']
+    return jsonify(get_gene_expression(gene, method).to_dict())
 
 @app.route('/getKosaraData')
 def get_kosaraData():

@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { List, Card, Input, Tooltip, Empty, Typography } from "antd";
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import "./Styles/geneList.css";
 
-export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, setShowtSNECluster }) => {
+export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, setShowtSNECluster, featureAnalysisType }) => {
     const [geneListData, setGeneListData] = useState([]);
 
     const fetchData = async (query) => {
@@ -26,6 +26,20 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, se
         setGeneListData([]);
     };
 
+    const fetchGeneData = (gene, type) => {
+        fetch("/geneExpression", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gene: gene, method: type })
+        })
+            .then(response => response.json())
+            .then(data => {
+                setRelatedGeneData(data);
+            });
+    }
+
     const handleItemClick = (item) => {
         if (selectedGene === item) {
             setSelectedGene(null);
@@ -33,20 +47,15 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, se
         } else {
             setShowtSNECluster(false);
             setSelectedGene(item);
-            fetch("/geneExpression", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ gene: item })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    setRelatedGeneData(data);
-                });
+            fetchGeneData(item, featureAnalysisType);
         }
     };
 
+    useEffect(() => {
+        if (selectedGene) {
+            fetchGeneData(selectedGene, featureAnalysisType);
+        }
+    }, [featureAnalysisType]);
     return (
         <Card
             size="small"

@@ -21,12 +21,11 @@ const options = [
   },
 ];
 
-export const BoxplotViolinMirrorDemo = ({ selectedGene }) => {
+export const BoxplotViolinMirrorDemo = ({ selectedGene, featureAnalysisType, setFeatureAnalysisType }) => {
   const containerRef = useRef(null);
   const [mirrorPosition, setMirrorPosition] = useState(0.5);
   const [violinPlotData, setViolinPlotData] = useState(null);
   const [smoothing, setSmoothing] = useState(true);
-  const [featureAnalysisType, setFeatureAnalysisType] = useState("log2");
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   
   useEffect(() => {
@@ -130,7 +129,7 @@ export const BoxplotViolinMirrorDemo = ({ selectedGene }) => {
             style={{
               width: 100,
             }}
-            defaultValue="log2"
+            defaultValue="linear"
             options={options}
             onChange={handleChange}
           />

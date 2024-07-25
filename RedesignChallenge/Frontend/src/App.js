@@ -32,6 +32,7 @@ function App() {
   const [geneExpressionScale, setGeneExpressionScale] = useState([]);
   const [showtSNECluster, setShowtSNECluster] = useState(false);
   const [tissueClusterData, setTissueClusterData] = useState([]);
+  const [featureAnalysisType, setFeatureAnalysisType] = useState("linear");
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
     X2: true,
@@ -147,6 +148,7 @@ function App() {
           <GeneList
             setShowtSNECluster={setShowtSNECluster}
             selectedGene={selectedGene}
+            featureAnalysisType={featureAnalysisType}
             setSelectedGene={setSelectedGene}
             setRelatedGeneData={setRelatedGeneData}
           />
@@ -177,7 +179,7 @@ function App() {
           showtSNECluster={showtSNECluster}
           setShowtSNECluster={setShowtSNECluster}
         />
-        <DifferentialChart selectedGene={selectedGene} />
+        <DifferentialChart selectedGene={selectedGene} featureAnalysisType={featureAnalysisType} setFeatureAnalysisType={setFeatureAnalysisType}/>
       </div>
     </div>
   );
