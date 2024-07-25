@@ -25,31 +25,41 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     const hirescalef = 0.046594715;
     const spotDiameter = scaleJson["spot_diameter_fullres"];
     const radius = spotDiameter * hirescalef / 2;
+    console.log(cellShownStatus, typeof (cellShownStatus), '?????')
 
-    function generateKosaraPath(pointX, pointY, angles, ratios, cellShownStatus) {
+    const unChckedCellTypes = (obj) => {
+        let falseCount = 0;
+        for (const key in obj) {
+            if (obj[key] === false) {
+                falseCount++;
+            }
+        }
+        return falseCount;
+    }
+
+    const generateKosaraPath = (pointX, pointY, angles, ratios, cellShownStatus) => {
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let paths = [];
         let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY = 0;
-        
+
         // get selected cell types that are shown
-        let topCellTypes = Object.entries(cellShownStatus).filter(([key, value]) => value).map(([key, value]) => key);
-        let topSixIndices = ratios.filter(item => item[1] !== 0 && topCellTypes.includes(item[0])).sort((a, b) => b[1] - a[1]).slice(0, 9).map(item => item[0]);
-        let topSixAngles = topSixIndices.map(index => angles.find(item => item[0] === index));
-        console.log(topSixAngles);
+        let cellTypes = Object.entries(cellShownStatus).filter(([key, value]) => value).map(([key, value]) => key);
+        let cellIndices = ratios.filter(item => item[1] !== 0 && cellTypes.includes(item[0])).sort((a, b) => b[1] - a[1]).slice(0, 9).map(item => item[0]);
+        let cellAngles = cellIndices.map(index => angles.find(item => item[0] === index));
         // If no selected cells are shown, draw an empty circle
-        if (topSixAngles.length === 0) {
+        if (cellAngles.length === 0) {
             paths.push({ path: '', color: 'transparent' });
         } else {
-            topSixAngles = topSixAngles.map(angle => [angle[0], angle[1]]);
-            topSixAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
+            cellAngles = cellAngles.map(angle => [angle[0], angle[1]]);
+            cellAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
 
             // Calculate cumulative angles
             let cumulativeAngle = 0;
-            let processedAngles = topSixAngles.map(angle => {
+            let processedAngles = cellAngles.map(angle => {
                 cumulativeAngle += angle[1];
                 return [angle[0], cumulativeAngle];
             });
-            
+
             processedAngles.forEach((angle, index) => {
                 let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
                 let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
@@ -72,11 +82,11 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 lastEndPointY = endpointY;
             });
 
-            const lastAngle = topSixAngles[topSixAngles.length - 1][1];
-            // if (lastAngle < 90) {
-            //     let path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
-            //     paths.push({ path, color: 'white' });
-            // }
+            const lastAngle = processedAngles[cellAngles.length - 1][1];
+            if (lastAngle < 90 && unChckedCellTypes(cellShownStatus) > 0) {
+                let path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                paths.push({ path, color: 'white' });
+            }
         }
         return paths;
     }
@@ -223,6 +233,28 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
     useEffect(() => {
         const svgElement = d3.select(svgRef.current);
+
+        const brushEnded = (event) => {
+            const selection = event.selection;
+            if (!selection) return;
+
+            const [[x0, y0], [x1, y1]] = selection;
+
+            const brushedData = kosaraData.filter(d => {
+                if (!d) return;
+                const scaledX = d.x
+                const scaledY = d.y
+                return scaledX >= x0 && scaledX <= x1 && scaledY >= y0 && scaledY <= y1;
+            });
+            const selectedData = brushedData.map(d => ({
+                barcode: d.barcode,
+                x: d.x,
+                y: d.y,
+                ratios: Object.fromEntries(Object.entries(d.ratios).filter(([key, value]) => selectedCells.includes(key))),
+            }));
+            setSelectedData(selectedData);
+        }
+
         const brush = d3.brush()
             .extent([[0, 0], [800, 800]])
             .on("brush end", brushEnded);
@@ -246,27 +278,6 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             ratios: Object.fromEntries(Object.entries(d.ratios).filter(([key, value]) => selectedCells.includes(key))),
         })));
 
-        function brushEnded(event) {
-            const selection = event.selection;
-            if (!selection) return;
-
-            const [[x0, y0], [x1, y1]] = selection;
-
-            const brushedData = kosaraData.filter(d => {
-                if (!d) return;
-                const scaledX = d.x
-                const scaledY = d.y
-                return scaledX >= x0 && scaledX <= x1 && scaledY >= y0 && scaledY <= y1;
-            });
-            const selectedData = brushedData.map(d => ({
-                barcode: d.barcode,
-                x: d.x,
-                y: d.y,
-                ratios: Object.fromEntries(Object.entries(d.ratios).filter(([key, value]) => selectedCells.includes(key))),
-            }));
-            setSelectedData(selectedData);
-        }
-
         const contentGroup = svg.select(".content").empty() ? svg.append("g").attr("class", "content") : svg.select(".content");
 
         contentGroup.selectAll("g").remove();
@@ -281,15 +292,17 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                     .on("mouseout", handleMouseOut);
 
                 const paths = generateKosaraPath(d.x, d.y, angles, ratios, cellShownStatus);
+                if (unChckedCellTypes(cellShownStatus) > 0) {
+                    group.append("circle")
+                        .attr("transform", `translate(${d.x}, ${d.y})`)
+                        .attr("r", radius)
+                        .attr("fill", "none")
+                        .attr("stroke", "black")
+                        .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, barcode: d.barcode }))
+                        .on("mouseout", handleMouseOut)
+                        .attr("stroke-width", 0.1);
+                }
 
-                // group.append("circle")
-                //     .attr("transform", `translate(${d.x}, ${d.y})`)
-                //     .attr("r", radius)
-                //     .attr("fill", "none")
-                //     .attr("stroke", "black")
-                //     .on("mouseover", (event) => handleGeneMouseOver(event, { selectedGene: selectedGene, barcode: d.barcode }))
-                //     .on("mouseout", handleMouseOut)
-                //     .attr("stroke-width", 0.1);
                 paths.forEach(({ path, color }) => {
                     group.append('path')
                         .attr('d', path)
