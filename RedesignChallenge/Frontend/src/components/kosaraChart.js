@@ -267,7 +267,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         svg.select(".brush").remove();
 
         if (showKosaraCharts) {
-            // svg.append("g").attr("class", "brush").call(brush);
+            svg.append("g").attr("class", "brush").call(brush);
         }
 
         const selectedCells = Object.keys(cellShownStatus).filter(cell => cellShownStatus[cell]);
