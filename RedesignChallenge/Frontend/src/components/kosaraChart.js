@@ -310,7 +310,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                     .on("mouseout", handleMouseOut);
 
                 const paths = generateKosaraPath(d.x, d.y, angles, ratios, cellShownStatus);
-                if (unChckedCellTypes(cellShownStatus) > 0) {
+                if (unChckedCellTypes(cellShownStatus) > 0 || interestedCellType) {
                     group.append("circle")
                         .attr("transform", `translate(${d.x}, ${d.y})`)
                         .attr("r", radius)
