@@ -14,7 +14,7 @@ const officialColors = {
     X4: '#007FFF',
     X5: '#32174D',
     // X6: '#E5E4E2',
-    X6: '#592720',
+    X6: '#FF00FF',
     X7: '#ED9121',
     X8: '#74C365',
     X9: '#355E3B'
