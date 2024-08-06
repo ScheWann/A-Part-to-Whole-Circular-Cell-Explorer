@@ -79,8 +79,6 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
                 if (index === 0) {
                     path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
-                } else if (index === cellAngles.length - 1) {
-                    path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 } else {
                     path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 }
@@ -119,7 +117,6 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         }
 
         cellTypes.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
-
         tooltip
             .style("display", "block")
             .style("left", `${event.pageX + 10}px`)
