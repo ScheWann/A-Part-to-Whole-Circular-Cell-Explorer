@@ -68,7 +68,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 cumulativeAngle += angle[1];
                 return [angle[0], cumulativeAngle];
             });
-
+            console.log(cellAngles, processedAngles, '//////')
             processedAngles.forEach((angle, index) => {
                 let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
                 let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
@@ -79,6 +79,8 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
                 if (index === 0) {
                     path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
+                } else if (index === cellAngles.length - 1) {
+                    path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 } else {
                     path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 }
