@@ -68,7 +68,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 cumulativeAngle += angle[1];
                 return [angle[0], cumulativeAngle];
             });
-            console.log(cellAngles, processedAngles, '//////')
+            
             processedAngles.forEach((angle, index) => {
                 let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
                 let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
