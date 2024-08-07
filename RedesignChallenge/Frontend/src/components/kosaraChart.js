@@ -79,7 +79,11 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
                 if (index === 0) {
                     path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
-                } else {
+                }
+                else if (index === cellAngles.length - 1) {
+                    path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                } 
+                else {
                     path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 }
 
@@ -100,7 +104,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         return paths;
     }
 
-    function handleKosaraMouseOver(event, d) {
+    function handleKosaraMouseOver(event, d, angles) {
         const tooltip = d3.select(tooltipRef.current);
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let cellTypes;
@@ -116,6 +120,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             .slice(0, 9);
         }
 
+        console.log(cellTypes, angles)
         cellTypes.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
         tooltip
             .style("display", "block")
@@ -305,7 +310,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 const group = contentGroup.append("g")
                     .attr("class", "kosara-chart")
                     .attr("opacity", opacity)
-                    .on("mouseover", (event) => handleKosaraMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
+                    .on("mouseover", (event) => handleKosaraMouseOver(event, ratios.filter(([key, value]) => value !== 0), angles.filter(([key, value]) => value !== 0)))
                     .on("mouseout", handleMouseOut);
 
                 const paths = generateKosaraPath(d.x, d.y, angles, ratios, cellShownStatus);
