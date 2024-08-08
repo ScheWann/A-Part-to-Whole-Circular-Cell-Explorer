@@ -39,6 +39,27 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         return falseCount;
     }
 
+    const zoom = d3.zoom()
+        .scaleExtent([1, 8])
+        .on("zoom", (event) => {
+            if (brushActive) {
+                d3.select(svgRef.current).transition().duration(750).call(
+                    zoom.transform,
+                    d3.zoomIdentity
+                );
+            } else {
+                d3.select(svgRef.current).attr("transform", event.transform);
+            }
+        });
+
+    const resetZoom = () => {
+        const svgElement = d3.select(svgRef.current);
+        svgElement.transition().duration(750).call(
+            zoom.transform,
+            d3.zoomIdentity
+        );
+    };
+
     const generateKosaraPath = (pointX, pointY, angles, ratios, cellShownStatus) => {
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let paths = [];
@@ -47,7 +68,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY = 0;
 
         // get selected cell types that are shown
-        if(interestedCellType) {
+        if (interestedCellType) {
             cellTypes.push(interestedCellType);
         } else {
             cellTypes = Object.entries(cellShownStatus).filter(([key, value]) => value).map(([key, value]) => key);
@@ -69,7 +90,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 cumulativeAngle += angle[1];
                 return [angle[0], cumulativeAngle];
             });
-            
+
             processedAngles.forEach((angle, index) => {
                 if (angle[1] <= 45) {
                     startpointX = pointX - Math.abs(radius * Math.cos((45 - angle[1]) * Math.PI / 180));
@@ -90,7 +111,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 }
                 else if (index === cellAngles.length - 1) {
                     path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
-                } 
+                }
                 else {
                     path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 }
@@ -116,16 +137,16 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         const tooltip = d3.select(tooltipRef.current);
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let cellTypes;
-        if(!interestedCellType) {
+        if (!interestedCellType) {
             cellTypes = d
-            .filter(item => item[1] !== 0 && cellShownStatus[item[0]] === true)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 9);
+                .filter(item => item[1] !== 0 && cellShownStatus[item[0]] === true)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 9);
         } else {
             cellTypes = d
-            .filter(item => item[1] !== 0 && item[0] === interestedCellType)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 9);
+                .filter(item => item[1] !== 0 && item[0] === interestedCellType)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 9);
         }
 
         console.log(cellTypes, angles)
@@ -298,6 +319,9 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             svg.append("g")
                 .attr("class", "brush")
                 .call(brush)
+            svg.on('.zoom', null);
+        } else if (!brushActive) {
+            svg.call(zoom);
         }
 
         const selectedCells = Object.keys(cellShownStatus).filter(cell => cellShownStatus[cell]);
@@ -362,7 +386,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
     return (
         <>
-            <div style={{ display: "flex", height: "99vh", position: "relative" }}>
+            <div style={{ display: "flex", overflow: "hidden", height: "99vh", position: "relative" }}>
                 <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
                 <div style={{
                     position: "absolute",
@@ -371,7 +395,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                     padding: "10px",
                     zIndex: 1,
                 }}>
-                    <Button style={{ fontSize: 20, cursor: "pointer", marginRight: 20 }} icon={<RedoOutlined />}></Button>
+                    <Button style={{ fontSize: 20, cursor: "pointer", marginRight: 20 }} icon={<RedoOutlined />} onClick={resetZoom} disabled={brushActive}></Button>
                     <Button style={{ fontSize: 20, cursor: "pointer" }} icon={<SelectOutlined />} onClick={() => setBrushActive(!brushActive)} />
                 </div>
             </div>
