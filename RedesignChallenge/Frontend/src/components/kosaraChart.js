@@ -85,13 +85,13 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             cellAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
 
             // Calculate cumulative angles
-            let cumulativeAngle = 0;
-            let processedAngles = cellAngles.map(angle => {
-                cumulativeAngle += angle[1];
-                return [angle[0], cumulativeAngle];
-            });
-
-            processedAngles.forEach((angle, index) => {
+            // let cumulativeAngle = 0;
+            // let processedAngles = cellAngles.map(angle => {
+            //     cumulativeAngle += angle[1];
+            //     return [angle[0], cumulativeAngle];
+            // });
+            // console.log(processedAngles, '???????');
+            cellAngles.forEach((angle, index) => {
                 if (angle[1] <= 45) {
                     startpointX = pointX - Math.abs(radius * Math.cos((45 - angle[1]) * Math.PI / 180));
                     startpointY = pointY + Math.abs(radius * Math.sin((45 - angle[1]) * Math.PI / 180));
@@ -124,7 +124,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 lastEndPointY = endpointY;
             });
 
-            const lastAngle = processedAngles[cellAngles.length - 1][1];
+            const lastAngle = cellAngles[cellAngles.length - 1][1];
             if (lastAngle < 90 && (unCheckedCellTypes(cellShownStatus) > 0 || interestedCellType)) {
                 let path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 paths.push({ path, color: 'white' });
