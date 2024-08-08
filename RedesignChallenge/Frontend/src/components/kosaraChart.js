@@ -42,7 +42,8 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     const generateKosaraPath = (pointX, pointY, angles, ratios, cellShownStatus) => {
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let paths = [];
-        let cellTypes = []
+        let cellTypes = [];
+        let startpointX, startpointY, endpointX, endpointY = 0;
         let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY = 0;
 
         // get selected cell types that are shown
@@ -70,10 +71,24 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             });
             
             processedAngles.forEach((angle, index) => {
-                let startpointX = pointX - radius * Math.sin((45 + angle[1]) * Math.PI / 180);
-                let startpointY = pointY + radius * Math.cos((45 + angle[1]) * Math.PI / 180);
-                let endpointX = pointX - radius * Math.sin((45 - angle[1]) * Math.PI / 180);
-                let endpointY = pointY + radius * Math.cos((45 - angle[1]) * Math.PI / 180);
+                console.log(angle[1])
+                if(angle[1] <= 45) {
+                    startpointX = pointX - Math.abs(radius * Math.cos((45 - angle[1]) * Math.PI / 180));
+                    startpointY = pointY + Math.abs(radius * Math.sin((45 - angle[1]) * Math.PI / 180));
+                    endpointX = pointX - Math.abs(radius * Math.sin((45 - angle[1]) * Math.PI / 180));
+                    endpointY = pointY + Math.abs(radius * Math.cos((45 - angle[1]) * Math.PI / 180));
+                } else {
+                    startpointX = pointX - Math.abs(radius * Math.sin((135 - angle[1]) * Math.PI / 180));
+                    startpointY = pointY - Math.abs(radius * Math.cos((135 - angle[1]) * Math.PI / 180));
+                    endpointX = pointX + Math.abs(radius * Math.cos((135 - angle[1]) * Math.PI / 180));
+                    endpointY = pointY + Math.abs(radius * Math.sin((135 - angle[1]) * Math.PI / 180));
+                }
+                // let startpointX = pointX - radius * Math.cos((45 - angle[1]) * Math.PI / 180);
+                // let startpointY = pointY + radius * Math.sin((45 - angle[1]) * Math.PI / 180);
+                // let endpointX = pointX - radius * Math.sin((45 - angle[1]) * Math.PI / 180);
+                // let endpointY = pointY + radius * Math.cos((45 - angle[1]) * Math.PI / 180);
+
+
 
                 let path = '';
 
