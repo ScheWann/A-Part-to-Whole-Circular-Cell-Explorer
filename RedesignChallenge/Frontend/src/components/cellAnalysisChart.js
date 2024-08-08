@@ -78,7 +78,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
                     <Button size="small" onClick={resetZoom}>Reset Zoom</Button>
                     <Switch style={{ marginLeft: 20, backgroundColor: showtSNECluster ? '#ED9121' : '#6785A7' }} onChange={() => setShowtSNECluster(!showtSNECluster)} checkedChildren="Show t-SNE by UMI Counts" unCheckedChildren="Show t-SNE by Clustering" checked={showtSNECluster} />
                 </div>
-                {showtSNECluster ? <ClusterLegend scale={clusterColors} /> : <GradientLegend min={tSNEExpressionScale[0]} max={tSNEExpressionScale[tSNEExpressionScale.length - 1]} colorScaleType="Blue" />}
+                {showtSNECluster ? <ClusterLegend scale={clusterColors} /> : <GradientLegend min={tSNEExpressionScale[0]} max={tSNEExpressionScale[tSNEExpressionScale.length - 1]} colorScaleType="Orange" />}
                 <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
             </div>
     }
@@ -246,8 +246,8 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
         const yScale = d3.scaleLinear()
             .domain([yExtent[0] - yPadding, yExtent[1] + yPadding])
             .range([height - margin.bottom, margin.top]);
-
-        const colorScale = showtSNECluster ? clusterColors : d3.scaleSequentialLog(d3.interpolateBlues)
+        // const colorScale = showtSNECluster ? clusterColors : d3.scaleSequentialLog(d3.interpolateBlues)
+        const colorScale = showtSNECluster ? clusterColors : d3.scaleSequentialLog(d3.interpolateOranges)
             .domain(d3.extent(tSNEData, d => d.total_counts));
 
         const xAxis = d3.axisBottom(xScale).tickSize(-height + margin.top + margin.bottom)
