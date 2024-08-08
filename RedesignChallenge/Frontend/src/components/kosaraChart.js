@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "antd";
-import { SelectOutlined } from "@ant-design/icons";
+import { SelectOutlined, RedoOutlined } from "@ant-design/icons";
 import * as d3 from "d3";
 import scaleJson from "../data/scalefactors_json.json";
 import hiresTissuePic from '../data/tissue_hires_image.png';
@@ -29,7 +29,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
     const spotDiameter = scaleJson["spot_diameter_fullres"];
     const radius = spotDiameter * hirescalef / 2;
 
-    const unChckedCellTypes = (obj) => {
+    const unCheckedCellTypes = (obj) => {
         let falseCount = 0;
         for (const key in obj) {
             if (obj[key] === false) {
@@ -104,7 +104,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             });
 
             const lastAngle = processedAngles[cellAngles.length - 1][1];
-            if (lastAngle < 90 && (unChckedCellTypes(cellShownStatus) > 0 || interestedCellType)) {
+            if (lastAngle < 90 && (unCheckedCellTypes(cellShownStatus) > 0 || interestedCellType)) {
                 let path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 paths.push({ path, color: 'white' });
             }
@@ -322,7 +322,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                     .on("mouseout", handleMouseOut);
 
                 const paths = generateKosaraPath(d.x, d.y, angles, ratios, cellShownStatus);
-                if (unChckedCellTypes(cellShownStatus) > 0 || interestedCellType) {
+                if (unCheckedCellTypes(cellShownStatus) > 0 || interestedCellType) {
                     group.append("circle")
                         .attr("transform", `translate(${d.x}, ${d.y})`)
                         .attr("r", radius)
@@ -371,6 +371,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                     padding: "10px",
                     zIndex: 1,
                 }}>
+                    <Button style={{ fontSize: 20, cursor: "pointer", marginRight: 20 }} icon={<RedoOutlined />}></Button>
                     <Button style={{ fontSize: 20, cursor: "pointer" }} icon={<SelectOutlined />} onClick={() => setBrushActive(!brushActive)} />
                 </div>
             </div>
