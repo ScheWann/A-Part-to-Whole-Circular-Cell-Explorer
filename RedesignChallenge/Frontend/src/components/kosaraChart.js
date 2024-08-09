@@ -60,13 +60,15 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         );
     };
 
-    const generateKosaraPath = (pointX, pointY, angles, ratios, cellShownStatus) => {
+    const generateKosaraPath = (pointX, pointY, angles, ratios, cal_radius, cellShownStatus) => {
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let paths = [];
         let cellTypes = [];
         let startpointX, startpointY, endpointX, endpointY = 0;
-        let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY = 0;
-
+        let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY, lastCircleRadius = 0;
+        let originalPointX = pointX - radius * Math.cos(45 * Math.PI / 180);
+        let originalPointY = pointY + radius * Math.sin(45 * Math.PI / 180);
+        
         // get selected cell types that are shown
         if (interestedCellType) {
             cellTypes.push(interestedCellType);
@@ -76,48 +78,48 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
         let cellIndices = ratios.filter(item => item[1] !== 0 && cellTypes.includes(item[0])).sort((a, b) => b[1] - a[1]).slice(0, 9).map(item => item[0]);
         let cellAngles = cellIndices.map(index => angles.find(item => item[0] === index));
+        let cellRadius = cellIndices.map(index => cal_radius.find(item => item[0] === index));
 
         // If no selected cells are shown, draw an empty circle
         if (cellAngles.length === 0) {
             paths.push({ path: '', color: 'transparent' });
         } else {
             cellAngles = cellAngles.map(angle => [angle[0], angle[1]]);
+            cellRadius = cellRadius.map(rad => [rad[0], rad[1]]);
             cellAngles.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
+            cellRadius.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
 
-            // Calculate cumulative angles
-            // let cumulativeAngle = 0;
-            // let processedAngles = cellAngles.map(angle => {
-            //     cumulativeAngle += angle[1];
-            //     return [angle[0], cumulativeAngle];
-            // });
-            // console.log(processedAngles, '???????');
             cellAngles.forEach((angle, index) => {
-                if (angle[1] <= 45) {
-                    startpointX = pointX - Math.abs(radius * Math.cos((45 - angle[1]) * Math.PI / 180));
-                    startpointY = pointY + Math.abs(radius * Math.sin((45 - angle[1]) * Math.PI / 180));
-                    endpointX = pointX - Math.abs(radius * Math.sin((45 - angle[1]) * Math.PI / 180));
-                    endpointY = pointY + Math.abs(radius * Math.cos((45 - angle[1]) * Math.PI / 180));
-                } else {
-                    startpointX = pointX - Math.abs(radius * Math.sin((135 - angle[1]) * Math.PI / 180));
-                    startpointY = pointY - Math.abs(radius * Math.cos((135 - angle[1]) * Math.PI / 180));
-                    endpointX = pointX + Math.abs(radius * Math.cos((135 - angle[1]) * Math.PI / 180));
-                    endpointY = pointY + Math.abs(radius * Math.sin((135 - angle[1]) * Math.PI / 180));
-                }
+                let cal_cell_radius = cellRadius[index][1];
+
+                startpointX = originalPointX + Math.abs(cal_cell_radius * Math.cos((angle[1] + 45) * Math.PI / 180));
+                startpointY = originalPointY - Math.abs(cal_cell_radius * Math.sin((angle[1] + 45) * Math.PI / 180));
+                endpointX = originalPointX + Math.abs(cal_cell_radius * Math.cos((angle[1] - 45) * Math.PI / 180));
+                endpointY = originalPointY - Math.abs(cal_cell_radius * Math.sin((angle[1] - 45) * Math.PI / 180));
 
                 let path = '';
 
                 if (index === 0) {
-                    path = `M ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} Z`;
+                    if(cal_cell_radius > Math.sqrt(3) * radius) {
+                        path = `M ${startpointX} ${startpointY} A ${cal_cell_radius} ${cal_cell_radius} 0 0 1 ${endpointX} ${endpointY} A ${radius} ${radius} 0 1 1 ${startpointX} ${startpointY} Z`;
+                    } else {
+                        path = `M ${startpointX} ${startpointY} A ${cal_cell_radius} ${cal_cell_radius} 0 0 1 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 1 ${startpointX} ${startpointY} Z`;
+                    }
                 }
                 else if (index === cellAngles.length - 1) {
-                    path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                    if(lastCircleRadius <= Math.sqrt(3) * radius) {
+                        path = `M ${lastStartPointX} ${lastStartPointY} A ${lastCircleRadius} ${lastCircleRadius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 1 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                    } else {
+                        path = `M ${lastStartPointX} ${lastStartPointY} A ${lastCircleRadius} ${lastCircleRadius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                    }
                 }
                 else {
-                    path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                    path = `M ${lastStartPointX} ${lastStartPointY} A ${lastCircleRadius} ${lastCircleRadius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${cal_cell_radius} ${cal_cell_radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 }
 
                 paths.push({ path, color: officialColors[angle[0]] });
 
+                lastCircleRadius = cal_cell_radius;
                 lastStartPointX = startpointX;
                 lastStartPointY = startpointY;
                 lastEndPointX = endpointX;
@@ -133,7 +135,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         return paths;
     }
 
-    function handleKosaraMouseOver(event, d, angles) {
+    function handleKosaraMouseOver(event, d) {
         const tooltip = d3.select(tooltipRef.current);
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let cellTypes;
@@ -149,7 +151,6 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 .slice(0, 9);
         }
 
-        console.log(cellTypes, angles)
         cellTypes.sort((a, b) => sequenceOrder.indexOf(a[0]) - sequenceOrder.indexOf(b[0]));
         tooltip
             .style("display", "block")
@@ -255,6 +256,17 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                         X7: +data.X7_angle[index],
                         X8: +data.X8_angle[index],
                         X9: +data.X9_angle[index]
+                    },
+                    radius: {
+                        X1: +data.X1_radius[index],
+                        X2: +data.X2_radius[index],
+                        X3: +data.X3_radius[index],
+                        X4: +data.X4_radius[index],
+                        X5: +data.X5_radius[index],
+                        X6: +data.X6_radius[index],
+                        X7: +data.X7_radius[index],
+                        X8: +data.X8_radius[index],
+                        X9: +data.X9_radius[index]
                     }
                 }));
                 setKosaraData(transformedData);
@@ -339,13 +351,14 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
             kosaraData.forEach((d) => {
                 const angles = Object.entries(d.angles);
                 const ratios = Object.entries(d.ratios);
+                const radius = Object.entries(d.radius);
                 const group = contentGroup.append("g")
                     .attr("class", "kosara-chart")
                     .attr("opacity", opacity)
-                    .on("mouseover", (event) => handleKosaraMouseOver(event, ratios.filter(([key, value]) => value !== 0), angles.filter(([key, value]) => value !== 0)))
+                    .on("mouseover", (event) => handleKosaraMouseOver(event, ratios.filter(([key, value]) => value !== 0)))
                     .on("mouseout", handleMouseOut);
 
-                const paths = generateKosaraPath(d.x, d.y, angles, ratios, cellShownStatus);
+                const paths = generateKosaraPath(d.x, d.y, angles, ratios, radius, cellShownStatus);
                 if (unCheckedCellTypes(cellShownStatus) > 0 || interestedCellType) {
                     group.append("circle")
                         .attr("transform", `translate(${d.x}, ${d.y})`)
