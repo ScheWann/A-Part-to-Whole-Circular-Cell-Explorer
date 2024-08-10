@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useEffect, useState, useMemo } from "react";
-import { Card, Slider, Switch, Checkbox, Tooltip } from "antd";
+import { Card, Slider, Switch, Checkbox, Tooltip, Spin } from "antd";
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { KosaraChart } from './components/kosaraChart';
 import { CellAnalysisChart } from './components/cellAnalysisChart';
@@ -21,6 +21,7 @@ const officialColors = {
 }
 
 function App() {
+  const [kosaraData, setKosaraData] = useState([]);
   const [selectedData, setSelectedData] = useState([]);
   const [hoveronTSNECell, setHoveronTSNECell] = useState(null);
   const [showBackgroundImage, setShowBackgroundImage] = useState(true);
@@ -102,12 +103,12 @@ function App() {
       <Card
         size="small"
         title={
-        <span>
-          Tools
-          <Tooltip placement="right" title={"Control the entire inferface collection. In Kosara mode, you can select the cell type you are interested in to display. In Gene mode, you can display the number of UMIs of the gene you are interested in."} overlayInnerStyle={{ color: '#000' }} color={"white"}>
-            <QuestionCircleOutlined style={{ marginLeft: 3, fontSize: 10 }} />
-          </Tooltip>
-        </span>}
+          <span>
+            Tools
+            <Tooltip placement="right" title={"Control the entire inferface collection. In Kosara mode, you can select the cell type you are interested in to display. In Gene mode, you can display the number of UMIs of the gene you are interested in."} overlayInnerStyle={{ color: '#000' }} color={"white"}>
+              <QuestionCircleOutlined style={{ marginLeft: 3, fontSize: 10 }} />
+            </Tooltip>
+          </span>}
         style={{
           width: "280px",
           height: "99vh",
@@ -157,6 +158,8 @@ function App() {
       </Card>
       <KosaraChart
         className="KosaraChart"
+        kosaraData={kosaraData}
+        setKosaraData={setKosaraData}
         setSelectedData={setSelectedData}
         interestedCellType={interestedCellType}
         showBackgroundImage={showBackgroundImage}
@@ -182,8 +185,11 @@ function App() {
           showtSNECluster={showtSNECluster}
           setShowtSNECluster={setShowtSNECluster}
         />
-        <DifferentialChart selectedGene={selectedGene} featureAnalysisType={featureAnalysisType} setFeatureAnalysisType={setFeatureAnalysisType}/>
+        <DifferentialChart selectedGene={selectedGene} featureAnalysisType={featureAnalysisType} setFeatureAnalysisType={setFeatureAnalysisType} />
       </div>
+      {kosaraData.length === 0 && (
+        <Spin size="large" spinning={true} fullscreen tip="Loading Data..." />
+      )}
     </div>
   );
 }

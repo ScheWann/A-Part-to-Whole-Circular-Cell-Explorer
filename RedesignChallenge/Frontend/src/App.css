@@ -11,6 +11,11 @@ body {
   display: flex;
 }
 
+.ant-spin-text {
+  margin-left: 10px;
+  margin-top: 5px;
+}
+
 .KosaraChart {
   flex: 2 0;
 }

@@ -19,10 +19,10 @@ const officialColors = {
     X9: '#355E3B'
 }
 
-export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell, showtSNECluster, tissueClusterData, interestedCellType }) => {
+export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell, showtSNECluster, tissueClusterData, interestedCellType }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
-    const [kosaraData, setKosaraData] = useState([]);
+
     const [brushActive, setBrushActive] = useState(false);
 
     const hirescalef = 0.046594715;
@@ -254,7 +254,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                         angles[cellType] = +data[`${cellType}_angle`][index];
                         radius[cellType] = +data[`${cellType}_radius`][index];
                     });
-        
+
                     return {
                         barcode: data.barcode[index],
                         x: +data.x[index] * hirescalef,
