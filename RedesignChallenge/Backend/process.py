@@ -14,9 +14,6 @@ geneList: list of genes
 positions: list of Visium spot positions
     ---attributes: 'barcode', 'x', 'y', 'radius'
 
-kosaraData: list of Visium spot each cell type percentage and occupied kosara arc angles
-    ---attributes: 'barcode', 'x', 'y', 'radius', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X1_angle', 'X2_angle', 'X3_angle', 'X4_angle', 'X5_angle', 'X6_angle', 'X7_angle', 'X8_angle', 'X9_angle'
-
 adata: whole gene expression data(hdf5 file)
 
 tSNE_df: t-SNE projection positions
@@ -33,11 +30,14 @@ cellTotal_df: each cell's total UMI counts
 
 up_regulated_L2FC_genes_df: list of up-regulated genes after L2FC analysis
     ---attributes: 'FeatureID', 'FeatureName', 'Cluster 1 Average', 'Cluster 1 Log2 Fold Change', 'Cluster 1 P-Value' ... 'Cluster 9 P-Value'
+
+cellRadius_df: cell types radius
+    ---attributes: 'barcode', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'
 """
 
 geneList = pd.read_csv("../Data/Genes.csv")
 positions = pd.read_csv("../Data/SpotPositions.csv")
-kosaraData = pd.read_csv("../Data/kosaraChart.csv")
+cellRadius_df = pd.read_csv("../Data/SpotClusterMembership.csv")
 adata = sc.read_10x_h5("../Data/Filtered_feature_bc_matrix.h5")
 tSNE_df = pd.read_csv("../Data/t-SNE_Projection.csv")
 tSNE_cluster_df = pd.read_csv("../Data/t-SNE_Graph_Based.csv")
@@ -105,6 +105,7 @@ total_counts_dict = total_counts.to_dict()
 cell_tsne_df = pd.merge(cellTotal_df, tSNE_df, on="barcode")
 umi_with_total_counts_df = pd.merge(umi_df, cellTotal_df, on="barcode")
 cell_cluster_UMI_tsne_df = pd.merge(cell_tsne_df, tSNE_cluster_df, on="barcode")
+position_cell_ratios_df = pd.merge(positions, cellRadius_df, on="barcode")
 
 # log2 transformation
 umi_df.loc[:, umi_df.columns != 'barcode'] = np.log2(umi_df.loc[:, umi_df.columns != 'barcode'] + 1)
@@ -129,10 +130,75 @@ def get_gene_expression(gene, method):
     else:
         return violin_logNorm_df.set_index('barcode')[gene]
 
+# base on selected cell type to filter and cumsum each barcode's cell type ratios
+def filter_and_cumsum(merged_df, selected_columns):
+    def conditional_cumsum(row, selected_columns):
+        cumsum = 0
+        for col in selected_columns:
+            if row[col] != 0:
+                cumsum += row[col]
+                row[col] = cumsum
+        return row
+    filtered_df = merged_df[['barcode', 'x', 'y', 'radius'] + selected_columns].copy()
+    filtered_df[selected_columns] = filtered_df[selected_columns].apply(conditional_cumsum, axis=1, selected_columns=selected_columns)
+    
+    return filtered_df
 
-def get_kosara_data():
-    return kosaraData
+def get_kosara_data(selected_columns):
+    # Default circle settings
+    hirescalef = 0.046594715
+    spotDiameter = 142.38582253945773
+    radius = spotDiameter * hirescalef / 2
+    d = np.sqrt(2) * radius
 
+    special_r, special_d = np.sqrt(2) * radius, np.sqrt(2) * radius
+    special_angle1 = np.degrees(np.arccos((special_r**2 + d**2 - radius**2) / (2 * special_r * d)))
+    special_angle2 = np.degrees(np.arccos((radius**2 + d**2 - special_r**2) / (2 * radius * d)))
+    special_result = special_angle1 * special_r**2 + special_angle2 * radius**2 - d * special_r * np.sin(special_angle1)
+    special_value = special_result / (np.pi * radius**2)
+
+    # Calculate the occupied arc radius
+    def equation(r, d, a, radius, special_value):
+        angle1 = np.arccos((r**2 + d**2 - radius**2) / (2 * r * d))
+        angle2 = np.arccos((radius**2 + d**2 - r**2) / (2 * radius * d))
+        if (a <= special_value) :
+            result = angle1 * r**2 + angle2 * radius**2 - d * r * np.sin(angle1)
+        else:
+            result = angle1 * r**2 + angle2 * radius**2 - r**2 * np.sin(angle1) * np.cos(angle1) - radius**2 * np.sin(angle2) * np.cos(angle2)
+        return result - (a * np.pi * radius**2)
+    
+    def initial_guess(a, d, special_value):
+        if a <= special_value:
+            return d + 0.01
+        elif a > 0.95:
+            return 8
+        else:    
+            return a * 10 - 1.5
+
+    def calculate_radius(df, originaldf):
+        result_df = originaldf[['barcode', 'x', 'y', 'radius'] + selected_columns].copy()
+        for index, row in df.iterrows():
+            for col in selected_columns:
+                a_value = row[col]
+                if a_value == 0:
+                    cal_radius = 0
+                    angle = 0
+                else:
+                    try:
+                        guess = initial_guess(a_value, d, special_value)
+                        cal_radius = fsolve(equation, guess, args=(d, a_value, radius, special_value))[0]
+                        angle = np.degrees(np.arccos((cal_radius**2 + d**2 - radius**2) / (2 * cal_radius * d)))
+                    except ValueError as e:
+                        cal_radius = np.nan
+                        angle = np.nan
+                result_df.loc[index, f"{col}_radius"] = cal_radius
+                result_df.loc[index, f"{col}_angle"] = angle
+        
+        return result_df
+    
+    kosara_df = calculate_radius(filter_and_cumsum(position_cell_ratios_df, selected_columns), position_cell_ratios_df)
+    
+    return kosara_df
 
 def get_UMI_totalCounts():
     return total_counts_dict

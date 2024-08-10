@@ -68,7 +68,7 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
         let lastStartPointX, lastStartPointY, lastEndPointX, lastEndPointY, lastCircleRadius = 0;
         let originalPointX = pointX - radius * Math.cos(45 * Math.PI / 180);
         let originalPointY = pointY + radius * Math.sin(45 * Math.PI / 180);
-        
+
         // get selected cell types that are shown
         if (interestedCellType) {
             cellTypes.push(interestedCellType);
@@ -100,14 +100,14 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
                 let path = '';
 
                 if (index === 0) {
-                    if(cal_cell_radius > Math.sqrt(3) * radius) {
+                    if (cal_cell_radius > Math.sqrt(3) * radius) {
                         path = `M ${startpointX} ${startpointY} A ${cal_cell_radius} ${cal_cell_radius} 0 0 1 ${endpointX} ${endpointY} A ${radius} ${radius} 0 1 1 ${startpointX} ${startpointY} Z`;
                     } else {
                         path = `M ${startpointX} ${startpointY} A ${cal_cell_radius} ${cal_cell_radius} 0 0 1 ${endpointX} ${endpointY} A ${radius} ${radius} 0 0 1 ${startpointX} ${startpointY} Z`;
                     }
                 }
                 else if (index === cellAngles.length - 1) {
-                    if(lastCircleRadius <= Math.sqrt(3) * radius) {
+                    if (lastCircleRadius <= Math.sqrt(3) * radius) {
                         path = `M ${lastStartPointX} ${lastStartPointY} A ${lastCircleRadius} ${lastCircleRadius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 1 0 ${lastStartPointX} ${lastStartPointY} Z`;
                     } else {
                         path = `M ${lastStartPointX} ${lastStartPointY} A ${lastCircleRadius} ${lastCircleRadius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
@@ -128,7 +128,12 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
             const lastAngle = cellAngles[cellAngles.length - 1][1];
             if (lastAngle < 90 && (unCheckedCellTypes(cellShownStatus) > 0 || interestedCellType)) {
-                let path = `M ${lastStartPointX} ${lastStartPointY} A ${radius} ${radius} 0 1 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                let path = '';
+                if (lastCircleRadius <= Math.sqrt(3) * radius) {
+                    path = `M ${lastStartPointX} ${lastStartPointY} A ${lastCircleRadius} ${lastCircleRadius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 1 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                } else {
+                    path = `M ${lastStartPointX} ${lastStartPointY} A ${lastCircleRadius} ${lastCircleRadius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
+                }
                 paths.push({ path, color: 'white' });
             }
         }
@@ -227,51 +232,42 @@ export const KosaraChart = ({ setSelectedData, showBackgroundImage, showKosaraCh
 
     // loading data
     useEffect(() => {
-        fetch("/getKosaraData")
-            .then(res => res.json())
+        const selectedCellTypes = Object.keys(cellShownStatus).filter(key => cellShownStatus[key]);
+        fetch("/getKosaraData", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cellTypes: selectedCellTypes })
+        })
+            .then(response => response.json())
             .then(data => {
                 const indices = Object.keys(data.barcode);
-                const transformedData = indices.map(index => ({
-                    barcode: data.barcode[index],
-                    x: +data.x[index] * hirescalef,
-                    y: +data.y[index] * hirescalef,
-                    ratios: {
-                        X1: +data.X1[index],
-                        X2: +data.X2[index],
-                        X3: +data.X3[index],
-                        X4: +data.X4[index],
-                        X5: +data.X5[index],
-                        X6: +data.X6[index],
-                        X7: +data.X7[index],
-                        X8: +data.X8[index],
-                        X9: +data.X9[index]
-                    },
-                    angles: {
-                        X1: +data.X1_angle[index],
-                        X2: +data.X2_angle[index],
-                        X3: +data.X3_angle[index],
-                        X4: +data.X4_angle[index],
-                        X5: +data.X5_angle[index],
-                        X6: +data.X6_angle[index],
-                        X7: +data.X7_angle[index],
-                        X8: +data.X8_angle[index],
-                        X9: +data.X9_angle[index]
-                    },
-                    radius: {
-                        X1: +data.X1_radius[index],
-                        X2: +data.X2_radius[index],
-                        X3: +data.X3_radius[index],
-                        X4: +data.X4_radius[index],
-                        X5: +data.X5_radius[index],
-                        X6: +data.X6_radius[index],
-                        X7: +data.X7_radius[index],
-                        X8: +data.X8_radius[index],
-                        X9: +data.X9_radius[index]
-                    }
-                }));
+                const transformedData = indices.map(index => {
+                    const ratios = {};
+                    const angles = {};
+                    const radius = {};
+
+                    // Populate ratios, angles, and radius based on selectedCellTypes
+                    selectedCellTypes.forEach(cellType => {
+                        ratios[cellType] = +data[cellType][index];
+                        angles[cellType] = +data[`${cellType}_angle`][index];
+                        radius[cellType] = +data[`${cellType}_radius`][index];
+                    });
+        
+                    return {
+                        barcode: data.barcode[index],
+                        x: +data.x[index] * hirescalef,
+                        y: +data.y[index] * hirescalef,
+                        ratios: ratios,
+                        angles: angles,
+                        radius: radius
+                    };
+                });
+
                 setKosaraData(transformedData);
-            });
-    }, []);
+            })
+    }, [cellShownStatus]);
 
 
     // rendering background image

@@ -16,9 +16,10 @@ def get_geneExpression():
     method = request.json['method']
     return jsonify(get_gene_expression(gene, method).to_dict())
 
-@app.route('/getKosaraData')
+@app.route('/getKosaraData', methods=['POST'])
 def get_kosaraData():
-    return jsonify(get_kosara_data().to_dict())
+    cellTypes = request.json['cellTypes']
+    return jsonify(get_kosara_data(cellTypes).to_dict())
 
 @app.route('/getUMITotalCounts')
 def get_UMITotalCounts():
