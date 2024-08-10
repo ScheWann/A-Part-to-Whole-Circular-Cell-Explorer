@@ -5,15 +5,15 @@ This project uses [Flask](https://flask.palletsprojects.com/en/3.0.x/) to provid
 1. Install and update using [pip](https://pip.pypa.io/en/stable/getting-started/)
 
 2. Go to RedesignChallenge/Backend folder
-3. Create venv environment
+3. Create venv environment(Mac command)
    ```
    python -m venv venv
    ```
-4. You'll need Flask and pandas installed:
+4. You'll need Flask and other related packages installed:
    ```
    pip install -r requirements.txt
    ```
-5. Run venv environment
+5. Run venv environment(Mac command)
    ```
    source venv/bin/activate
    ```
