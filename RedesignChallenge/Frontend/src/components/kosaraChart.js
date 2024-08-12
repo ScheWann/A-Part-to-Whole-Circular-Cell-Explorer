@@ -232,43 +232,6 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
     }
 
     // loading data
-    // useEffect(() => {
-    //     const selectedCellTypes = Object.keys(cellShownStatus).filter(key => cellShownStatus[key]);
-    //     fetch("/getKosaraData", {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({ cellTypes: selectedCellTypes })
-    //     })
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             const indices = Object.keys(data.barcode);
-    //             const transformedData = indices.map(index => {
-    //                 const ratios = {};
-    //                 const angles = {};
-    //                 const radius = {};
-
-    //                 // Populate ratios, angles, and radius based on selectedCellTypes
-    //                 selectedCellTypes.forEach(cellType => {
-    //                     ratios[cellType] = +data[cellType][index];
-    //                     angles[cellType] = +data[`${cellType}_angle`][index];
-    //                     radius[cellType] = +data[`${cellType}_radius`][index];
-    //                 });
-
-    //                 return {
-    //                     barcode: data.barcode[index],
-    //                     x: +data.x[index] * hirescalef,
-    //                     y: +data.y[index] * hirescalef,
-    //                     ratios: ratios,
-    //                     angles: angles,
-    //                     radius: radius
-    //                 };
-    //             });
-
-    //             setKosaraData(transformedData);
-    //         })
-    // }, [cellShownStatus]);
     useEffect(() => {
         const selectedCellTypes = Object.keys(cellShownStatus).filter(key => cellShownStatus[key]);
 
