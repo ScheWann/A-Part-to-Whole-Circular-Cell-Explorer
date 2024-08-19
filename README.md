@@ -7,7 +7,7 @@
 
 This project uses data from [Bio+Med Challenge 2024](http://biovis.net/2024/biovisChallenges_vis/) and [Visium data](https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-MTAB-11114) from Kleshchevnikov et al., 2022, filter by sample ST8059049
 
-# Requirement
+# Requirements
 
 This project uses [Flask](https://flask.palletsprojects.com/en/3.0.x/) to provide data and API and [React](https://react.dev/) to provide data display
 
