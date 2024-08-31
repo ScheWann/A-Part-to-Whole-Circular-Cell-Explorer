@@ -4,6 +4,7 @@ import { SelectOutlined, RedoOutlined } from "@ant-design/icons";
 import * as d3 from "d3";
 import scaleJson from "../data/scalefactors_json.json";
 import hiresTissuePic from '../data/tissue_hires_image.png';
+// import hiresTissuePic from '../data/tissue_hires_image_noborder.png';
 import './Styles/kosaraChart.css';
 
 // Color palette
