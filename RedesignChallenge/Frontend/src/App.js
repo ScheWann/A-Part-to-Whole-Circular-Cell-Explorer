@@ -2,40 +2,13 @@ import './App.css';
 import * as d3 from "d3";
 import React, { useEffect, useState, useMemo } from "react";
 import { Card, Slider, Switch, Checkbox, Tooltip, Spin, Select } from "antd";
+import { defaultColors, colorbrewer2, rainbowColors } from './components/colorSchemes';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { KosaraChart } from './components/kosaraChart';
 import { CellAnalysisChart } from './components/cellAnalysisChart';
 import { DifferentialChart } from './components/differentialChart';
 import { GeneList } from './components/geneList';
 import { GradientLegend } from './components/gradientLegend';
-
-const officialColors = {
-  X1: '#FFC40C',
-  X2: '#FF0800',
-  X3: '#FDEE00',
-  X4: '#007FFF',
-  X5: '#32174D',
-  X6: '#79443B',
-  X7: '#ED9121',
-  X8: '#74C365',
-  X9: '#355E3B'
-}
-
-const rainbowColorsArray = Array.from({ length: 9 }, (_, i) =>
-  d3.rgb(d3.interpolateRainbow(i / 8)).formatHex()
-);
-
-const rainbowColors = {
-  X1: rainbowColorsArray[0],
-  X2: rainbowColorsArray[1],
-  X3: rainbowColorsArray[2],
-  X4: rainbowColorsArray[3],
-  X5: rainbowColorsArray[4],
-  X6: rainbowColorsArray[5],
-  X7: rainbowColorsArray[6],
-  X8: rainbowColorsArray[7],
-  X9: rainbowColorsArray[8]
-};
 
 function App() {
   const [kosaraData, setKosaraData] = useState([]);
@@ -52,7 +25,7 @@ function App() {
   const [tissueClusterData, setTissueClusterData] = useState([]);
   const [featureAnalysisType, setFeatureAnalysisType] = useState("linear");
   const [interestedCellType, setInterestedCellType] = useState(null);
-  const [colorScheme, setColorScheme] = useState(officialColors);
+  const [colorScheme, setColorScheme] = useState(colorbrewer2);
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
     X2: true,
@@ -123,10 +96,12 @@ function App() {
   const handleColorChange = (value) => {
     let selectedColors;
 
-    if (value === 'colorbrewer2') {
-      selectedColors = officialColors;
-    } else if (value === 'rainbow') {
+    if (value === 'rainbowColors') {
       selectedColors = rainbowColors;
+    } else if (value === 'colorbrewer2') {
+      selectedColors = colorbrewer2;
+    } else {
+      selectedColors = defaultColors;
     }
 
     setColorScheme(selectedColors);
@@ -153,7 +128,7 @@ function App() {
           {/* backgroundImage Switch and Kosara Charts Mode Switch */}
           <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" checked={showBackgroundImage} />
           <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={kosaraChartsChange} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
-          
+
           {/* plots on tissue opacity Slider */}
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <h5 style={{ marginBottom: 5, marginTop: 5, fontWeight: 500 }}>Opacity</h5>
@@ -162,7 +137,7 @@ function App() {
             </Tooltip>
           </div>
           <Slider style={{ margin: 5 }} defaultValue={1} onChange={opacityChange} step={0.1} max={1} min={0} />
-          
+
           {/* Color Scheme Select */}
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <h5 style={{ marginBottom: 5, marginTop: 5, fontWeight: 500 }}>Color Scale</h5>
@@ -178,11 +153,15 @@ function App() {
             options={[
               {
                 value: 'colorbrewer2',
-                label: 'colorbrewer2'
+                label: 'Colorbrewer2'
               },
               {
-                value: 'rainbow',
-                label: 'rainbow'
+                value: 'defaultColors',
+                label: 'Default Colors'
+              },
+              {
+                value: 'rainbowColors',
+                label: 'Rainbow Colors'
               }
             ]}
           />
