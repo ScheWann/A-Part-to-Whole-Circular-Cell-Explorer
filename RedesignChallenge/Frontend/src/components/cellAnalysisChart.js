@@ -7,7 +7,7 @@ import "./Styles/cellAnalysisChart.css";
 
 const clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
 
-export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosaraCharts, setShowKosaraCharts, showtSNECluster, setShowtSNECluster, interestedCellType, setInterestedCellType }) => {
+export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosaraCharts, setShowKosaraCharts, showtSNECluster, setShowtSNECluster, interestedCellType, setInterestedCellType, colorScheme }) => {
     const svgRef = useRef(null);
     const zoomRef = useRef();
     const tooltip = useRef(null);
@@ -16,17 +16,6 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
     const [tSNEExpressionScale, settSNEExpressionScale] = useState([]);
 
     const labels = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
-    const officialColors = {
-        X1: '#FFC40C',
-        X2: '#FF0800',
-        X3: '#FDEE00',
-        X4: '#007FFF',
-        X5: '#32174D',
-        X6: '#79443B',
-        X7: '#ED9121',
-        X8: '#74C365',
-        X9: '#355E3B'
-    };
     const tabList = [
         {
             key: "cellTypeTab",
@@ -133,7 +122,7 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
                 .attr("y", d => yScale(d))
                 .attr("width", xScale.bandwidth())
                 .attr("height", d => height - margin.bottom - yScale(d))
-                .attr("fill", (d, i) => officialColors[labels[i]])
+                .attr("fill", (d, i) => colorScheme[labels[i]])
                 .on("mouseover", (event, d) => {
                     tooltip.current.html(`Count: ${d}`)
                         .style("left", `${event.pageX + 5}px`)
@@ -201,12 +190,12 @@ export const CellAnalysisChart = ({ selectedData, setHoveronTSNECell, showKosara
             svgElement.selectAll(".bar")
                 .attr("fill", "lightgrey");
             svgElement.select(`#${interestedCellType}`)
-                .attr("fill", officialColors[interestedCellType]);
+                .attr("fill", colorScheme[interestedCellType]);
         } else {
             svgElement.selectAll(".bar")
-                .attr("fill", (d, i) => officialColors[labels[i]]);
+                .attr("fill", (d, i) => colorScheme[labels[i]]);
         }
-    }, [interestedCellType, officialColors, labels]);
+    }, [interestedCellType, colorScheme, labels]);
 
     // t-SNE plot
     useEffect(() => {

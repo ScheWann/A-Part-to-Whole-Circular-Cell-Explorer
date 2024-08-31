@@ -1,6 +1,7 @@
 import './App.css';
+import * as d3 from "d3";
 import React, { useEffect, useState, useMemo } from "react";
-import { Card, Slider, Switch, Checkbox, Tooltip, Spin } from "antd";
+import { Card, Slider, Switch, Checkbox, Tooltip, Spin, Select } from "antd";
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { KosaraChart } from './components/kosaraChart';
 import { CellAnalysisChart } from './components/cellAnalysisChart';
@@ -20,6 +21,22 @@ const officialColors = {
   X9: '#355E3B'
 }
 
+const rainbowColorsArray = Array.from({ length: 9 }, (_, i) =>
+  d3.rgb(d3.interpolateRainbow(i / 8)).formatHex()
+);
+
+const rainbowColors = {
+  X1: rainbowColorsArray[0],
+  X2: rainbowColorsArray[1],
+  X3: rainbowColorsArray[2],
+  X4: rainbowColorsArray[3],
+  X5: rainbowColorsArray[4],
+  X6: rainbowColorsArray[5],
+  X7: rainbowColorsArray[6],
+  X8: rainbowColorsArray[7],
+  X9: rainbowColorsArray[8]
+};
+
 function App() {
   const [kosaraData, setKosaraData] = useState([]);
   const [selectedData, setSelectedData] = useState([]);
@@ -35,6 +52,7 @@ function App() {
   const [tissueClusterData, setTissueClusterData] = useState([]);
   const [featureAnalysisType, setFeatureAnalysisType] = useState("linear");
   const [interestedCellType, setInterestedCellType] = useState(null);
+  const [colorScheme, setColorScheme] = useState(officialColors);
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
     X2: true,
@@ -65,6 +83,11 @@ function App() {
     }
   }, [selectedGene]);
 
+  // Initialize color scheme
+  useEffect(() => {
+    console.log('Color scheme initialized:', colorScheme);
+  }, [colorScheme]);
+
   useEffect(() => {
     if (!showKosaraCharts && selectedGene === null && !showtSNECluster) {
       fetch("/getUMITotalCounts")
@@ -82,19 +105,31 @@ function App() {
     }
   }, [showKosaraCharts, selectedGene]);
 
-  function opacityChange(value) {
+  const opacityChange = (value) => {
     setOpacity(value);
   }
 
-  function kosaraChartsChange(value) {
+  const kosaraChartsChange = (value) => {
     setShowKosaraCharts(value);
     setSelectedGene(null);
   }
 
-  function onChangeShowCell(cell) {
+  const onChangeShowCell = (cell) => {
     return (event) => {
       setCellShownStatus({ ...cellShownStatus, [cell]: event.target.checked });
     }
+  }
+
+  const handleColorChange = (value) => {
+    let selectedColors;
+
+    if (value === 'colorbrewer2') {
+      selectedColors = officialColors;
+    } else if (value === 'rainbow') {
+      selectedColors = rainbowColors;
+    }
+
+    setColorScheme(selectedColors);
   }
 
   return (
@@ -115,17 +150,44 @@ function App() {
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+          {/* backgroundImage Switch and Kosara Charts Mode Switch */}
           <Switch style={{ margin: 2 }} onChange={() => setShowBackgroundImage(!showBackgroundImage)} checkedChildren="Hide Background Image" unCheckedChildren="Show Background Image" checked={showBackgroundImage} />
           <Switch style={{ margin: 2, backgroundColor: showKosaraCharts ? '#ED9121' : '#74C365' }} onChange={kosaraChartsChange} checked={showKosaraCharts} checkedChildren="Kosara Charts Mode" unCheckedChildren="Gene Mode" />
+          
+          {/* plots on tissue opacity Slider */}
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <h5 style={{ marginBottom: 5, marginTop: 5, fontWeight: 500 }}>Opacity</h5>
             <Tooltip placement="right" title={"Slided the bar to see the relationship of the cell types and the tissue"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
               <QuestionCircleOutlined style={{ marginLeft: 3, fontSize: 10 }} />
             </Tooltip>
           </div>
-          <Slider style={{ margin: 0 }} defaultValue={1} onChange={opacityChange} step={0.1} max={1} min={0} />
+          <Slider style={{ margin: 5 }} defaultValue={1} onChange={opacityChange} step={0.1} max={1} min={0} />
+          
+          {/* Color Scheme Select */}
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <h5 style={{ marginBottom: 5, marginTop: 5, fontWeight: 500 }}>Color Scale</h5>
+            <Tooltip placement="right" title={"Choosing your suitable color scheme for cell type X1 to X9"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
+              <QuestionCircleOutlined style={{ marginLeft: 3, fontSize: 10 }} />
+            </Tooltip>
+          </div>
+          <Select
+            size='small'
+            defaultValue="colorbrewer2"
+            style={{ margin: 5 }}
+            onChange={handleColorChange}
+            options={[
+              {
+                value: 'colorbrewer2',
+                label: 'colorbrewer2'
+              },
+              {
+                value: 'rainbow',
+                label: 'rainbow'
+              }
+            ]}
+          />
           <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: 10, justifyContent: 'space-between' }}>
-            {Object.entries(officialColors).map(([key, color]) => (
+            {Object.entries(colorScheme).map(([key, color]) => (
               <div key={key} style={{ display: 'flex', alignItems: 'center', marginRight: 10, marginBottom: 5 }}>
                 <Checkbox checked={cellShownStatus[key]} onChange={onChangeShowCell(key)} disabled={!showKosaraCharts} style={{
                   "--background-color": color,
@@ -136,6 +198,8 @@ function App() {
               </div>
             ))}
           </div>
+
+          {/* UMI counts Legend */}
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
             <h5 style={{ marginBottom: 5, marginTop: 5, fontWeight: 500 }}>UMI counts Legend</h5>
             <Tooltip placement="right" title={"Searching a gene and choose to show the specific gene expression value scale"} overlayInnerStyle={{ color: '#000' }} color={"white"} arrow={mergedArrow}>
@@ -147,6 +211,8 @@ function App() {
             :
             <GradientLegend selectedGene={selectedGene} min={geneExpressionScale[0]} max={geneExpressionScale[geneExpressionScale.length - 1]} showKosaraCharts={showKosaraCharts} colorScaleType="Orange" />
           }
+
+          {/* Gene List Card */}
           <GeneList
             setShowtSNECluster={setShowtSNECluster}
             selectedGene={selectedGene}
@@ -158,6 +224,7 @@ function App() {
       </Card>
       <KosaraChart
         className="KosaraChart"
+        colorScheme={colorScheme}
         kosaraData={kosaraData}
         setKosaraData={setKosaraData}
         setSelectedData={setSelectedData}
@@ -176,6 +243,7 @@ function App() {
       />
       <div className="analysisGroup">
         <CellAnalysisChart
+          colorScheme={colorScheme}
           interestedCellType={interestedCellType}
           setInterestedCellType={setInterestedCellType}
           showKosaraCharts={showKosaraCharts}
@@ -187,6 +255,8 @@ function App() {
         />
         <DifferentialChart selectedGene={selectedGene} featureAnalysisType={featureAnalysisType} setFeatureAnalysisType={setFeatureAnalysisType} />
       </div>
+
+      {/* loading */}
       {kosaraData.length === 0 && (
         <Spin size="large" spinning={true} fullscreen tip="Loading Data..." />
       )}

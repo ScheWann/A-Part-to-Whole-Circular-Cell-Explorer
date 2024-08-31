@@ -68,7 +68,7 @@ export const GeneList = ({ selectedGene, setSelectedGene, setRelatedGeneData, se
                 </div>
                 <Input size="small" placeholder="Search Genes" onChange={e => searchGene(e.target.value)} allowClear={{ clearIcon: <CloseOutlined onClick={onFieldClear} /> }} />
             </div>}
-            style={{ marginTop: 5, height: 'calc(100% - 280px)' }}
+            style={{ marginTop: 5, height: 'calc(100% - 350px)' }}
         >
             {geneListData.length !== 0 ? (
                 <div id="scrollableCard" style={{ height: "95%", overflow: "auto" }}>

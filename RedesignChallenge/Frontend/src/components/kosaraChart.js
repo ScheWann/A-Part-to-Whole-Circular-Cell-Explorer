@@ -7,20 +7,7 @@ import hiresTissuePic from '../data/tissue_hires_image.png';
 // import hiresTissuePic from '../data/tissue_hires_image_noborder.png';
 import './Styles/kosaraChart.css';
 
-// Color palette
-const officialColors = {
-    X1: '#FFC40C',
-    X2: '#FF0800',
-    X3: '#FDEE00',
-    X4: '#007FFF',
-    X5: '#32174D',
-    X6: '#79443B',
-    X7: '#ED9121',
-    X8: '#74C365',
-    X9: '#355E3B'
-}
-
-export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell, showtSNECluster, tissueClusterData, interestedCellType }) => {
+export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell, showtSNECluster, tissueClusterData, interestedCellType, colorScheme }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
 
@@ -119,7 +106,7 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
                     path = `M ${lastStartPointX} ${lastStartPointY} A ${lastCircleRadius} ${lastCircleRadius} 0 0 1 ${lastEndPointX} ${lastEndPointY} A ${radius} ${radius} 0 0 0 ${endpointX} ${endpointY} A ${cal_cell_radius} ${cal_cell_radius} 0 0 0 ${startpointX} ${startpointY} A ${radius} ${radius} 0 0 0 ${lastStartPointX} ${lastStartPointY} Z`;
                 }
 
-                paths.push({ path, color: officialColors[angle[0]] });
+                paths.push({ path, color: colorScheme[angle[0]] });
 
                 lastCircleRadius = cal_cell_radius;
                 lastStartPointX = startpointX;
@@ -142,7 +129,7 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
         return paths;
     }
 
-    function handleKosaraMouseOver(event, d) {
+    const handleKosaraMouseOver = (event, d) => {
         const tooltip = d3.select(tooltipRef.current);
         const sequenceOrder = ['X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9'];
         let cellTypes;
@@ -169,7 +156,7 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
             .html(cellTypes.map(item => `${item[0]}: ${(item[1] * 100).toFixed(2)}%`).join("<br>"));
     }
 
-    function handleGeneMouseOver(event, d) {
+    const handleGeneMouseOver = (event, d) => {
         const tooltip = d3.select(tooltipRef.current);
         tooltip
             .style("display", "block")
@@ -184,11 +171,11 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
             .html(`${d.selectedGene ? `Gene: ${d.selectedGene}<br>` : ''}Barcode: ${d.barcode}<br>${showtSNECluster ? `Cluster: ${d.cluster}` : `UMI Counts: ${d.relatedGeneValue}`}`);
     }
 
-    function handleMouseOut() {
+    const handleMouseOut = () => {
         d3.select(tooltipRef.current).style("display", "none");
     }
 
-    function circleRender(data, svgGroup) {
+    const circleRender = (data, svgGroup) => {
         if (!showtSNECluster) {
             const minValue = Math.min(...Object.values(data));
             const maxValue = Math.max(...Object.values(data));
@@ -400,7 +387,7 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
                 circleRender(tissueClusterData, contentGroup);
             }
         }
-    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell, showtSNECluster, brushActive, interestedCellType]);
+    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell, showtSNECluster, brushActive, interestedCellType, colorScheme]);
 
     return (
         <>

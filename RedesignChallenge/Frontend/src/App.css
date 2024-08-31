@@ -20,6 +20,10 @@ body {
   flex: 2 0;
 }
 
+.ant-select-selection-item {
+  padding: 0 !important;
+}
+
 .analysisGroup {
   flex: 1 1 auto;
   display: flex;
