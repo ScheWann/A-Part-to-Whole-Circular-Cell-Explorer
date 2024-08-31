@@ -1,5 +1,4 @@
 import './App.css';
-import * as d3 from "d3";
 import React, { useEffect, useState, useMemo } from "react";
 import { Card, Slider, Switch, Checkbox, Tooltip, Spin, Select } from "antd";
 import { defaultColors, colorbrewer2, rainbowColors } from './components/colorSchemes';
