@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "antd";
-import { SelectOutlined, RedoOutlined } from "@ant-design/icons";
+import { SelectOutlined, RedoOutlined, FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons";
 import * as d3 from "d3";
 import scaleJson from "../data/scalefactors_json.json";
 import hiresTissuePic from '../data/tissue_hires_image.png';
-// import hiresTissuePic from '../data/tissue_hires_image_noborder.png';
 import './Styles/kosaraChart.css';
 
 export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell, showtSNECluster, tissueClusterData, interestedCellType, colorScheme }) => {
@@ -12,6 +11,7 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
     const tooltipRef = useRef(null);
 
     const [brushActive, setBrushActive] = useState(false);
+    const [centralized, setCentralized] = useState(false);
 
     const hirescalef = 0.046594715;
     const spotDiameter = scaleJson["spot_diameter_fullres"];
@@ -43,6 +43,7 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
 
     const resetZoom = () => {
         const svgElement = d3.select(svgRef.current);
+        setCentralized(!centralized);
         svgElement.transition().duration(750).call(
             zoom.transform,
             d3.zoomIdentity
@@ -319,6 +320,11 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
         // remove duplicate brush
         svg.select(".brush").remove();
 
+        if (centralized && !brushActive) {
+            svgElement.transition().duration(750)
+                .call(zoom.transform, d3.zoomIdentity.translate(-0.8602070500021739, -12.787346962781953).scale(1.1859144994109523));
+        }
+
         if (showKosaraCharts && brushActive) {
             svg.append("g")
                 .attr("class", "brush")
@@ -387,7 +393,7 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
                 circleRender(tissueClusterData, contentGroup);
             }
         }
-    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell, showtSNECluster, brushActive, interestedCellType, colorScheme]);
+    }, [showKosaraCharts, opacity, kosaraData, cellShownStatus, relatedGeneData, UMITotalCounts, hoveronTSNECell, showtSNECluster, brushActive, centralized, interestedCellType, colorScheme]);
 
     return (
         <>
@@ -400,6 +406,7 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
                     padding: "10px",
                     zIndex: 1,
                 }}>
+                    {centralized ? <Button style={{ fontSize: 20, cursor: "pointer", marginRight: 20 }} icon={<FullscreenOutlined />} onClick={resetZoom} disabled={brushActive}></Button> : <Button style={{ fontSize: 20, cursor: "pointer", marginRight: 20 }} icon={<FullscreenExitOutlined />} onClick={() => setCentralized(!centralized)} disabled={brushActive}></Button>}
                     <Button style={{ fontSize: 20, cursor: "pointer", marginRight: 20 }} icon={<RedoOutlined />} onClick={resetZoom} disabled={brushActive}></Button>
                     <Button style={{ fontSize: 20, cursor: "pointer" }} icon={<SelectOutlined />} onClick={() => setBrushActive(!brushActive)} />
                 </div>
