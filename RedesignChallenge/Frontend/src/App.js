@@ -1,6 +1,7 @@
 import './App.css';
 import React, { useEffect, useState, useMemo } from "react";
 import { Card, Slider, Switch, Checkbox, Tooltip, Spin, Select } from "antd";
+import { ChromePicker } from 'react-color';
 import { defaultColors, colorbrewer2, saturatedColorBrewer2, rainbowColors } from './components/colorSchemes';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { KosaraChart } from './components/kosaraChart';
@@ -24,6 +25,7 @@ function App() {
   const [tissueClusterData, setTissueClusterData] = useState([]);
   const [featureAnalysisType, setFeatureAnalysisType] = useState("linear");
   const [interestedCellType, setInterestedCellType] = useState(null);
+  const [pickerVisible, setPickerVisible] = useState(null);
   const [colorScheme, setColorScheme] = useState(defaultColors);
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
@@ -48,6 +50,17 @@ function App() {
       pointAtCenter: true,
     };
   }, [arrow]);
+
+  const togglePicker = (key) => {
+    setPickerVisible(pickerVisible === key ? null : key);
+  };
+
+  const customColorChange = (key, newColor) => {
+    setColorScheme((prevScheme) => ({
+      ...prevScheme,
+      [key]: newColor.hex,
+    }));
+  };
 
   useEffect(() => {
     if (selectedGene !== null) {
@@ -92,7 +105,7 @@ function App() {
     }
   }
 
-  const handleColorChange = (value) => {
+  const colorSelectChange = (value) => {
     let selectedColors;
 
     if (value === 'rainbowColors') {
@@ -150,7 +163,7 @@ function App() {
             size='small'
             defaultValue="defaultColors"
             style={{ margin: 5 }}
-            onChange={handleColorChange}
+            onChange={colorSelectChange}
             options={[
               {
                 value: 'colorbrewer2',
@@ -177,7 +190,25 @@ function App() {
                   "--background-color": color,
                   "--border-color": color,
                 }} />
-                <div style={{ width: 15, height: 15, backgroundColor: color, marginLeft: 3 }}></div>
+                <div
+                  style={{ width: 15, height: 15, backgroundColor: color, marginLeft: 3, cursor: 'pointer' }}
+                  onClick={() => togglePicker(key)}
+                />
+                {pickerVisible === key && (
+                  <div style={{ position: 'absolute', zIndex: 2 }}>
+                    <div
+                      style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0 }}
+                      onClick={() => setPickerVisible(null)}
+                    />
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <ChromePicker
+                        disableAlpha
+                        color={color}
+                        onChange={(newColor) => customColorChange(key, newColor)}
+                      />
+                    </div>
+                  </div>
+                )}
                 <span style={{ marginLeft: 5 }}>{key}</span>
               </div>
             ))}
