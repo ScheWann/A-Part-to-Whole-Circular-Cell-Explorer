@@ -26,7 +26,7 @@ function App() {
   const [featureAnalysisType, setFeatureAnalysisType] = useState("linear");
   const [interestedCellType, setInterestedCellType] = useState(null);
   const [pickerVisible, setPickerVisible] = useState(null);
-  const [colorScheme, setColorScheme] = useState(defaultColors);
+  const [colorScheme, setColorScheme] = useState(saturatedColorBrewer2);
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
     X2: true,
@@ -161,7 +161,7 @@ function App() {
           </div>
           <Select
             size='small'
-            defaultValue="defaultColors"
+            defaultValue="saturatedColorBrewer2"
             style={{ margin: 5 }}
             onChange={colorSelectChange}
             options={[
