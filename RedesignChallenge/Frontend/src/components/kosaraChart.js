@@ -43,7 +43,7 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
 
     const resetZoom = () => {
         const svgElement = d3.select(svgRef.current);
-        setCentralized(!centralized);
+        setCentralized(false);
         svgElement.transition().duration(750).call(
             zoom.transform,
             d3.zoomIdentity

@@ -1,7 +1,7 @@
 import './App.css';
 import React, { useEffect, useState, useMemo } from "react";
 import { Card, Slider, Switch, Checkbox, Tooltip, Spin, Select } from "antd";
-import { defaultColors, colorbrewer2, rainbowColors } from './components/colorSchemes';
+import { defaultColors, colorbrewer2, saturatedColorBrewer2, rainbowColors } from './components/colorSchemes';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { KosaraChart } from './components/kosaraChart';
 import { CellAnalysisChart } from './components/cellAnalysisChart';
@@ -24,7 +24,7 @@ function App() {
   const [tissueClusterData, setTissueClusterData] = useState([]);
   const [featureAnalysisType, setFeatureAnalysisType] = useState("linear");
   const [interestedCellType, setInterestedCellType] = useState(null);
-  const [colorScheme, setColorScheme] = useState(colorbrewer2);
+  const [colorScheme, setColorScheme] = useState(defaultColors);
   const [cellShownStatus, setCellShownStatus] = useState({
     X1: true,
     X2: true,
@@ -99,6 +99,8 @@ function App() {
       selectedColors = rainbowColors;
     } else if (value === 'colorbrewer2') {
       selectedColors = colorbrewer2;
+    } else if (value === 'saturatedColorBrewer2') {
+      selectedColors = saturatedColorBrewer2;
     } else {
       selectedColors = defaultColors;
     }
@@ -146,13 +148,17 @@ function App() {
           </div>
           <Select
             size='small'
-            defaultValue="colorbrewer2"
+            defaultValue="defaultColors"
             style={{ margin: 5 }}
             onChange={handleColorChange}
             options={[
               {
                 value: 'colorbrewer2',
                 label: 'Colorbrewer2'
+              },
+              {
+                value: 'saturatedColorBrewer2',
+                label: 'Saturated ColorBrewer2'
               },
               {
                 value: 'defaultColors',

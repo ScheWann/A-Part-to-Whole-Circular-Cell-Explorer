@@ -23,7 +23,8 @@ export const defaultColors = {
     X6: '#79443B',
     X7: '#ED9121',
     X8: '#74C365',
-    X9: '#355E3B'
+    X9: '#FF00FF'
+    // X9: '#355E3B'
 }
 
 export const colorbrewer2 = {
@@ -36,6 +37,18 @@ export const colorbrewer2 = {
     X7: '#a65628',
     X8: '#f781bf',
     X9: '#999999'
+}
+
+export const saturatedColorBrewer2 = {
+    X1: '#e41a1c',
+    X2: '#377eb8',
+    X3: '#4daf4a',
+    X4: '#984ea3',
+    X5: '#ff7f00',
+    X6: '#ffff33',
+    X7: '#a65628',
+    X8: '#f781bf',
+    X9: '#000000'
 }
 
 export const rainbowColors = {
