@@ -6,6 +6,8 @@ import scaleJson from "../data/scalefactors_json.json";
 import hiresTissuePic from '../data/tissue_hires_image.png';
 import './Styles/kosaraChart.css';
 
+const clusters = ["Cluster 1", "Cluster 2", "Cluster 3", "Cluster 4", "Cluster 5", "Cluster 6", "Cluster 7", "Cluster 8", "Cluster 9"];
+
 export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBackgroundImage, showKosaraCharts, cellShownStatus, opacity, relatedGeneData, setGeneExpressionScale, selectedGene, UMITotalCounts, hoveronTSNECell, showtSNECluster, tissueClusterData, interestedCellType, colorScheme }) => {
     const svgRef = useRef(null);
     const tooltipRef = useRef(null);
@@ -200,7 +202,9 @@ export const KosaraChart = ({ kosaraData, setKosaraData, setSelectedData, showBa
                     .attr("stroke-width", 0.1);
             });
         } else {
-            const clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
+            const clusterColors = d3.scaleOrdinal()
+                .domain(clusters)
+                .range(d3.schemeCategory10);
             kosaraData.forEach((d) => {
                 const dataItem = data.find(item => item.barcode === d.barcode);
                 const cluster = dataItem ? dataItem.cluster : null;
