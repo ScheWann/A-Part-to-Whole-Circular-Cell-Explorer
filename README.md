@@ -1,8 +1,6 @@
 # ScreenShots
-<div style="display: flex; justify-content: space-between;">
-   <img src="./RedesignChallenge/Frontend/public/Comparation.png" style="width: 48%; height: auto;"/>
-   <img src="./RedesignChallenge/Frontend/public/Index.png" style="width: 48%; height: auto;"/> 
-</div> 
+<img src="./RedesignChallenge/Frontend/public/Comparation.png"/>
+<img src="./RedesignChallenge/Frontend/public/Index.png"/> 
 
 # Data
 
