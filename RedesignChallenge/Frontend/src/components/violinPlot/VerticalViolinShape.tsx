@@ -6,7 +6,7 @@ type VerticalViolinShapeProps = {
   tooltip: React.MutableRefObject<any>;
   data: number[];
   binNumber: number;
-  yScale: d3.ScaleLinear<number, number, never>;
+  yScale: d3.scaleLinear<number, number, never>;
   width: number;
   fill: string;
   smoothing: boolean;
@@ -44,7 +44,7 @@ export const VerticalViolinShape = ({
     .range([0, width]);
 
   const areaBuilder = d3
-    .area<d3.Bin<number, number>>()
+    .area<d3.bin<number, number>>()
     .x0((d) => wScale(-d.length))
     .x1((d) => wScale(d.length))
     .y((d) => {

@@ -24,7 +24,7 @@ export const BoxplotViolinMirror = ({
   mirrorPosition,
   smoothing,
 }: BoxplotViolinMirrorProps) => {
-  const tooltip = useRef<null | d3.Selection<HTMLDivElement, unknown, HTMLElement, any>>(null);
+  const tooltip = useRef<null | d3.selection<HTMLDivElement, unknown, HTMLElement, any>>(null);
   const boundsWidth = useMemo(() => {
     return width - MARGIN.right - MARGIN.left;
   }, [width]);

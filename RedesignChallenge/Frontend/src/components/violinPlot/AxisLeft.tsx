@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import * as d3 from "d3";
 
 type AxisLeftProps = {
-  yScale: d3.ScaleLinear<number, number>;
+  yScale: d3.scaleLinear<number, number>;
   pixelsPerTick: number;
 };
 
