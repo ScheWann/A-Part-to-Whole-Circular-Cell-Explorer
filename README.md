@@ -19,14 +19,14 @@ This project uses [Flask](https://flask.palletsprojects.com/en/3.0.x/) to provid
    python -m venv venv
    ```
 
-4. You'll need Flask and other related packages installed
-   ```
-   pip install -r requirements.txt
-   ```
-
-5. Run venv environment(**Mac command**)
+4. Run venv environment(**Mac command**)
    ```
    source venv/bin/activate
+   ```
+
+5. You'll need Flask and other related packages installed
+   ```
+   pip install -r requirements.txt
    ```
 
 6. Run the Flask Application
