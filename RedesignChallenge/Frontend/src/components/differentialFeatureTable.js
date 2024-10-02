@@ -36,8 +36,8 @@ export const DifferentialFeatureTable = ({ differentialChartData, currentPage, p
                     width: 80,
                     align: 'center',
                     // sorter: (a, b) => a[`cluster${i + 1}L2FC`] - b[`cluster${i + 1}L2FC`],
-                    render: (value, record) => {
-                        const style = value < 0 && record[`cluster${i + 1}PValue`] >= 0.10 ? { color: '#808080' } : {};
+                    render: (value) => {
+                        const style = value < 0 ? { color: '#999' } : {};
                         return <span style={style}>{Number(value).toFixed(3)}</span>;
                     }
                 },
@@ -52,8 +52,8 @@ export const DifferentialFeatureTable = ({ differentialChartData, currentPage, p
                     width: 80,
                     align: 'center',
                     // sorter: (a, b) => a[`cluster${i + 1}PValue`] - b[`cluster${i + 1}PValue`],
-                    render: (value, record) => {
-                        const style = record[`cluster${i + 1}L2FC`] < 0 && value >= 0.10 ? { color: '#808080' } : {};
+                    render: (value) => {
+                        const style = value >= 0.1 ? { color: '#999' } : {};
                         return <span style={style}>{value <= 0.001 ? 'X' : Number(value).toFixed(3)}</span>;
                     }
                 }
